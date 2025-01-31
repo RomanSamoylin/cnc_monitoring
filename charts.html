@@ -48,6 +48,14 @@
                 <h3>График времени простоя</h3>
                 <canvas id="downtimeChart"></canvas>
             </div>
+            <div class="chart-container">
+                <h3>Нагрузка на шпиндель</h3>
+                <canvas id="spindleLoadChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Ошибки от PLC</h3>
+                <canvas id="plcErrorsChart"></canvas>
+            </div>
         </div>
     </div>
     <script>
@@ -63,13 +71,43 @@
         };
 
         const downtimeData = {
-            labels: ["Станок 1", "Станок 2", "Сстанок 3", "Станок 4", "Станок 5", "Станок 6"],
+            labels: ["Станок 1", "Станок 2", "Станок 3", "Станок 4", "Станок 5", "Станок 6"],
             datasets: [{
                 label: 'Время простоя (часы)',
                 data: [2, 1, 3, 0.5, 1.5, 2.5],
                 backgroundColor: 'rgba(54, 162, 235, 0.5)',
                 borderColor: '#36a2eb',
                 borderWidth: 2
+            }]
+        };
+
+        const spindleLoadData = {
+            labels: ['Низкая', 'Средняя', 'Высокая'],
+            datasets: [{
+                label: 'Нагрузка на шпиндель',
+                data: [30, 50, 20],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(255, 99, 132, 0.7)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        const plcErrorsData = {
+            labels: ['Ошибка 1', 'Ошибка 2', 'Ошибка 3', 'Ошибка 4', 'Ошибка 5'],
+            datasets: [{
+                label: 'Ошибки от PLC',
+                data: [5, 3, 7, 2, 4],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)'
+                ],
+                borderWidth: 1
             }]
         };
 
@@ -92,6 +130,40 @@
                 scales: {
                     y: {
                         beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const spindleLoadChart = new Chart(document.getElementById('spindleLoadChart'), {
+            type: 'pie',
+            data: spindleLoadData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Нагрузка на шпиндель'
+                    }
+                }
+            }
+        });
+
+        const plcErrorsChart = new Chart(document.getElementById('plcErrorsChart'), {
+            type: 'doughnut',
+            data: plcErrorsData,
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Ошибки от PLC'
                     }
                 }
             }
