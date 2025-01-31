@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Графики анализа</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -14,8 +15,6 @@
         <button onclick="location.href='dashboard.html'">Дашборды мониторинга</button>
         <button class="active" onclick="location.href='charts.html'">Графики анализа</button>
         <button onclick="location.href='reports.html'">Конструктор отчетов</button>
-        <button onclick="location.href='settings.html'">Настройки</button>
-        <button onclick="location.href='login.html'">Форма входа</button>
     </nav>
     <div class="container">
         <div class="sidebar">
@@ -51,9 +50,7 @@
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Пример данных для графиков
         const performanceData = {
             labels: ["Станок 1", "Станок 2", "Станок 3", "Станок 4", "Станок 5", "Станок 6"],
             datasets: [{
@@ -66,7 +63,7 @@
         };
 
         const downtimeData = {
-            labels: ["Станок 1", "Станок 2", "Станок 3", "Станок 4", "Станок 5", "Станок 6"],
+            labels: ["Станок 1", "Станок 2", "Сстанок 3", "Станок 4", "Станок 5", "Станок 6"],
             datasets: [{
                 label: 'Время простоя (часы)',
                 data: [2, 1, 3, 0.5, 1.5, 2.5],
@@ -100,10 +97,8 @@
             }
         });
 
-        // Фильтр станков (пример)
         document.getElementById("machineFilter").addEventListener("change", function() {
             console.log("Выбран станок:", this.value);
-            // Здесь можно добавить логику для обновления графиков
         });
     </script>
 </body>
