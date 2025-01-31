@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мониторинг станков</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Мониторинг работы станков</h1>
+    </header>
+    <nav>
+        <button class="active" onclick="location.href='dashboard.html'">Дашборды мониторинга</button>
+        <button onclick="location.href='charts.html'">Графики анализа</button>
+        <button onclick="location.href='reports.html'">Конструктор отчетов</button>
+        <button onclick="location.href='settings.html'">Настройки</button>
+        <button onclick="location.href='login.html'">Форма входа</button>
+    </nav>
+    <div class="container">
+        <div class="sidebar">
+            <h3>Фильтр по станкам</h3>
+            <select id="machineFilter">
+                <option value="all">Все станки</option>
+                <option value="1">Станок 1</option>
+                <option value="2">Станок 2</option>
+                <option value="3">Станок 3</option>
+                <option value="4">Станок 4</option>
+                <option value="5">Станок 5</option>
+                <option value="6">Станок 6</option>
+                <option value="7">Станок 7</option>
+                <option value="8">Станок 8</option>
+                <option value="9">Станок 9</option>
+                <option value="10">Станок 10</option>
+                <option value="11">Станок 11</option>
+                <option value="12">Станок 12</option>
+                <option value="13">Станок 13</option>
+                <option value="14">Станок 14</option>
+                <option value="15">Станок 15</option>
+                <option value="16">Станок 16</option>
+            </select>
+        </div>
+        <div class="content" id="machineList">
+            
+        </div>
+    </div>
+    <script>
+        const machines = [
+            { id: 1, name: "Станок 1", status: "Работает" },
+            { id: 2, name: "Станок 2", status: "Остановлен" },
+            { id: 3, name: "Станок 3", status: "Работает" },
+            { id: 4, name: "Станок 4", status: "Остановлен" },
+            { id: 5, name: "Станок 5", status: "Работает" },
+            { id: 6, name: "Станок 6", status: "Остановлен" },
+            { id: 7, name: "Станок 7", status: "Работает" },
+            { id: 8, name: "Станок 8", status: "Остановлен" },
+            { id: 9, name: "Станок 9", status: "Работает" },
+            { id: 10, name: "Станок 10", status: "Остановлен" },
+            { id: 11, name: "Станок 11", status: "Работает" },
+            { id: 12, name: "Станок 12", status: "Остановлен" },
+            { id: 13, name: "Станок 13", status: "Работает" },
+            { id: 14, name: "Станок 14", status: "Остановлен" },
+            { id: 15, name: "Станок 15", status: "Работает" },
+            { id: 16, name: "Станок 16", status: "Остановлен" }
+        ];
+
+        function loadMachines(filter = "all") {
+            const machineList = document.getElementById("machineList");
+            machineList.innerHTML = "";
+            machines.forEach(machine => {
+                if (filter === "all" || machine.id === parseInt(filter)) {
+                    const card = document.createElement("div");
+                    card.className = "machine-card";
+                    card.innerHTML = `
+                        <h4>${machine.name}</h4>
+                        <p>Статус: ${machine.status}</p>
+                    `;
+                    machineList.appendChild(card);
+                }
+            });
+        }
+
+        document.getElementById("machineFilter").addEventListener("change", function() {
+            loadMachines(this.value);
+        });
+
+        loadMachines();
+    </script>
+</body>
+</html>

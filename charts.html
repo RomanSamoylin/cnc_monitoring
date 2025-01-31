@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Графики анализа</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Графики анализа</h1>
+    </header>
+    <nav>
+        <button onclick="location.href='dashboard.html'">Дашборды мониторинга</button>
+        <button class="active" onclick="location.href='charts.html'">Графики анализа</button>
+        <button onclick="location.href='reports.html'">Конструктор отчетов</button>
+        <button onclick="location.href='settings.html'">Настройки</button>
+        <button onclick="location.href='login.html'">Форма входа</button>
+    </nav>
+    <div class="container">
+        <div class="sidebar">
+            <h3>Фильтр по станкам</h3>
+            <select id="machineFilter">
+                <option value="all">Все станки</option>
+                <option value="1">Станок 1</option>
+                <option value="2">Станок 2</option>
+                <option value="3">Станок 3</option>
+                <option value="4">Станок 4</option>
+                <option value="5">Станок 5</option>
+                <option value="6">Станок 6</option>
+                <option value="7">Станок 7</option>
+                <option value="8">Станок 8</option>
+                <option value="9">Станок 9</option>
+                <option value="10">Станок 10</option>
+                <option value="11">Станок 11</option>
+                <option value="12">Станок 12</option>
+                <option value="13">Станок 13</option>
+                <option value="14">Станок 14</option>
+                <option value="15">Станок 15</option>
+                <option value="16">Станок 16</option>
+            </select>
+        </div>
+        <div class="content">
+            <div class="chart-container">
+                <h3>График производительности</h3>
+                <canvas id="performanceChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>График времени простоя</h3>
+                <canvas id="downtimeChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Пример данных для графиков
+        const performanceData = {
+            labels: ["Станок 1", "Станок 2", "Станок 3", "Станок 4", "Станок 5", "Станок 6"],
+            datasets: [{
+                label: 'Производительность (%)',
+                data: [85, 90, 78, 95, 88, 82],
+                backgroundColor: 'rgba(255, 140, 66, 0.5)',
+                borderColor: '#ff8c42',
+                borderWidth: 2
+            }]
+        };
+
+        const downtimeData = {
+            labels: ["Станок 1", "Станок 2", "Станок 3", "Станок 4", "Станок 5", "Станок 6"],
+            datasets: [{
+                label: 'Время простоя (часы)',
+                data: [2, 1, 3, 0.5, 1.5, 2.5],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: '#36a2eb',
+                borderWidth: 2
+            }]
+        };
+
+        const performanceChart = new Chart(document.getElementById('performanceChart'), {
+            type: 'bar',
+            data: performanceData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const downtimeChart = new Chart(document.getElementById('downtimeChart'), {
+            type: 'line',
+            data: downtimeData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Фильтр станков (пример)
+        document.getElementById("machineFilter").addEventListener("change", function() {
+            console.log("Выбран станок:", this.value);
+            // Здесь можно добавить логику для обновления графиков
+        });
+    </script>
+</body>
+</html>

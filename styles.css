@@ -1,0 +1,90 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 0;
+    text-align: center;
+}
+nav {
+    display: flex;
+    justify-content: center;
+    background-color: #444;
+    padding: 10px;
+}
+nav button {
+    background-color: #ff8c42;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;
+}
+nav button:hover {
+    background-color: #e67e22;
+}
+.container {
+    display: flex;
+    padding: 20px;
+}
+.sidebar {
+    width: 200px;
+    background-color: #555;
+    padding: 20px;
+    color: white;
+    border-radius: 5px;
+    margin-right: 20px;
+}
+.sidebar h3 {
+    margin-top: 0;
+}
+.sidebar select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: none;
+}
+.content {
+    flex-grow: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.machine-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: calc(25% - 20px);
+    box-sizing: border-box;
+}
+.machine-card h4 {
+    margin-top: 0;
+}
+.machine-card p {
+    margin: 0;
+}
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    .machine-card {
+        width: calc(50% - 20px);
+    }
+}
+@media (max-width: 480px) {
+    .machine-card {
+        width: 100%;
+    }
+}

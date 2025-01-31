@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конструктор отчетов</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Конструктор отчетов</h1>
+    </header>
+    <nav>
+        <button onclick="location.href='dashboard.html'">Дашборды мониторинга</button>
+        <button onclick="location.href='charts.html'">Графики анализа</button>
+        <button class="active" onclick="location.href='reports.html'">Конструктор отчетов</button>
+        <button onclick="location.href='settings.html'">Настройки</button>
+        <button onclick="location.href='login.html'">Форма входа</button>
+    </nav>
+    <div class="container">
+        <div class="sidebar">
+            <h3>Параметры отчета</h3>
+            <form id="reportForm">
+                <label for="startDate">Начальная дата:</label>
+                <input type="date" id="startDate" required>
+
+                <label for="endDate">Конечная дата:</label>
+                <input type="date" id="endDate" required>
+
+                <label for="machineSelect">Выберите станок:</label>
+                <select id="machineSelect">
+                    <option value="all">Все станки</option>
+                    <option value="1">Станок 1</option>
+                    <option value="2">Станок 2</option>
+                    <option value="3">Станок 3</option>
+                    <option value="4">Станок 4</option>
+                    <option value="5">Станок 5</option>
+                    <option value="6">Станок 6</option>
+                    <option value="7">Станок 7</option>
+                    <option value="8">Станок 8</option>
+                    <option value="9">Станок 9</option>
+                    <option value="10">Станок 10</option>
+                    <option value="11">Станок 11</option>
+                    <option value="12">Станок 12</option>
+                    <option value="13">Станок 13</option>
+                    <option value="14">Станок 14</option>
+                    <option value="15">Станок 15</option>
+                    <option value="16">Станок 16</option>
+                </select>
+
+                <label for="reportType">Формат отчета:</label>
+                <select id="reportType">
+                    <option value="csv">CSV</option>
+                    <option value="xlsx">Excel (XLSX)</option>
+                    <option value="xml">XML</option>
+                    <option value="txt">TXT</option>
+                </select>
+
+                <button type="button" onclick="generateReport()">Создать отчет</button>
+            </form>
+        </div>
+        <div class="content">
+            <div id="reportPreview">
+                <h3>Предварительный просмотр отчета</h3>
+                <table id="reportTable">
+                    <thead>
+                        <tr>
+                            <th>Станок</th>
+                            <th>Дата</th>
+                            <th>Производительность (%)</th>
+                            <th>Время простоя (часы)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Пример данных для отчета
+        const reportData = [
+            { machine: "Станок 1", date: "2023-10-01", performance: 85, downtime: 2 },
+            { machine: "Станок 2", date: "2023-10-01", performance: 90, downtime: 1 },
+            { machine: "Станок 3", date: "2023-10-01", performance: 78, downtime: 3 },
+            { machine: "Станок 4", date: "2023-10-01", performance: 95, downtime: 0.5 },
+            { machine: "Станок 5", date: "2023-10-01", performance: 88, downtime: 1.5 },
+        ];
+
+        // Функция для генерации отчета
+        function generateReport() {
+            const startDate = document.getElementById("startDate").value;
+            const endDate = document.getElementById("endDate").value;
+            const machine = document.getElementById("machineSelect").value;
+            const reportType = document.getElementById("reportType").value;
+
+            // Фильтрация данных
+            let filteredData = reportData.filter(item => {
+                const dateInRange = (!startDate || item.date >= startDate) && (!endDate || item.date <= endDate);
+                const machineMatch = machine === "all" || item.machine === `Станок ${machine}`;
+                return dateInRange && machineMatch;
+            });
+
+            // Обновление предварительного просмотра
+            const tableBody = document.querySelector("#reportTable tbody");
+            tableBody.innerHTML = "";
+            filteredData.forEach(item => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.machine}</td>
+                    <td>${item.date}</td>
+                    <td>${item.performance}</td>
+                    <td>${item.downtime}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // Выгрузка отчета
+            if (reportType === "csv") {
+                exportToCSV(filteredData);
+            } else if (reportType === "xlsx") {
+                exportToExcel(filteredData);
+            } else if (reportType === "xml") {
+                exportToXML(filteredData);
+            } else if (reportType === "txt") {
+                exportToTXT(filteredData);
+            }
+        }
+
+        // Экспорт в CSV
+        function exportToCSV(data) {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Станок,Дата,Производительность (%),Время простоя (часы)\n";
+            data.forEach(item => {
+                csvContent += `${item.machine},${item.date},${item.performance},${item.downtime}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "report.csv");
+            document.body.appendChild(link);
+            link.click();
+        }
+
+        // Экспорт в Excel (XLSX)
+        function exportToExcel(data) {
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Отчет");
+            XLSX.writeFile(wb, "report.xlsx");
+        }
+
+        // Экспорт в XML
+        function exportToXML(data) {
+            let xmlContent = '<?xml version="1.0" encoding="UTF-8"?>\n<report>\n';
+            data.forEach(item => {
+                xmlContent += `  <record>\n`;
+                xmlContent += `    <machine>${item.machine}</machine>\n`;
+                xmlContent += `    <date>${item.date}</date>\n`;
+                xmlContent += `    <performance>${item.performance}</performance>\n`;
+                xmlContent += `    <downtime>${item.downtime}</downtime>\n`;
+                xmlContent += `  </record>\n`;
+            });
+            xmlContent += '</report>';
+            const blob = new Blob([xmlContent], { type: "application/xml" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "report.xml";
+            link.click();
+        }
+
+        // Экспорт в TXT
+        function exportToTXT(data) {
+            let txtContent = "Станок\tДата\tПроизводительность (%)\tВремя простоя (часы)\n";
+            data.forEach(item => {
+                txtContent += `${item.machine}\t${item.date}\t${item.performance}\t${item.downtime}\n`;
+            });
+            const blob = new Blob([txtContent], { type: "text/plain" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "report.txt";
+            link.click();
+        }
+    </script>
+</body>
+</html>
