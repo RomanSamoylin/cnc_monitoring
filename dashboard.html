@@ -3,12 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мониторинг станков</title>
+    <title>Дашборды мониторинга</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .machine-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .machine-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .machine-card.working {
+            background-color: #d4edda;
+        }
+        .machine-card.stopped {
+            background-color: #f8d7da;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-indicator.working {
+            background-color: #28a745;
+            animation: pulse 1s infinite;
+        }
+        .status-indicator.stopped {
+            background-color: #dc3545;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .chart-container {
+            margin: 10px 0;
+        }
+        canvas {
+            max-width: 100%;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>Мониторинг работы станков</h1>
+        <h1>Дашборды мониторинга</h1>
     </header>
     <nav>
         <button class="active" onclick="location.href='dashboard.html'">Дашборды мониторинга</button>
@@ -44,22 +90,22 @@
     </div>
     <script>
         const machines = [
-            { id: 1, name: "Станок 1", status: "Работает" },
-            { id: 2, name: "Станок 2", status: "Остановлен" },
-            { id: 3, name: "Станок 3", status: "Работает" },
-            { id: 4, name: "Станок 4", status: "Остановен" },
-            { id: 5, name: "Станок 5", status: "Работает" },
-            { id: 6, name: "Станок 6", status: "Остановлен" },
-            { id: 7, name: "Станок 7", status: "Работает" },
-            { id: 8, name: "Станок 8", status: "Остановлен" },
-            { id: 9, name: "Станок 9", status: "Работает" },
-            { id: 10, name: "Станок 10", status: "Остановлен" },
-            { id: 11, name: "Станок 11", status: "Работает" },
-            { id: 12, name: "Станок 12", status: "Остановлен" },
-            { id: 13, name: "Станок 13", status: "Работает" },
-            { id: 14, name: "Станок 14", status: "Остановен" },
-            { id: 15, name: "Станок 15", status: "Работает" },
-            { id: 16, name: "Станок 16", status: "Остановлен" }
+            { id: 1, name: "Станок 1", status: "Работает", performance: [85, 88, 90, 87, 89, 86, 92], spindleLoad: [70, 85, 60] },
+            { id: 2, name: "Станок 2", status: "Остановлен", performance: [78, 80, 82, 79, 81, 77, 83], spindleLoad: [50, 60, 55] },
+            { id: 3, name: "Сстанок 3", status: "Работает", performance: [90, 92, 91, 89, 93, 88, 94], spindleLoad: [75, 80, 70] },
+            { id: 4, name: "Станок 4", status: "Остановлен", performance: [65, 70, 68, 72, 67, 69, 71], spindleLoad: [40, 50, 45] },
+            { id: 5, name: "Станок 5", status: "Работает", performance: [88, 90, 89, 87, 91, 86, 92], spindleLoad: [80, 85, 75] },
+            { id: 6, name: "Станок 6", status: "Остановлен", performance: [70, 75, 72, 74, 73, 71, 76], spindleLoad: [60, 65, 55] },
+            { id: 7, name: "Станок 7", status: "Работает", performance: [92, 94, 93, 91, 95, 90, 96], spindleLoad: [85, 90, 80] },
+            { id: 8, name: "Станок 8", status: "Остановлен", performance: [68, 70, 69, 71, 67, 72, 73], spindleLoad: [55, 60, 50] },
+            { id: 9, name: "Станок 9", status: "Работает", performance: [87, 89, 88, 86, 90, 85, 91], spindleLoad: [75, 80, 70] },
+            { id: 10, name: "Станок 10", status: "Остановлен", performance: [72, 75, 74, 73, 76, 71, 77], spindleLoad: [65, 70, 60] },
+            { id: 11, name: "Станок 11", status: "Работает", performance: [89, 91, 90, 88, 92, 87, 93], spindleLoad: [80, 85, 75] },
+            { id: 12, name: "Станок 12", status: "Остановлен", performance: [75, 78, 77, 76, 79, 74, 80], spindleLoad: [70, 75, 65] },
+            { id: 13, name: "Станок 13", status: "Работает", performance: [93, 95, 94, 92, 96, 91, 97], spindleLoad: [90, 95, 85] },
+            { id: 14, name: "Станок 14", status: "Остановлен", performance: [69, 72, 71, 73, 70, 74, 75], spindleLoad: [60, 65, 55] },
+            { id: 15, name: "Станок 15", status: "Работает", performance: [86, 88, 87, 85, 89, 84, 90], spindleLoad: [75, 80, 70] },
+            { id: 16, name: "Станок 16", status: "Остановлен", performance: [74, 77, 76, 75, 78, 73, 79], spindleLoad: [65, 70, 60] }
         ];
 
         function loadMachines(filter = "all") {
@@ -68,12 +114,71 @@
             machines.forEach(machine => {
                 if (filter === "all" || machine.id === parseInt(filter)) {
                     const card = document.createElement("div");
-                    card.className = "machine-card";
+                    card.className = `machine-card ${machine.status === "Работает" ? "working" : "stopped"}`;
                     card.innerHTML = `
                         <h4>${machine.name}</h4>
-                        <p>Статус: ${machine.status}</p>
+                        <p>Статус: <span class="status-indicator ${machine.status === "Работает" ? "working" : "stopped"}"></span>${machine.status}</p>
+                        <div class="chart-container">
+                            <h5>Производительность (%)</h5>
+                            <canvas id="performanceChart${machine.id}"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h5>Нагрузка на шпиндель (%)</h5>
+                            <canvas id="spindleLoadChart${machine.id}"></canvas>
+                        </div>
                     `;
                     machineList.appendChild(card);
+
+                    // График производительности
+                    new Chart(document.getElementById(`performanceChart${machine.id}`), {
+                        type: 'line',
+                        data: {
+                            labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+                            datasets: [{
+                                label: 'Производительность (%)',
+                                data: machine.performance,
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 2,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+
+                    // График нагрузки на шпиндель
+                    new Chart(document.getElementById(`spindleLoadChart${machine.id}`), {
+                        type: 'bar',
+                        data: {
+                            labels: ['Утро', 'День', 'Вечер'],
+                            datasets: [{
+                                label: 'Нагрузка на шпиндель (%)',
+                                data: machine.spindleLoad,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.7)',
+                                    'rgba(255, 206, 86, 0.7)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
                 }
             });
         }
@@ -82,8 +187,10 @@
             loadMachines(this.value);
         });
 
-        loadMachines();
+        loadMachines(); // Загрузка всех станков при открытии страницы
     </script>
 </body>
 </html>
+
+
 
