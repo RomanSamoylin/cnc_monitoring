@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "chart.js": "^4.4.7",
     "express": "^4.21.2",
     "mysql": "^2.18.1",
     "mysql2": "^3.12.0"
