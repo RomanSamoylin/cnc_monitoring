@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Графики анализа</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="./node_modules/chart.js/dist/Chart.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -38,82 +39,99 @@
                 <option value="15">Станок 15</option>
                 <option value="16">Станок 16</option>
             </select>
+            <h3>Период</h3>
+            <select id="periodFilter">
+                <option value="day">День</option>
+                <option value="week">Неделя</option>
+                <option value="month">Месяц</option>
+            </select>
         </div>
         <div class="content">
             <div class="chart-container">
-                <h3>График производительности</h3>
-                <canvas id="performanceChart"></canvas>
+                <h3>Включение системы</h3>
+                <canvas id="systemOnChart"></canvas>
             </div>
             <div class="chart-container">
-                <h3>График времени простоя</h3>
-                <canvas id="downtimeChart"></canvas>
+                <h3>Режим работы</h3>
+                <canvas id="operationModeChart"></canvas>
             </div>
             <div class="chart-container">
-                <h3>Нагрузка на шпиндель</h3>
-                <canvas id="spindleLoadChart"></canvas>
+                <h3>Подача</h3>
+                <canvas id="feedChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Скорость шпинделя</h3>
+                <canvas id="spindleSpeedChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Сообщения об ошибках</h3>
+                <canvas id="errorMessagesChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Название программы</h3>
+                <canvas id="programNameChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Номер инструмента</h3>
+                <canvas id="toolNumberChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Причины простоя</h3>
+                <canvas id="downtimeReasonsChart"></canvas>
             </div>
             <div class="chart-container">
                 <h3>Ошибки от PLC</h3>
                 <canvas id="plcErrorsChart"></canvas>
             </div>
+            <div class="chart-container">
+                <h3>Конец обработки детали</h3>
+                <canvas id="partProcessingEndChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Нагрузка на шпиндель</h3>
+                <canvas id="spindleLoadChart"></canvas>
+            </div>
         </div>
     </div>
     <script>
-        const performanceData = {
-            labels: ["Станок 1", "Станок 2", "Станок 3", "Станок 4", "Станок 5", "Станок 6"],
-            datasets: [{
-                label: 'Производительность (%)',
-                data: [85, 90, 78, 95, 88, 82],
-                backgroundColor: 'rgba(255, 140, 66, 0.5)',
-                borderColor: '#ff8c42',
-                borderWidth: 2
-            }]
+        // Генерация случайных данных для графиков
+        function generateRandomData(length, min, max) {
+            return Array.from({ length }, () => Math.floor(Math.random() * (max - min + 1)) + min);
+        }
+
+        // Данные для графиков
+        const machineLabels = Array.from({ length: 16 }, (_, i) => `Станок ${i + 1}`);
+        const periodLabels = {
+            day: Array.from({ length: 24 }, (_, i) => `${i}:00`),
+            week: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+            month: Array.from({ length: 30 }, (_, i) => `День ${i + 1}`)
         };
 
-        const downtimeData = {
-            labels: ["Станок 1", "Станок 2", "Станок 3", "Станок 4", "Станок 5", "Станок 6"],
-            datasets: [{
-                label: 'Время простоя (часы)',
-                data: [2, 1, 3, 0.5, 1.5, 2.5],
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: '#36a2eb',
-                borderWidth: 2
-            }]
-        };
+        // Функция для обновления данных графиков
+        function updateChartData(chart, period, machine) {
+            const labels = periodLabels[period];
+            const data = generateRandomData(labels.length, 0, 100); // Пример данных
 
-        const spindleLoadData = {
-            labels: ['Низкая', 'Средняя', 'Высокая'],
-            datasets: [{
-                label: 'Нагрузка на шпиндель',
-                data: [30, 50, 20],
-                backgroundColor: [
-                    'rgba(75, 192, 192, 0.7)',
-                    'rgba(255, 206, 86, 0.7)',
-                    'rgba(255, 99, 132, 0.7)'
-                ],
-                borderWidth: 1
-            }]
-        };
+            chart.data.labels = labels;
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data = data;
+            });
+            chart.update();
+        }
 
-        const plcErrorsData = {
-            labels: ['Ошибка 1', 'Ошибка 2', 'Ошибка 3', 'Ошибка 4', 'Ошибка 5'],
-            datasets: [{
-                label: 'Ошибки от PLC',
-                data: [5, 3, 7, 2, 4],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.7)',
-                    'rgba(54, 162, 235, 0.7)',
-                    'rgba(255, 206, 86, 0.7)',
-                    'rgba(75, 192, 192, 0.7)',
-                    'rgba(153, 102, 255, 0.7)'
-                ],
-                borderWidth: 1
-            }]
-        };
-
-        const performanceChart = new Chart(document.getElementById('performanceChart'), {
-            type: 'bar',
-            data: performanceData,
+        // Создание графиков
+        const systemOnChart = new Chart(document.getElementById('systemOnChart'), {
+            type: 'line',
+            data: {
+                labels: periodLabels.day,
+                datasets: [{
+                    label: 'Включение системы',
+                    data: generateRandomData(24, 0, 1),
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
             options: {
                 scales: {
                     y: {
@@ -123,9 +141,186 @@
             }
         });
 
-        const downtimeChart = new Chart(document.getElementById('downtimeChart'), {
+        const operationModeChart = new Chart(document.getElementById('operationModeChart'), {
             type: 'line',
-            data: downtimeData,
+            data: {
+                labels: periodLabels.day,
+                datasets: [{
+                    label: 'Режим работы',
+                    data: generateRandomData(24, 0, 3),
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const feedChart = new Chart(document.getElementById('feedChart'), {
+            type: 'line',
+            data: {
+                labels: periodLabels.day,
+                datasets: [{
+                    label: 'Подача',
+                    data: generateRandomData(24, 0, 100),
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const spindleSpeedChart = new Chart(document.getElementById('spindleSpeedChart'), {
+            type: 'line',
+            data: {
+                labels: periodLabels.day,
+                datasets: [{
+                    label: 'Скорость шпинделя',
+                    data: generateRandomData(24, 0, 5000),
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const errorMessagesChart = new Chart(document.getElementById('errorMessagesChart'), {
+            type: 'line',
+            data: {
+                labels: periodLabels.day,
+                datasets: [{
+                    label: 'Сообщения об ошибках',
+                    data: generateRandomData(24, 0, 10),
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const programNameChart = new Chart(document.getElementById('programNameChart'), {
+            type: 'line',
+            data: {
+                labels: periodLabels.day,
+                datasets: [{
+                    label: 'Название программы',
+                    data: generateRandomData(24, 0, 5),
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const toolNumberChart = new Chart(document.getElementById('toolNumberChart'), {
+            type: 'line',
+            data: {
+                labels: periodLabels.day,
+                datasets: [{
+                    label: 'Номер инструмента',
+                    data: generateRandomData(24, 0, 10),
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const downtimeReasonsChart = new Chart(document.getElementById('downtimeReasonsChart'), {
+            type: 'line',
+            data: {
+                labels: periodLabels.day,
+                datasets: [{
+                    label: 'Причины простоя',
+                    data: generateRandomData(24, 0, 5),
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const plcErrorsChart = new Chart(document.getElementById('plcErrorsChart'), {
+            type: 'line',
+            data: {
+                labels: periodLabels.day,
+                datasets: [{
+                    label: 'Ошибки от PLC',
+                    data: generateRandomData(24, 0, 10),
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const partProcessingEndChart = new Chart(document.getElementById('partProcessingEndChart'), {
+            type: 'line',
+            data: {
+                labels: periodLabels.day,
+                datasets: [{
+                    label: 'Конец обработки детали',
+                    data: generateRandomData(24, 0, 1),
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
             options: {
                 scales: {
                     y: {
@@ -136,42 +331,53 @@
         });
 
         const spindleLoadChart = new Chart(document.getElementById('spindleLoadChart'), {
-            type: 'pie',
-            data: spindleLoadData,
+            type: 'line',
+            data: {
+                labels: periodLabels.day,
+                datasets: [{
+                    label: 'Нагрузка на шпиндель',
+                    data: generateRandomData(24, 0, 100),
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
             options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Нагрузка на шпиндель'
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
             }
         });
 
-        const plcErrorsChart = new Chart(document.getElementById('plcErrorsChart'), {
-            type: 'doughnut',
-            data: plcErrorsData,
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Ошибки от PLC'
-                    }
-                }
-            }
-        });
-
+        // Обработка изменения фильтров
         document.getElementById("machineFilter").addEventListener("change", function() {
-            console.log("Выбран станок:", this.value);
+            const selectedMachine = this.value;
+            const selectedPeriod = document.getElementById("periodFilter").value;
+            updateCharts(selectedPeriod, selectedMachine);
         });
+
+        document.getElementById("periodFilter").addEventListener("change", function() {
+            const selectedPeriod = this.value;
+            const selectedMachine = document.getElementById("machineFilter").value;
+            updateCharts(selectedPeriod, selectedMachine);
+        });
+
+        // Функция для обновления всех графиков
+        function updateCharts(period, machine) {
+            updateChartData(systemOnChart, period, machine);
+            updateChartData(operationModeChart, period, machine);
+            updateChartData(feedChart, period, machine);
+            updateChartData(spindleSpeedChart, period, machine);
+            updateChartData(errorMessagesChart, period, machine);
+            updateChartData(programNameChart, period, machine);
+            updateChartData(toolNumberChart, period, machine);
+            updateChartData(downtimeReasonsChart, period, machine);
+            updateChartData(plcErrorsChart, period, machine);
+            updateChartData(partProcessingEndChart, period, machine);
+            updateChartData(spindleLoadChart, period, machine);
+        }
     </script>
 </body>
 </html>
