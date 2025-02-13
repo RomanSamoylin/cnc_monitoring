@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="styles.css">
     <script src="./node_modules/chart.js/dist/Chart.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Подключаем Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
     <header>
@@ -40,11 +43,20 @@
                 <option value="16">Станок 16</option>
             </select>
             <h3>Период</h3>
-            <select id="periodFilter">
-                <option value="day">День</option>
-                <option value="week">Неделя</option>
-                <option value="month">Месяц</option>
-            </select>
+            <div>
+                <label for="startDate">Начальная дата:</label>
+                <input type="text" id="startDate" placeholder="Выберите дату">
+            </div>
+            <div>
+                <label for="endDate">Конечная дата:</label>
+                <input type="text" id="endDate" placeholder="Выберите дату">
+            </div>
+            <div>
+                <button onclick="setPeriod('day')">День</button>
+                <button onclick="setPeriod('week')">Неделя</button>
+                <button onclick="setPeriod('month')">Месяц</button>
+                <button onclick="setPeriod('year')">Год</button>
+            </div>
         </div>
         <div class="content">
             <div class="chart-container">
@@ -56,11 +68,11 @@
                 <canvas id="operationModeChart"></canvas>
             </div>
             <div class="chart-container">
-                <h3>Подача</h3>
+                <h3>Подача (мм/об)</h3>
                 <canvas id="feedChart"></canvas>
             </div>
             <div class="chart-container">
-                <h3>Скорость шпинделя</h3>
+                <h3>Скорость шпинделя (об/мин)</h3>
                 <canvas id="spindleSpeedChart"></canvas>
             </div>
             <div class="chart-container">
@@ -94,23 +106,69 @@
         </div>
     </div>
     <script>
+        // Инициализация Flatpickr для выбора дат
+        const startDatePicker = flatpickr("#startDate", {
+            dateFormat: "Y-m-d",
+            locale: "ru",
+            onChange: function(selectedDates, dateStr, instance) {
+                updateCharts();
+            }
+        });
+
+        const endDatePicker = flatpickr("#endDate", {
+            dateFormat: "Y-m-d",
+            locale: "ru",
+            onChange: function(selectedDates, dateStr, instance) {
+                updateCharts();
+            }
+        });
+
+        // Функция для установки периода
+        function setPeriod(period) {
+            const today = new Date();
+            let startDate, endDate;
+
+            switch (period) {
+                case 'day':
+                    startDate = new Date(today);
+                    endDate = new Date(today);
+                    break;
+                case 'week':
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - today.getDay());
+                    endDate = new Date(today);
+                    endDate.setDate(today.getDate() + (6 - today.getDay()));
+                    break;
+                case 'month':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    break;
+                case 'year':
+                    startDate = new Date(today.getFullYear(), 0, 1);
+                    endDate = new Date(today.getFullYear(), 11, 31);
+                    break;
+            }
+
+            startDatePicker.setDate(startDate);
+            endDatePicker.setDate(endDate);
+            updateCharts();
+        }
+
         // Генерация случайных данных для графиков
         function generateRandomData(length, min, max) {
             return Array.from({ length }, () => Math.floor(Math.random() * (max - min + 1)) + min);
         }
 
-        // Данные для графиков
-        const machineLabels = Array.from({ length: 16 }, (_, i) => `Станок ${i + 1}`);
-        const periodLabels = {
-            day: Array.from({ length: 24 }, (_, i) => `${i}:00`),
-            week: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
-            month: Array.from({ length: 30 }, (_, i) => `День ${i + 1}`)
-        };
-
         // Функция для обновления данных графиков
-        function updateChartData(chart, period, machine) {
-            const labels = periodLabels[period];
-            const data = generateRandomData(labels.length, 0, 100); // Пример данных
+        function updateChartData(chart, startDate, endDate, machine) {
+            const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)); // Разница в днях
+            const labels = Array.from({ length: daysDiff }, (_, i) => {
+                const date = new Date(startDate);
+                date.setDate(date.getDate() + i);
+                return date.toLocaleDateString();
+            });
+
+            const data = generateRandomData(labels.length, chart.config.options.scales.y.min, chart.config.options.scales.y.max);
 
             chart.data.labels = labels;
             chart.data.datasets.forEach((dataset) => {
@@ -123,10 +181,10 @@
         const systemOnChart = new Chart(document.getElementById('systemOnChart'), {
             type: 'line',
             data: {
-                labels: periodLabels.day,
+                labels: [],
                 datasets: [{
                     label: 'Включение системы',
-                    data: generateRandomData(24, 0, 1),
+                    data: [],
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1,
                     fill: false
@@ -135,7 +193,9 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min: 0,
+                        max: 1
                     }
                 }
             }
@@ -144,10 +204,10 @@
         const operationModeChart = new Chart(document.getElementById('operationModeChart'), {
             type: 'line',
             data: {
-                labels: periodLabels.day,
+                labels: [],
                 datasets: [{
                     label: 'Режим работы',
-                    data: generateRandomData(24, 0, 3),
+                    data: [],
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1,
                     fill: false
@@ -156,7 +216,9 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min: 0,
+                        max: 3
                     }
                 }
             }
@@ -165,10 +227,10 @@
         const feedChart = new Chart(document.getElementById('feedChart'), {
             type: 'line',
             data: {
-                labels: periodLabels.day,
+                labels: [],
                 datasets: [{
-                    label: 'Подача',
-                    data: generateRandomData(24, 0, 100),
+                    label: 'Подача (мм/об)',
+                    data: [],
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1,
                     fill: false
@@ -177,7 +239,9 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min: 0,
+                        max: 10 // Максимальное значение подачи в мм/об
                     }
                 }
             }
@@ -186,10 +250,10 @@
         const spindleSpeedChart = new Chart(document.getElementById('spindleSpeedChart'), {
             type: 'line',
             data: {
-                labels: periodLabels.day,
+                labels: [],
                 datasets: [{
-                    label: 'Скорость шпинделя',
-                    data: generateRandomData(24, 0, 5000),
+                    label: 'Скорость шпинделя (об/мин)',
+                    data: [],
                     borderColor: 'rgba(255, 206, 86, 1)',
                     borderWidth: 1,
                     fill: false
@@ -198,7 +262,9 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min: 0,
+                        max: 12000 // Максимальное значение скорости шпинделя в об/мин
                     }
                 }
             }
@@ -207,10 +273,10 @@
         const errorMessagesChart = new Chart(document.getElementById('errorMessagesChart'), {
             type: 'line',
             data: {
-                labels: periodLabels.day,
+                labels: [],
                 datasets: [{
                     label: 'Сообщения об ошибках',
-                    data: generateRandomData(24, 0, 10),
+                    data: [],
                     borderColor: 'rgba(153, 102, 255, 1)',
                     borderWidth: 1,
                     fill: false
@@ -219,7 +285,9 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min: 0,
+                        max: 10
                     }
                 }
             }
@@ -228,10 +296,10 @@
         const programNameChart = new Chart(document.getElementById('programNameChart'), {
             type: 'line',
             data: {
-                labels: periodLabels.day,
+                labels: [],
                 datasets: [{
                     label: 'Название программы',
-                    data: generateRandomData(24, 0, 5),
+                    data: [],
                     borderColor: 'rgba(255, 159, 64, 1)',
                     borderWidth: 1,
                     fill: false
@@ -240,7 +308,9 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min: 0,
+                        max: 5
                     }
                 }
             }
@@ -249,10 +319,10 @@
         const toolNumberChart = new Chart(document.getElementById('toolNumberChart'), {
             type: 'line',
             data: {
-                labels: periodLabels.day,
+                labels: [],
                 datasets: [{
                     label: 'Номер инструмента',
-                    data: generateRandomData(24, 0, 10),
+                    data: [],
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1,
                     fill: false
@@ -261,7 +331,9 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min: 0,
+                        max: 10
                     }
                 }
             }
@@ -270,10 +342,10 @@
         const downtimeReasonsChart = new Chart(document.getElementById('downtimeReasonsChart'), {
             type: 'line',
             data: {
-                labels: periodLabels.day,
+                labels: [],
                 datasets: [{
                     label: 'Причины простоя',
-                    data: generateRandomData(24, 0, 5),
+                    data: [],
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1,
                     fill: false
@@ -282,7 +354,9 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min: 0,
+                        max: 5
                     }
                 }
             }
@@ -291,10 +365,10 @@
         const plcErrorsChart = new Chart(document.getElementById('plcErrorsChart'), {
             type: 'line',
             data: {
-                labels: periodLabels.day,
+                labels: [],
                 datasets: [{
                     label: 'Ошибки от PLC',
-                    data: generateRandomData(24, 0, 10),
+                    data: [],
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1,
                     fill: false
@@ -303,7 +377,9 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min: 0,
+                        max: 10
                     }
                 }
             }
@@ -312,10 +388,10 @@
         const partProcessingEndChart = new Chart(document.getElementById('partProcessingEndChart'), {
             type: 'line',
             data: {
-                labels: periodLabels.day,
+                labels: [],
                 datasets: [{
                     label: 'Конец обработки детали',
-                    data: generateRandomData(24, 0, 1),
+                    data: [],
                     borderColor: 'rgba(255, 206, 86, 1)',
                     borderWidth: 1,
                     fill: false
@@ -324,7 +400,9 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min: 0,
+                        max: 1
                     }
                 }
             }
@@ -333,10 +411,10 @@
         const spindleLoadChart = new Chart(document.getElementById('spindleLoadChart'), {
             type: 'line',
             data: {
-                labels: periodLabels.day,
+                labels: [],
                 datasets: [{
                     label: 'Нагрузка на шпиндель',
-                    data: generateRandomData(24, 0, 100),
+                    data: [],
                     borderColor: 'rgba(153, 102, 255, 1)',
                     borderWidth: 1,
                     fill: false
@@ -345,7 +423,9 @@
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        min: 0,
+                        max: 100
                     }
                 }
             }
@@ -353,30 +433,28 @@
 
         // Обработка изменения фильтров
         document.getElementById("machineFilter").addEventListener("change", function() {
-            const selectedMachine = this.value;
-            const selectedPeriod = document.getElementById("periodFilter").value;
-            updateCharts(selectedPeriod, selectedMachine);
-        });
-
-        document.getElementById("periodFilter").addEventListener("change", function() {
-            const selectedPeriod = this.value;
-            const selectedMachine = document.getElementById("machineFilter").value;
-            updateCharts(selectedPeriod, selectedMachine);
+            updateCharts();
         });
 
         // Функция для обновления всех графиков
-        function updateCharts(period, machine) {
-            updateChartData(systemOnChart, period, machine);
-            updateChartData(operationModeChart, period, machine);
-            updateChartData(feedChart, period, machine);
-            updateChartData(spindleSpeedChart, period, machine);
-            updateChartData(errorMessagesChart, period, machine);
-            updateChartData(programNameChart, period, machine);
-            updateChartData(toolNumberChart, period, machine);
-            updateChartData(downtimeReasonsChart, period, machine);
-            updateChartData(plcErrorsChart, period, machine);
-            updateChartData(partProcessingEndChart, period, machine);
-            updateChartData(spindleLoadChart, period, machine);
+        function updateCharts() {
+            const startDate = startDatePicker.selectedDates[0];
+            const endDate = endDatePicker.selectedDates[0];
+            const selectedMachine = document.getElementById("machineFilter").value;
+
+            if (startDate && endDate) {
+                updateChartData(systemOnChart, startDate, endDate, selectedMachine);
+                updateChartData(operationModeChart, startDate, endDate, selectedMachine);
+                updateChartData(feedChart, startDate, endDate, selectedMachine);
+                updateChartData(spindleSpeedChart, startDate, endDate, selectedMachine);
+                updateChartData(errorMessagesChart, startDate, endDate, selectedMachine);
+                updateChartData(programNameChart, startDate, endDate, selectedMachine);
+                updateChartData(toolNumberChart, startDate, endDate, selectedMachine);
+                updateChartData(downtimeReasonsChart, startDate, endDate, selectedMachine);
+                updateChartData(plcErrorsChart, startDate, endDate, selectedMachine);
+                updateChartData(partProcessingEndChart, startDate, endDate, selectedMachine);
+                updateChartData(spindleLoadChart, startDate, endDate, selectedMachine);
+            }
         }
     </script>
 </body>
