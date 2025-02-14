@@ -111,28 +111,60 @@
                         </tr>
                     </thead>
                     <tbody>
-                        
+                        <!-- Данные будут вставлены сюда -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
     <script>
-        // Пример данных для отчета
-        const reportData = [
-            { machine: "Станок 1", date: "2023-10-01", performance: 85, downtime: 2 },
-            { machine: "Станок 2", date: "2023-10-01", performance: 90, downtime: 1 },
-            { machine: "Станок 3", date: "2023-10-01", performance: 78, downtime: 3 },
-            { machine: "Станок 4", date: "2023-10-01", performance: 95, downtime: 0.5 },
-            { machine: "Станок 5", date: "2023-10-01", performance: 88, downtime: 1.5 },
-        ];
+        // Функция для генерации случайных данных
+        function generateRandomData(startDate, endDate, machineCount) {
+            const data = [];
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const timeDiff = end - start;
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+            for (let i = 1; i <= machineCount; i++) {
+                for (let j = 0; j < daysDiff; j++) {
+                    const currentDate = new Date(start);
+                    currentDate.setDate(start.getDate() + j);
+                    const performance = Math.floor(Math.random() * (100 - 50 + 1)) + 50; // Производительность от 50% до 100%
+                    const downtime = (Math.random() * 4).toFixed(1); // Время простоя от 0 до 4 часов
+
+                    data.push({
+                        machine: `Станок ${i}`,
+                        date: currentDate.toISOString().split('T')[0],
+                        performance: performance,
+                        downtime: downtime
+                    });
+                }
+            }
+
+            return data;
+        }
+
+        // Функция для имитации загрузки данных из API
+        function fetchReportData(startDate, endDate) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const machineCount = 16; // Количество станков
+                    const data = generateRandomData(startDate, endDate, machineCount);
+                    resolve(data);
+                }, 1000); // Имитация задержки загрузки данных
+            });
+        }
 
         // Функция для генерации отчета
-        function generateReport() {
+        async function generateReport() {
             const startDate = document.getElementById("startDate").value;
             const endDate = document.getElementById("endDate").value;
             const machine = document.getElementById("machineSelect").value;
             const reportType = document.getElementById("reportType").value;
+
+            // Имитация загрузки данных из API
+            const reportData = await fetchReportData(startDate, endDate);
 
             // Фильтрация данных
             let filteredData = reportData.filter(item => {
@@ -224,5 +256,3 @@
     </script>
 </body>
 </html>
-
-
