@@ -111,21 +111,27 @@
             switch (period) {
                 case 'day':
                     startDate = new Date(today);
+                    startDate.setHours(0, 0, 0, 0); // Начало дня
                     endDate = new Date(today);
+                    endDate.setHours(23, 59, 59, 999); // Конец дня
                     break;
                 case 'week':
                     startDate = new Date(today);
                     startDate.setDate(today.getDate() - today.getDay());
+                    startDate.setHours(0, 0, 0, 0);
                     endDate = new Date(today);
                     endDate.setDate(today.getDate() + (6 - today.getDay()));
+                    endDate.setHours(23, 59, 59, 999);
                     break;
                 case 'month':
                     startDate = new Date(today.getFullYear(), today.getMonth(), 1);
                     endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    endDate.setHours(23, 59, 59, 999);
                     break;
                 case 'year':
                     startDate = new Date(today.getFullYear(), 0, 1);
                     endDate = new Date(today.getFullYear(), 11, 31);
+                    endDate.setHours(23, 59, 59, 999);
                     break;
             }
 
@@ -141,14 +147,31 @@
 
         // Функция для обновления данных графиков
         function updateChartData(chart, startDate, endDate, machine) {
-            const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)); // Разница в днях
-            const labels = Array.from({ length: daysDiff }, (_, i) => {
-                const date = new Date(startDate);
-                date.setDate(date.getDate() + i);
-                return date.toLocaleDateString();
-            });
+            const period = document.querySelector('button.active')?.innerText.toLowerCase();
+            let labels = [];
+            let data = [];
 
-            const data = generateRandomData(labels.length, chart.config.options.scales.y.min, chart.config.options.scales.y.max);
+            if (period === 'день') {
+                // Генерация меток по минутам для дня
+                const minutesDiff = Math.ceil((endDate - startDate) / (1000 * 60)); // Разница в минутах
+                labels = Array.from({ length: minutesDiff }, (_, i) => {
+                    const date = new Date(startDate);
+                    date.setMinutes(date.getMinutes() + i);
+                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                });
+
+                data = generateRandomData(labels.length, chart.config.options.scales.y.min, chart.config.options.scales.y.max);
+            } else {
+                // Генерация меток по дням для других периодов
+                const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)); // Разница в днях
+                labels = Array.from({ length: daysDiff }, (_, i) => {
+                    const date = new Date(startDate);
+                    date.setDate(date.getDate() + i);
+                    return date.toLocaleDateString();
+                });
+
+                data = generateRandomData(labels.length, chart.config.options.scales.y.min, chart.config.options.scales.y.max);
+            }
 
             chart.data.labels = labels;
             chart.data.datasets.forEach((dataset) => {
