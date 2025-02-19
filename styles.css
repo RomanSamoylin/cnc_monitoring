@@ -51,16 +51,64 @@ nav button:hover {
     border-radius: 5px;
     border: none;
 }
+ /* Дополнительные стили для улучшения фильтров */
+ .sidebar label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #eee7e7;
+}
+.sidebar input[type="date"] {
+    width: 90%; /* Ширина поля на всю доступную ширину */
+    padding: 15px; /* Увеличиваем внутренний отступ */
+    margin-top: 10px; /* Отступ сверху */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    height: 20px; /* Увеличиваем высоту поля */
+}
+.sidebar select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+.sidebar button {
+    width: 100%;
+    padding: 15px; /* Увеличиваем внутренний отступ */
+    margin-top: 20px;
+    background-color: #ff8c42;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.sidebar button:hover {
+    background-color: #e67e22;
+}
+
 /* Стили для выравнивания данных по центру в столбцах */
 #reportTable td:nth-child(3),
 #reportTable td:nth-child(4) {
     text-align: center;
-    }
+}
 .content {
     flex-grow: 1;
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+}
+.machine-card {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .machine-card {
     border: 1px solid #ccc;
@@ -104,5 +152,4 @@ nav button:hover {
 }
 canvas {
     max-width: 100%;
-    }
-
+}

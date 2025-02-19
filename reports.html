@@ -5,54 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Конструктор отчетов</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="./node_modules/chart.js/dist/Chart.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
-    <style>
-        /* Дополнительные стили для улучшения фильтров */
-        .sidebar label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-            color: #eee7e7;
-        }
-        .sidebar input[type="date"] {
-            width: 90%; /* Ширина поля на всю доступную ширину */
-            padding: 15px; /* Увеличиваем внутренний отступ */
-            margin-top: 10px; /* Отступ сверху */
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            height: 20px; /* Увеличиваем высоту поля */
-        }
-        .sidebar select {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .sidebar button {
-            width: 100%;
-            padding: 15px; /* Увеличиваем внутренний отступ */
-            margin-top: 20px;
-            background-color: #ff8c42;
-            border: none;
-            color: white;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .sidebar button:hover {
-            background-color: #e67e22;
-        }
-
-        /* Стили для выравнивания данных по центру в столбцах */
-        #reportTable td:nth-child(3),
-        #reportTable td:nth-child(4) {
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
     <header>

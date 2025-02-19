@@ -7,9 +7,6 @@
     <link rel="stylesheet" href="styles.css">
     <script src="./node_modules/chart.js/dist/Chart.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Подключаем Flatpickr -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
     <header>
@@ -45,11 +42,11 @@
             <h3>Период</h3>
             <div>
                 <label for="startDate">Начальная дата:</label>
-                <input type="text" id="startDate" placeholder="Выберите дату">
+                <input type="date" id="startDate">
             </div>
             <div>
                 <label for="endDate">Конечная дата:</label>
-                <input type="text" id="endDate" placeholder="Выберите дату">
+                <input type="date" id="endDate">
             </div>
             <div>
                 <button onclick="setPeriod('day')">День</button>
@@ -106,23 +103,6 @@
         </div>
     </div>
     <script>
-        // Инициализация Flatpickr для выбора дат
-        const startDatePicker = flatpickr("#startDate", {
-            dateFormat: "Y-m-d",
-            locale: "ru",
-            onChange: function(selectedDates, dateStr, instance) {
-                updateCharts();
-            }
-        });
-
-        const endDatePicker = flatpickr("#endDate", {
-            dateFormat: "Y-m-d",
-            locale: "ru",
-            onChange: function(selectedDates, dateStr, instance) {
-                updateCharts();
-            }
-        });
-
         // Функция для установки периода
         function setPeriod(period) {
             const today = new Date();
@@ -149,8 +129,8 @@
                     break;
             }
 
-            startDatePicker.setDate(startDate);
-            endDatePicker.setDate(endDate);
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
             updateCharts();
         }
 
@@ -436,10 +416,18 @@
             updateCharts();
         });
 
+        document.getElementById("startDate").addEventListener("change", function() {
+            updateCharts();
+        });
+
+        document.getElementById("endDate").addEventListener("change", function() {
+            updateCharts();
+        });
+
         // Функция для обновления всех графиков
         function updateCharts() {
-            const startDate = startDatePicker.selectedDates[0];
-            const endDate = endDatePicker.selectedDates[0];
+            const startDate = new Date(document.getElementById("startDate").value);
+            const endDate = new Date(document.getElementById("endDate").value);
             const selectedMachine = document.getElementById("machineFilter").value;
 
             if (startDate && endDate) {
