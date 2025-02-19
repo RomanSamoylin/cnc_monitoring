@@ -51,6 +51,11 @@ nav button:hover {
     border-radius: 5px;
     border: none;
 }
+/* Стили для выравнивания данных по центру в столбцах */
+#reportTable td:nth-child(3),
+#reportTable td:nth-child(4) {
+    text-align: center;
+    }
 .content {
     flex-grow: 1;
     display: flex;
@@ -58,33 +63,46 @@ nav button:hover {
     gap: 20px;
 }
 .machine-card {
-    background-color: white;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: calc(25% - 20px);
-    box-sizing: border-box;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.machine-card h4 {
-    margin-top: 0;
+.machine-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-.machine-card p {
-    margin: 0;
+.machine-card.working {
+    background-color: #d4edda;
 }
-@media (max-width: 768px) {
-    .container {
-        flex-direction: column;
+.machine-card.stopped {
+    background-color: #f8d7da;
+}
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+.status-indicator.working {
+    background-color: #28a745;
+    animation: pulse 1s infinite;
+}
+.status-indicator.stopped {
+    background-color: #dc3545;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+.chart-container {
+    margin: 10px 0;
+}
+canvas {
+    max-width: 100%;
     }
-    .sidebar {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-    .machine-card {
-        width: calc(50% - 20px);
-    }
-}
-@media (max-width: 480px) {
-    .machine-card {
-        width: 100%;
-    }
-}
+
