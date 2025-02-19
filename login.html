@@ -3,99 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Форма входа</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        /* Дополнительные стили для формы входа */
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-            margin: 0;
-        }
-        .login-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-        .login-container h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-        .login-container label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-        }
-        .login-container input[type="text"],
-        .login-container input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .login-container button {
-            width: 100%;
-            padding: 10px;
-            background-color: #ff8c42;
-            border: none;
-            color: white;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .login-container button:hover {
-            background-color: #e67e22;
-        }
-        .error-message {
-            color: red;
-            margin-top: 10px;
-            display: none;
-        }
-    </style>
+    <title>Вход в систему</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="login-container">
-        <h2>Вход в систему</h2>
-        <form id="loginForm">
+        <h1>Вход в систему</h1>
+        <form id="loginForm" onsubmit="event.preventDefault(); login();">
             <label for="username">Логин:</label>
             <input type="text" id="username" name="username" required>
-
             <label for="password">Пароль:</label>
             <input type="password" id="password" name="password" required>
-
             <button type="submit">Войти</button>
-            <div class="error-message" id="errorMessage">Неверный логин или пароль</div>
         </form>
     </div>
     <script>
-        // Функция для проверки входа
-        document.getElementById("loginForm").addEventListener("submit", function (event) {
-            event.preventDefault(); // Отменяем стандартное поведение формы
+        function logout() {
+        // Удаляем флаг авторизации
+        sessionStorage.removeItem("isLoggedIn");
 
+        // Перенаправляем на страницу входа
+        window.location.href = "login.html";
+
+        // Добавляем текущее состояние в историю браузера
+        history.pushState(null, null, location.href);
+
+        // Блокируем возврат на dashboard.html
+        window.onpopstate = function () {
+        history.go(1); // Перенаправляем пользователя вперед
+        window.location.href = "login.html"; // Дополнительное перенаправление
+    };
+}
+
+        function login() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
-            const errorMessage = document.getElementById("errorMessage");
 
-            // Проверка логина и пароля
+            // Пример проверки учетных данных (замените на реальную проверку)
             if (username === "admin" && password === "victoria123") {
-                // Перенаправление на главную страницу
+                // Сохраняем флаг авторизации
+                sessionStorage.setItem("isLoggedIn", true);
+
+                // Перенаправляем на dashboard.html
                 window.location.href = "dashboard.html";
             } else {
-                // Показ сообщения об ошибке
-                errorMessage.style.display = "block";
+                alert("Неверный логин или пароль");
             }
-        });
+        }
     </script>
 </body>
 </html>
