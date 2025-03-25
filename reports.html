@@ -4,12 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Конструктор отчетов</title>
-    <button class="logout-button" onclick="location.href='login.html'">Выйти</button>
     <link rel="stylesheet" href="styles.css">
-    <script src="./node_modules/chart.js/dist/Chart.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <!-- Библиотеки -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        /* Дополнительные стили для страницы отчетов */
+        .oee-formulas {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .formula {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .formula h4 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .formula label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        .formula input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .formula button {
+            background-color: #ff8c42;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        .formula button:hover {
+            background-color: #e67e22;
+        }
+        .result {
+            font-weight: bold;
+            margin-top: 10px;
+            color: #2c3e50;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            text-align: center;
+        }
+        #oeeChart {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
+    <button class="logout-button" onclick="location.href='login.html'">Выйти</button>
     <header>
         <h1>Конструктор отчетов</h1>
     </header>
@@ -51,10 +123,9 @@
 
                 <label for="reportType">Формат отчета:</label>
                 <select id="reportType">
+                    <option value="pdf">PDF</option>
                     <option value="csv">CSV</option>
                     <option value="xlsx">Excel (XLSX)</option>
-                    <option value="xml">XML</option>
-                    <option value="txt">TXT</option>
                 </select>
 
                 <button type="button" onclick="generateReport()">Создать отчет</button>
@@ -62,158 +133,441 @@
         </div>
         <div class="content">
             <div id="reportPreview">
-                <h3>Предварительный просмотр отчета</h3>
-                <table id="reportTable">
-                    <thead>
-                        <tr>
-                            <th>Станок</th>
-                            <th>Дата</th>
-                            <th>Производительность (%)</th>
-                            <th>Время простоя (часы)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Данные будут вставлены сюда -->
-                    </tbody>
-                </table>
+                <h3>Формулы расчета OEE</h3>
+                <div class="oee-formulas">
+                    <div class="formula">
+                        <h4>Готовность</h4>
+                        <p>Готовность = Время работы / Запланированное время</p>
+                        <label for="operatingTime">Время работы (часы):</label>
+                        <input type="number" id="operatingTime" min="0" required>
+                        <label for="plannedTime">Запланированное время (часы):</label>
+                        <input type="number" id="plannedTime" min="0" required>
+                        <button type="button" onclick="calculateAvailability()">Рассчитать готовность</button>
+                        <p id="availabilityResult" class="result"></p>
+                    </div>
+                    <div class="formula">
+                        <h4>Производительность</h4>
+                        <p>Производительность = Фактическое количество / Плановое количество</p>
+                        <label for="producedParts">Произведено деталей:</label>
+                        <input type="number" id="producedParts" min="0" required>
+                        <label for="plannedParts">План по деталям:</label>
+                        <input type="number" id="plannedParts" min="0" required>
+                        <button type="button" onclick="calculatePerformance()">Рассчитать производительность</button>
+                        <p id="performanceResult" class="result"></p>
+                    </div>
+                    <div class="formula">
+                        <h4>Качество</h4>
+                        <p>Качество = (Всего единиц - Дефектные) / Всего единиц</p>
+                        <label for="totalUnits">Всего произведено:</label>
+                        <input type="number" id="totalUnits" min="0" required>
+                        <label for="defectiveUnits">Дефектные единицы:</label>
+                        <input type="number" id="defectiveUnits" min="0" required>
+                        <button type="button" onclick="calculateQuality()">Рассчитать качество</button>
+                        <p id="qualityResult" class="result"></p>
+                    </div>
+                    <div class="formula">
+                        <h4>Общий OEE</h4>
+                        <p>OEE = Готовность × Производительность × Качество</p>
+                        <button type="button" onclick="calculateOEE()">Рассчитать OEE</button>
+                        <p id="oeeResult" class="result"></p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3>График показателей OEE</h3>
+                    <canvas id="oeeChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
+
     <script>
-        // Функция для генерации случайных данных
-        function generateRandomData(startDate, endDate, machineCount) {
-            const data = [];
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            const timeDiff = end - start;
-            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+        // Инициализация графика
+        const ctx = document.getElementById('oeeChart').getContext('2d');
+        let oeeChart;
+        let currentOEE = 0;
+        let currentAvailability = 0;
+        let currentPerformance = 0;
+        let currentQuality = 0;
 
-            for (let i = 1; i <= machineCount; i++) {
-                for (let j = 0; j < daysDiff; j++) {
-                    const currentDate = new Date(start);
-                    currentDate.setDate(start.getDate() + j);
-                    const performance = Math.floor(Math.random() * (100 - 50 + 1)) + 50; // Производительность от 50% до 100%
-                    const downtime = (Math.random() * 4).toFixed(1); // Время простоя от 0 до 4 часов
-
-                    data.push({
-                        machine: `Станок ${i}`,
-                        date: currentDate.toISOString().split('T')[0],
-                        performance: performance,
-                        downtime: downtime
-                    });
-                }
+        // Функция для обновления графика
+        function updateChart(availability, performance, quality, oee) {
+            if (oeeChart) {
+                oeeChart.destroy();
             }
-
-            return data;
+            
+            oeeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Готовность', 'Производительность', 'Качество', 'OEE'],
+                    datasets: [{
+                        label: 'Показатели (%)',
+                        data: [availability, performance, quality, oee],
+                        backgroundColor: [
+                            'rgba(255, 140, 66, 0.7)',
+                            'rgba(66, 135, 245, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 140, 66, 1)',
+                            'rgba(66, 135, 245, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Процент (%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Показатели эффективности оборудования (OEE)',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            currentOEE = oee;
+            currentAvailability = availability;
+            currentPerformance = performance;
+            currentQuality = quality;
         }
 
-        // Функция для имитации загрузки данных из API
-        function fetchReportData(startDate, endDate) {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    const machineCount = 16; // Количество станков
-                    const data = generateRandomData(startDate, endDate, machineCount);
-                    resolve(data);
-                }, 1000); // Имитация задержки загрузки данных
-            });
+        // Функция для расчета готовности
+        function calculateAvailability() {
+            const operatingTime = parseFloat(document.getElementById("operatingTime").value);
+            const plannedTime = parseFloat(document.getElementById("plannedTime").value);
+            
+            if (isNaN(operatingTime) || isNaN(plannedTime)) {
+                alert("Пожалуйста, введите числовые значения.");
+                return;
+            }
+            
+            if (plannedTime === 0) {
+                alert("Запланированное время не может быть равно нулю.");
+                return;
+            }
+            
+            const availability = (operatingTime / plannedTime) * 100;
+            document.getElementById("availabilityResult").textContent = `Готовность: ${availability.toFixed(2)}%`;
+            return availability;
+        }
+
+        // Функция для расчета производительности
+        function calculatePerformance() {
+            const producedParts = parseFloat(document.getElementById("producedParts").value);
+            const plannedParts = parseFloat(document.getElementById("plannedParts").value);
+            
+            if (isNaN(producedParts) || isNaN(plannedParts)) {
+                alert("Пожалуйста, введите числовые значения.");
+                return;
+            }
+            
+            if (plannedParts === 0) {
+                alert("Плановое количество деталей не может быть равно нулю.");
+                return;
+            }
+            
+            const performance = (producedParts / plannedParts) * 100;
+            document.getElementById("performanceResult").textContent = `Производительность: ${performance.toFixed(2)}%`;
+            return performance;
+        }
+
+        // Функция для расчета качества
+        function calculateQuality() {
+            const totalUnits = parseFloat(document.getElementById("totalUnits").value);
+            const defectiveUnits = parseFloat(document.getElementById("defectiveUnits").value);
+            
+            if (isNaN(totalUnits) || isNaN(defectiveUnits)) {
+                alert("Пожалуйста, введите числовые значения.");
+                return;
+            }
+            
+            if (totalUnits === 0) {
+                alert("Общее количество единиц не может быть равно нулю.");
+                return;
+            }
+            
+            if (defectiveUnits > totalUnits) {
+                alert("Количество дефектных единиц не может превышать общее количество.");
+                return;
+            }
+            
+            const quality = ((totalUnits - defectiveUnits) / totalUnits) * 100;
+            document.getElementById("qualityResult").textContent = `Качество: ${quality.toFixed(2)}%`;
+            return quality;
+        }
+
+        // Функция для расчета общего OEE
+        function calculateOEE() {
+            try {
+                const availabilityText = document.getElementById("availabilityResult").textContent;
+                const performanceText = document.getElementById("performanceResult").textContent;
+                const qualityText = document.getElementById("qualityResult").textContent;
+                
+                if (!availabilityText || !performanceText || !qualityText) {
+                    alert("Пожалуйста, сначала рассчитайте все компоненты OEE.");
+                    return;
+                }
+                
+                const availability = parseFloat(availabilityText.replace("Готовность: ", "").replace("%", "")) / 100;
+                const performance = parseFloat(performanceText.replace("Производительность: ", "").replace("%", "")) / 100;
+                const quality = parseFloat(qualityText.replace("Качество: ", "").replace("%", "")) / 100;
+                
+                const oee = (availability * performance * quality) * 100;
+                document.getElementById("oeeResult").textContent = `Общий OEE: ${oee.toFixed(2)}%`;
+                
+                updateChart(availability * 100, performance * 100, quality * 100, oee);
+            } catch (e) {
+                alert("Ошибка при расчете OEE: " + e.message);
+            }
         }
 
         // Функция для генерации отчета
         async function generateReport() {
+            const reportType = document.getElementById("reportType").value;
             const startDate = document.getElementById("startDate").value;
             const endDate = document.getElementById("endDate").value;
             const machine = document.getElementById("machineSelect").value;
-            const reportType = document.getElementById("reportType").value;
-
-            // Имитация загрузки данных из API
-            const reportData = await fetchReportData(startDate, endDate);
-
-            // Фильтрация данных
-            let filteredData = reportData.filter(item => {
-                const dateInRange = (!startDate || item.date >= startDate) && (!endDate || item.date <= endDate);
-                const machineMatch = machine === "all" || item.machine === `Станок ${machine}`;
-                return dateInRange && machineMatch;
-            });
-
-            // Обновление предварительного просмотра
-            const tableBody = document.querySelector("#reportTable tbody");
-            tableBody.innerHTML = "";
-            filteredData.forEach(item => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${item.machine}</td>
-                    <td>${item.date}</td>
-                    <td>${item.performance}</td>
-                    <td>${item.downtime}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-
-            // Выгрузка отчета
-            if (reportType === "csv") {
-                exportToCSV(filteredData);
-            } else if (reportType === "xlsx") {
-                exportToExcel(filteredData);
-            } else if (reportType === "xml") {
-                exportToXML(filteredData);
-            } else if (reportType === "txt") {
-                exportToTXT(filteredData);
+            
+            if (!startDate || !endDate) {
+                alert("Пожалуйста, укажите начальную и конечную даты.");
+                return;
+            }
+            
+            if (currentOEE === 0) {
+                alert("Пожалуйста, сначала рассчитайте показатели OEE.");
+                return;
+            }
+            
+            // Собираем данные для отчета
+            const reportData = {
+                startDate: startDate,
+                endDate: endDate,
+                machine: machine === "all" ? "Все станки" : `Станок ${machine}`,
+                availability: currentAvailability.toFixed(2) + '%',
+                performance: currentPerformance.toFixed(2) + '%',
+                quality: currentQuality.toFixed(2) + '%',
+                oee: currentOEE.toFixed(2) + '%',
+                operatingTime: document.getElementById("operatingTime").value + ' ч',
+                plannedTime: document.getElementById("plannedTime").value + ' ч',
+                producedParts: document.getElementById("producedParts").value,
+                plannedParts: document.getElementById("plannedParts").value,
+                totalUnits: document.getElementById("totalUnits").value,
+                defectiveUnits: document.getElementById("defectiveUnits").value,
+                dateGenerated: new Date().toLocaleString()
+            };
+            
+            try {
+                switch(reportType) {
+                    case 'pdf':
+                        await generatePDF(reportData);
+                        break;
+                    case 'csv':
+                        generateCSV(reportData);
+                        break;
+                    case 'xlsx':
+                        generateXLSX(reportData);
+                        break;
+                    default:
+                        alert("Неизвестный формат отчета");
+                }
+            } catch (e) {
+                alert("Ошибка при генерации отчета: " + e.message);
             }
         }
-
-        // Экспорт в CSV
-        function exportToCSV(data) {
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Станок,Дата,Производительность (%),Время простоя (часы)\n";
-            data.forEach(item => {
-                csvContent += `${item.machine},${item.date},${item.performance},${item.downtime}\n`;
+        
+        // Генерация PDF отчета (с гарантированной поддержкой кириллицы)
+        async function generatePDF(reportData) {
+            const { jsPDF } = window.jspdf;
+            
+            // Создаем временный div с содержимым отчета
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.width = '794px'; // A4 width in pixels (210mm)
+            tempDiv.style.padding = '20px';
+            tempDiv.style.fontFamily = 'Arial, sans-serif';
+            tempDiv.style.backgroundColor = 'white';
+            
+            tempDiv.innerHTML = `
+                <div style="max-width:100%;">
+                    <h1 style="text-align:center; color:#2c3e50; margin-bottom:30px;">Отчет OEE</h1>
+                    
+                    <div style="margin-bottom:20px;">
+                        <p style="margin:5px 0;"><strong>Период:</strong> ${reportData.startDate} - ${reportData.endDate}</p>
+                        <p style="margin:5px 0;"><strong>Станок:</strong> ${reportData.machine}</p>
+                        <p style="margin:5px 0;"><strong>Дата генерации:</strong> ${reportData.dateGenerated}</p>
+                    </div>
+                    
+                    <table border="1" cellpadding="8" style="width:100%; border-collapse:collapse; margin-bottom:30px;">
+                        <tr style="background-color:#ff8c42; color:white;">
+                            <th style="text-align:left; padding:10px;">Показатель</th>
+                            <th style="text-align:left; padding:10px;">Значение</th>
+                        </tr>
+                        <tr><td>Готовность</td><td>${reportData.availability}</td></tr>
+                        <tr><td>Производительность</td><td>${reportData.performance}</td></tr>
+                        <tr><td>Качество</td><td>${reportData.quality}</td></tr>
+                        <tr><td>Общий OEE</td><td>${reportData.oee}</td></tr>
+                        <tr><td>Время работы</td><td>${reportData.operatingTime}</td></tr>
+                        <tr><td>Запланированное время</td><td>${reportData.plannedTime}</td></tr>
+                        <tr><td>Произведено деталей</td><td>${reportData.producedParts}</td></tr>
+                        <tr><td>План по деталям</td><td>${reportData.plannedParts}</td></tr>
+                        <tr><td>Всего единиц</td><td>${reportData.totalUnits}</td></tr>
+                        <tr><td>Дефектные единицы</td><td>${reportData.defectiveUnits}</td></tr>
+                    </table>
+                </div>
+            `;
+            
+            document.body.appendChild(tempDiv);
+            
+            // Конвертируем HTML в изображение
+            const canvas = await html2canvas(tempDiv, {
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                allowTaint: true
             });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "report.csv");
+            
+            document.body.removeChild(tempDiv);
+            
+            // Создаем PDF
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
+            // Добавляем изображение с отчетом
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 297; // A4 height in mm
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+            
+            doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            
+            // Добавляем график на новую страницу
+            if (oeeChart) {
+                const chartCanvas = document.getElementById('oeeChart');
+                const chartImg = await html2canvas(chartCanvas, {
+                    scale: 2,
+                    logging: false,
+                    useCORS: true,
+                    allowTaint: true
+                });
+                
+                doc.addPage();
+                const chartImgData = chartImg.toDataURL('image/png');
+                const chartImgWidth = 180; // mm
+                const chartImgHeight = chartImg.height * chartImgWidth / chartImg.width;
+                
+                doc.addImage(chartImgData, 'PNG', 15, 20, chartImgWidth, chartImgHeight);
+                doc.text(15, 15, "График показателей OEE");
+            }
+            
+            // Сохраняем PDF
+            doc.save(`OEE_Отчет_${reportData.startDate}_${reportData.endDate}.pdf`);
+        }
+        
+        // Генерация CSV отчета
+        function generateCSV(reportData) {
+            const csvRows = [];
+            
+            // Заголовок
+            csvRows.push('Отчет OEE');
+            csvRows.push(`Период;${reportData.startDate} - ${reportData.endDate}`);
+            csvRows.push(`Станок;${reportData.machine}`);
+            csvRows.push(`Дата генерации;${reportData.dateGenerated}`);
+            csvRows.push('');
+            
+            // Данные
+            csvRows.push('Показатель;Значение');
+            csvRows.push(`Готовность;${reportData.availability}`);
+            csvRows.push(`Производительность;${reportData.performance}`);
+            csvRows.push(`Качество;${reportData.quality}`);
+            csvRows.push(`Общий OEE;${reportData.oee}`);
+            csvRows.push(`Время работы;${reportData.operatingTime}`);
+            csvRows.push(`Запланированное время;${reportData.plannedTime}`);
+            csvRows.push(`Произведено деталей;${reportData.producedParts}`);
+            csvRows.push(`План по деталям;${reportData.plannedParts}`);
+            csvRows.push(`Всего единиц;${reportData.totalUnits}`);
+            csvRows.push(`Дефектные единицы;${reportData.defectiveUnits}`);
+            
+            // Создаем CSV с BOM для корректного отображения кириллицы
+            const BOM = "\uFEFF";
+            const csvContent = BOM + csvRows.join('\r\n');
+            
+            // Создаем Blob и скачиваем
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `OEE_Отчет_${reportData.startDate}_${reportData.endDate}.csv`;
             document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
         }
-
-        // Экспорт в Excel (XLSX)
-        function exportToExcel(data) {
-            const ws = XLSX.utils.json_to_sheet(data);
+        
+        // Генерация XLSX отчета
+        function generateXLSX(reportData) {
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Отчет");
-            XLSX.writeFile(wb, "report.xlsx");
-        }
-
-        // Экспорт в XML
-        function exportToXML(data) {
-            let xmlContent = '<?xml version="1.0" encoding="UTF-8"?>\n<report>\n';
-            data.forEach(item => {
-                xmlContent += `  <record>\n`;
-                xmlContent += `    <machine>${item.machine}</machine>\n`;
-                xmlContent += `    <date>${item.date}</date>\n`;
-                xmlContent += `    <performance>${item.performance}</performance>\n`;
-                xmlContent += `    <downtime>${item.downtime}</downtime>\n`;
-                xmlContent += `  </record>\n`;
-            });
-            xmlContent += '</report>';
-            const blob = new Blob([xmlContent], { type: "application/xml" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "report.xml";
-            link.click();
-        }
-
-        // Экспорт в TXT
-        function exportToTXT(data) {
-            let txtContent = "Станок\tДата\tПроизводительность (%)\tВремя простоя (часы)\n";
-            data.forEach(item => {
-                txtContent += `${item.machine}\t${item.date}\t${item.performance}\t${item.downtime}\n`;
-            });
-            const blob = new Blob([txtContent], { type: "text/plain" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "report.txt";
-            link.click();
+            
+            // Данные для листа
+            const wsData = [
+                ["Отчет OEE"],
+                ["Период", `${reportData.startDate} - ${reportData.endDate}`],
+                ["Станок", reportData.machine],
+                ["Дата генерации", reportData.dateGenerated],
+                [],
+                ["Показатель", "Значение"],
+                ["Готовность", reportData.availability],
+                ["Производительность", reportData.performance],
+                ["Качество", reportData.quality],
+                ["Общий OEE", reportData.oee],
+                ["Время работы", reportData.operatingTime],
+                ["Запланированное время", reportData.plannedTime],
+                ["Произведено деталей", reportData.producedParts],
+                ["План по деталям", reportData.plannedParts],
+                ["Всего единиц", reportData.totalUnits],
+                ["Дефектные единицы", reportData.defectiveUnits]
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            
+            // Настраиваем ширину столбцов
+            ws['!cols'] = [
+                { wch: 25 }, // Ширина первого столбца
+                { wch: 20 }  // Ширина второго столбца
+            ];
+            
+            // Добавляем лист в книгу
+            XLSX.utils.book_append_sheet(wb, ws, "OEE Отчет");
+            
+            // Сохраняем файл
+            XLSX.writeFile(wb, `OEE_Отчет_${reportData.startDate}_${reportData.endDate}.xlsx`);
         }
     </script>
 </body>
