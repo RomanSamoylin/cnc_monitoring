@@ -4,132 +4,341 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Конструктор отчетов</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- Библиотеки -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Дополнительные стили для страницы отчетов */
+        :root {
+            --primary-color: #e67e22;
+            --primary-hover: #d35400;
+            --working-color: #2ecc71;
+            --stopped-color: #e74c3c;
+            --warning-color: #f39c12;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .logout-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .logout-button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        nav {
+            background-color: #444;
+            padding: 0.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            padding: 0.5rem 1rem;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        nav button:hover {
+            background-color: #666;
+        }
+
+        nav button.active {
+            background-color: var(--primary-color);
+        }
+
+        .container {
+            display: flex;
+            padding: 1rem;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
+        }
+
+        .sidebar {
+            width: 100%;
+            background-color: #555;
+            padding: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        @media (min-width: 768px) {
+            .sidebar {
+                width: 250px;
+                margin-right: 1rem;
+                margin-bottom: 0;
+            }
+        }
+
+        .content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .filters {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        select, input, button {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        select {
+            width: 100%;
+            background-color: #666;
+            color: white;
+            border: 1px solid #777;
+        }
+
+        option {
+            background-color: #555;
+        }
+
+        input {
+            width: 100%;
+            background-color: #666;
+            color: white;
+            border: 1px solid #777;
+            padding: 0.5rem;
+        }
+
+        input::placeholder {
+            color: #ccc;
+        }
+
+        .filter-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            padding: 0.5rem 1rem;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-hover);
+            font-weight: bold;
+        }
+
         .oee-formulas {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
         }
+
         .formula {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            padding: 20px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
+
         .formula h4 {
             margin-top: 0;
-            color: #333;
-            border-bottom: 1px solid #eee;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 10px;
         }
+
         .formula label {
             display: block;
             margin-top: 10px;
             font-weight: bold;
-            color: #555;
+            color: var(--text-color);
         }
+
         .formula input {
             width: 100%;
-            padding: 10px;
+            padding: 0.5rem;
             margin: 8px 0 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
             box-sizing: border-box;
             font-size: 14px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
         }
+
         .formula button {
-            background-color: #ff8c42;
+            background-color: var(--primary-color);
             color: white;
-            padding: 12px 20px;
+            padding: 0.5rem 1rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
             font-weight: bold;
             transition: background-color 0.3s;
             width: 100%;
         }
+
         .formula button:hover {
-            background-color: #e67e22;
+            background-color: var(--primary-hover);
         }
+
         .result {
             font-weight: bold;
             margin-top: 10px;
-            color: #2c3e50;
+            color: var(--text-color);
             padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
+            background-color: rgba(0,0,0,0.03);
+            border-radius: 4px;
             text-align: center;
         }
+
         #oeeChart {
-            background-color: white;
-            padding: 15px;
+            background-color: var(--card-bg);
+            padding: 1rem;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 1rem;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
         }
     </style>
 </head>
 <body>
-    <button class="logout-button" onclick="location.href='login.html'">Выйти</button>
     <header>
         <h1>Конструктор отчетов</h1>
+        <button class="logout-button" onclick="location.href='login.html'">
+            <i class="fas fa-sign-out-alt"></i> Выйти
+        </button>
     </header>
     <nav>
-        <button onclick="location.href='dashboard.html'">Дашборды мониторинга</button>
-        <button onclick="location.href='charts.html'">Графики анализа</button>
-        <button class="active" onclick="location.href='reports.html'">Конструктор отчетов</button>
+        <button onclick="location.href='dashboard.html'">
+            <i class="fas fa-tachometer-alt"></i> Дашборды
+        </button>
+        <button onclick="location.href='charts.html'">
+            <i class="fas fa-chart-line"></i> Графики анализа
+        </button>
+        <button class="active" onclick="location.href='reports.html'">
+            <i class="fas fa-file-alt"></i> Конструктор отчетов
+        </button>
     </nav>
     <div class="container">
         <div class="sidebar">
-            <h3>Параметры отчета</h3>
-            <form id="reportForm">
-                <label for="startDate">Начальная дата:</label>
-                <input type="date" id="startDate" required>
+            <div class="filters">
+                <h3>Параметры отчета</h3>
+                <form id="reportForm">
+                    <label for="startDate">Начальная дата:</label>
+                    <input type="date" id="startDate" required>
 
-                <label for="endDate">Конечная дата:</label>
-                <input type="date" id="endDate" required>
+                    <label for="endDate">Конечная дата:</label>
+                    <input type="date" id="endDate" required>
 
-                <label for="machineSelect">Выберите станок:</label>
-                <select id="machineSelect">
-                    <option value="all">Все станки</option>
-                    <option value="1">Станок 1</option>
-                    <option value="2">Станок 2</option>
-                    <option value="3">Станок 3</option>
-                    <option value="4">Станок 4</option>
-                    <option value="5">Станок 5</option>
-                    <option value="6">Станок 6</option>
-                    <option value="7">Станок 7</option>
-                    <option value="8">Станок 8</option>
-                    <option value="9">Станок 9</option>
-                    <option value="10">Станок 10</option>
-                    <option value="11">Станок 11</option>
-                    <option value="12">Станок 12</option>
-                    <option value="13">Станок 13</option>
-                    <option value="14">Станок 14</option>
-                    <option value="15">Станок 15</option>
-                    <option value="16">Станок 16</option>
-                </select>
+                    <label for="machineSelect">Выберите станок:</label>
+                    <select id="machineSelect">
+                        <option value="all">Все станки</option>
+                        <option value="1">Станок 1</option>
+                        <option value="2">Станок 2</option>
+                        <option value="3">Станок 3</option>
+                        <option value="4">Станок 4</option>
+                        <option value="5">Станок 5</option>
+                        <option value="6">Станок 6</option>
+                        <option value="7">Станок 7</option>
+                        <option value="8">Станок 8</option>
+                        <option value="9">Станок 9</option>
+                        <option value="10">Станок 10</option>
+                        <option value="11">Станок 11</option>
+                        <option value="12">Станок 12</option>
+                        <option value="13">Станок 13</option>
+                        <option value="14">Станок 14</option>
+                        <option value="15">Станок 15</option>
+                        <option value="16">Станок 16</option>
+                    </select>
 
-                <label for="reportType">Формат отчета:</label>
-                <select id="reportType">
-                    <option value="pdf">PDF</option>
-                    <option value="csv">CSV</option>
-                    <option value="xlsx">Excel (XLSX)</option>
-                </select>
+                    <label for="reportType">Формат отчета:</label>
+                    <select id="reportType">
+                        <option value="pdf">PDF</option>
+                        <option value="csv">CSV</option>
+                        <option value="xlsx">Excel (XLSX)</option>
+                    </select>
 
-                <button type="button" onclick="generateReport()">Создать отчет</button>
-            </form>
+                    <button type="button" class="filter-btn" onclick="generateReport()">
+                        <i class="fas fa-file-export"></i> Создать отчет
+                    </button>
+                </form>
+            </div>
         </div>
         <div class="content">
             <div id="reportPreview">
@@ -142,7 +351,9 @@
                         <input type="number" id="operatingTime" min="0" required>
                         <label for="plannedTime">Запланированное время (часы):</label>
                         <input type="number" id="plannedTime" min="0" required>
-                        <button type="button" onclick="calculateAvailability()">Рассчитать готовность</button>
+                        <button type="button" class="filter-btn" onclick="calculateAvailability()">
+                            <i class="fas fa-calculator"></i> Рассчитать готовность
+                        </button>
                         <p id="availabilityResult" class="result"></p>
                     </div>
                     <div class="formula">
@@ -152,7 +363,9 @@
                         <input type="number" id="producedParts" min="0" required>
                         <label for="plannedParts">План по деталям:</label>
                         <input type="number" id="plannedParts" min="0" required>
-                        <button type="button" onclick="calculatePerformance()">Рассчитать производительность</button>
+                        <button type="button" class="filter-btn" onclick="calculatePerformance()">
+                            <i class="fas fa-calculator"></i> Рассчитать производительность
+                        </button>
                         <p id="performanceResult" class="result"></p>
                     </div>
                     <div class="formula">
@@ -162,13 +375,17 @@
                         <input type="number" id="totalUnits" min="0" required>
                         <label for="defectiveUnits">Дефектные единицы:</label>
                         <input type="number" id="defectiveUnits" min="0" required>
-                        <button type="button" onclick="calculateQuality()">Рассчитать качество</button>
+                        <button type="button" class="filter-btn" onclick="calculateQuality()">
+                            <i class="fas fa-calculator"></i> Рассчитать качество
+                        </button>
                         <p id="qualityResult" class="result"></p>
                     </div>
                     <div class="formula">
                         <h4>Общий OEE</h4>
                         <p>OEE = Готовность × Производительность × Качество</p>
-                        <button type="button" onclick="calculateOEE()">Рассчитать OEE</button>
+                        <button type="button" class="filter-btn" onclick="calculateOEE()">
+                            <i class="fas fa-calculator"></i> Рассчитать OEE
+                        </button>
                         <p id="oeeResult" class="result"></p>
                     </div>
                 </div>
@@ -180,6 +397,15 @@
         </div>
     </div>
 
+    <div class="notification" id="notification">
+        Данные успешно обновлены
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script>
         // Инициализация графика
         const ctx = document.getElementById('oeeChart').getContext('2d');
@@ -203,16 +429,16 @@
                         label: 'Показатели (%)',
                         data: [availability, performance, quality, oee],
                         backgroundColor: [
-                            'rgba(255, 140, 66, 0.7)',
-                            'rgba(66, 135, 245, 0.7)',
-                            'rgba(75, 192, 192, 0.7)',
-                            'rgba(153, 102, 255, 0.7)'
+                            'rgba(230, 126, 34, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(155, 89, 182, 0.7)'
                         ],
                         borderColor: [
-                            'rgba(255, 140, 66, 1)',
-                            'rgba(66, 135, 245, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)'
+                            'rgba(230, 126, 34, 1)',
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(46, 204, 113, 1)',
+                            'rgba(155, 89, 182, 1)'
                         ],
                         borderWidth: 1
                     }]
@@ -262,13 +488,18 @@
             const operatingTime = parseFloat(document.getElementById("operatingTime").value);
             const plannedTime = parseFloat(document.getElementById("plannedTime").value);
             
-            if (isNaN(operatingTime) || isNaN(plannedTime)) {
-                alert("Пожалуйста, введите числовые значения.");
+            if (isNaN(operatingTime)) {
+                showNotification("Пожалуйста, введите время работы.");
+                return;
+            }
+            
+            if (isNaN(plannedTime)) {
+                showNotification("Пожалуйста, введите запланированное время.");
                 return;
             }
             
             if (plannedTime === 0) {
-                alert("Запланированное время не может быть равно нулю.");
+                showNotification("Запланированное время не может быть равно нулю.");
                 return;
             }
             
@@ -282,13 +513,18 @@
             const producedParts = parseFloat(document.getElementById("producedParts").value);
             const plannedParts = parseFloat(document.getElementById("plannedParts").value);
             
-            if (isNaN(producedParts) || isNaN(plannedParts)) {
-                alert("Пожалуйста, введите числовые значения.");
+            if (isNaN(producedParts)) {
+                showNotification("Пожалуйста, введите количество произведенных деталей.");
+                return;
+            }
+            
+            if (isNaN(plannedParts)) {
+                showNotification("Пожалуйста, введите плановое количество деталей.");
                 return;
             }
             
             if (plannedParts === 0) {
-                alert("Плановое количество деталей не может быть равно нулю.");
+                showNotification("Плановое количество деталей не может быть равно нулю.");
                 return;
             }
             
@@ -302,18 +538,23 @@
             const totalUnits = parseFloat(document.getElementById("totalUnits").value);
             const defectiveUnits = parseFloat(document.getElementById("defectiveUnits").value);
             
-            if (isNaN(totalUnits) || isNaN(defectiveUnits)) {
-                alert("Пожалуйста, введите числовые значения.");
+            if (isNaN(totalUnits)) {
+                showNotification("Пожалуйста, введите общее количество единиц.");
+                return;
+            }
+            
+            if (isNaN(defectiveUnits)) {
+                showNotification("Пожалуйста, введите количество дефектных единиц.");
                 return;
             }
             
             if (totalUnits === 0) {
-                alert("Общее количество единиц не может быть равно нулю.");
+                showNotification("Общее количество единиц не может быть равно нулю.");
                 return;
             }
             
             if (defectiveUnits > totalUnits) {
-                alert("Количество дефектных единиц не может превышать общее количество.");
+                showNotification("Количество дефектных единиц не может превышать общее количество.");
                 return;
             }
             
@@ -330,7 +571,7 @@
                 const qualityText = document.getElementById("qualityResult").textContent;
                 
                 if (!availabilityText || !performanceText || !qualityText) {
-                    alert("Пожалуйста, сначала рассчитайте все компоненты OEE.");
+                    showNotification("Пожалуйста, сначала рассчитайте все компоненты OEE.");
                     return;
                 }
                 
@@ -342,8 +583,9 @@
                 document.getElementById("oeeResult").textContent = `Общий OEE: ${oee.toFixed(2)}%`;
                 
                 updateChart(availability * 100, performance * 100, quality * 100, oee);
+                showNotification("OEE успешно рассчитан!");
             } catch (e) {
-                alert("Ошибка при расчете OEE: " + e.message);
+                showNotification("Ошибка при расчете OEE: " + e.message);
             }
         }
 
@@ -355,12 +597,12 @@
             const machine = document.getElementById("machineSelect").value;
             
             if (!startDate || !endDate) {
-                alert("Пожалуйста, укажите начальную и конечную даты.");
+                showNotification("Пожалуйста, укажите начальную и конечную даты.");
                 return;
             }
             
             if (currentOEE === 0) {
-                alert("Пожалуйста, сначала рассчитайте показатели OEE.");
+                showNotification("Пожалуйста, сначала рассчитайте показатели OEE.");
                 return;
             }
             
@@ -394,10 +636,10 @@
                         generateXLSX(reportData);
                         break;
                     default:
-                        alert("Неизвестный формат отчета");
+                        showNotification("Неизвестный формат отчета");
                 }
             } catch (e) {
-                alert("Ошибка при генерации отчета: " + e.message);
+                showNotification("Ошибка при генерации отчета: " + e.message);
             }
         }
         
@@ -425,7 +667,7 @@
                     </div>
                     
                     <table border="1" cellpadding="8" style="width:100%; border-collapse:collapse; margin-bottom:30px;">
-                        <tr style="background-color:#ff8c42; color:white;">
+                        <tr style="background-color:#e67e22; color:white;">
                             <th style="text-align:left; padding:10px;">Показатель</th>
                             <th style="text-align:left; padding:10px;">Значение</th>
                         </tr>
@@ -491,6 +733,7 @@
             
             // Сохраняем PDF
             doc.save(`OEE_Отчет_${reportData.startDate}_${reportData.endDate}.pdf`);
+            showNotification("PDF отчет успешно создан!");
         }
         
         // Генерация CSV отчета
@@ -529,6 +772,7 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            showNotification("CSV отчет успешно создан!");
         }
         
         // Генерация XLSX отчета
@@ -568,6 +812,18 @@
             
             // Сохраняем файл
             XLSX.writeFile(wb, `OEE_Отчет_${reportData.startDate}_${reportData.endDate}.xlsx`);
+            showNotification("Excel отчет успешно создан!");
+        }
+
+        // Показать уведомление
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
         }
     </script>
 </body>

@@ -4,158 +4,788 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дашборды мониторинга</title>
-    <button class="logout-button" onclick="location.href='login.html'">Выйти</button>
-    <link rel="stylesheet" href="styles.css">
-    <script src="./node_modules/chart.js/dist/Chart.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #e67e22;
+            --primary-hover: #d35400;
+            --working-color: #2ecc71;
+            --stopped-color: #e74c3c;
+            --warning-color: #f39c12;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .logout-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .logout-button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        nav {
+            background-color: #444;
+            padding: 0.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav button {
+            padding: 0.5rem 1rem;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        nav button:hover {
+            background-color: #666;
+        }
+
+        nav button.active {
+            background-color: var(--primary-color);
+        }
+
+        .container {
+            display: flex;
+            padding: 1rem;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
+        }
+
+        .sidebar {
+            width: 100%;
+            background-color: #555;
+            padding: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        @media (min-width: 768px) {
+            .sidebar {
+                width: 250px;
+                margin-right: 1rem;
+                margin-bottom: 0;
+            }
+        }
+
+        .content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .content {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+        }
+
+        .filters {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        select, button {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        select {
+            width: 100%;
+            background-color: #666;
+            color: white;
+            border: 1px solid #777;
+        }
+
+        option {
+            background-color: #555;
+        }
+
+        .filter-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-hover);
+            font-weight: bold;
+        }
+
+        .machine-card {
+            background-color: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .machine-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .machine-card.working {
+            border-left: 4px solid var(--working-color);
+        }
+
+        .machine-card.stopped {
+            border-left: 4px solid var(--stopped-color);
+        }
+
+        .machine-card.warning {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .machine-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .machine-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .machine-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-indicator.working {
+            background-color: var(--working-color);
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.stopped {
+            background-color: var(--stopped-color);
+        }
+
+        .status-indicator.warning {
+            background-color: var(--warning-color);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .chart-container {
+            margin-top: 1rem;
+            position: relative;
+            height: 200px;
+        }
+
+        .chart-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-card {
+            grid-column: 1 / -1;
+            background-color: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 4px;
+            background-color: rgba(0,0,0,0.03);
+        }
+
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0.3rem 0;
+        }
+
+        .summary-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .refresh-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .refresh-btn .fa-sync {
+            transition: transform 0.5s;
+        }
+
+        .refresh-btn.rotating .fa-sync {
+            transform: rotate(360deg);
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
     <header>
         <h1>Дашборды мониторинга</h1>
+        <button class="logout-button" onclick="location.href='login.html'">
+            <i class="fas fa-sign-out-alt"></i> Выйти
+        </button>
     </header>
     <nav>
-        <button class="active" onclick="location.href='dashboard.html'">Дашборды мониторинга</button>
-        <button onclick="location.href='charts.html'">Графики анализа</button>
-        <button onclick="location.href='reports.html'">Конструктор отчетов</button>
+        <button class="active" onclick="location.href='dashboard.html'">
+            <i class="fas fa-tachometer-alt"></i> Дашборды
+        </button>
+        <button onclick="location.href='charts.html'">
+            <i class="fas fa-chart-line"></i> Графики анализа
+        </button>
+        <button onclick="location.href='reports.html'">
+            <i class="fas fa-file-alt"></i> Конструктор отчетов
+        </button>
     </nav>
     <div class="container">
         <div class="sidebar">
-            <h3>Фильтр по станкам</h3>
-            <select id="machineFilter">
-                <option value="all">Все станки</option>
-                <option value="1">Станок 1</option>
-                <option value="2">Станок 2</option>
-                <option value="3">Станок 3</option>
-                <option value="4">Станок 4</option>
-                <option value="5">Станок 5</option>
-                <option value="6">Станок 6</option>
-                <option value="7">Станок 7</option>
-                <option value="8">Станок 8</option>
-                <option value="9">Станок 9</option>
-                <option value="10">Станок 10</option>
-                <option value="11">Станок 11</option>
-                <option value="12">Станок 12</option>
-                <option value="13">Станок 13</option>
-                <option value="14">Станок 14</option>
-                <option value="15">Станок 15</option>
-                <option value="16">Станок 16</option>
-            </select>
+            <div class="filters">
+                <h3>Фильтр по станкам</h3>
+                <select id="machineFilter">
+                    <option value="all">Все станки</option>
+                    <option value="1">Станок 1</option>
+                    <option value="2">Станок 2</option>
+                    <option value="3">Станок 3</option>
+                    <option value="4">Станок 4</option>
+                    <option value="5">Станок 5</option>
+                    <option value="6">Станок 6</option>
+                    <option value="7">Станок 7</option>
+                    <option value="8">Станок 8</option>
+                    <option value="9">Станок 9</option>
+                    <option value="10">Станок 10</option>
+                    <option value="11">Станок 11</option>
+                    <option value="12">Станок 12</option>
+                    <option value="13">Станок 13</option>
+                    <option value="14">Станок 14</option>
+                    <option value="15">Станок 15</option>
+                    <option value="16">Станок 16</option>
+                </select>
+
+                <h3>Статус станков</h3>
+                <div class="filter-group">
+                    <button class="filter-btn active" data-status="all">Все</button>
+                    <button class="filter-btn" data-status="working">
+                        <i class="fas fa-circle" style="color: var(--working-color);"></i> Работают
+                    </button>
+                    <button class="filter-btn" data-status="stopped">
+                        <i class="fas fa-circle" style="color: var(--stopped-color);"></i> Остановлены
+                    </button>
+                    <button class="filter-btn" data-status="warning">
+                        <i class="fas fa-circle" style="color: var(--warning-color);"></i> Предупреждение
+                    </button>
+                </div>
+
+                <h3>Сортировка</h3>
+                <div class="filter-group">
+                    <button class="filter-btn" data-sort="name">По имени</button>
+                    <button class="filter-btn" data-sort="status">По статусу</button>
+                    <button class="filter-btn" data-sort="performance">По производительности</button>
+                </div>
+            </div>
         </div>
         <div class="content" id="machineList">
-            
+            <!-- Здесь будут карточки станков -->
         </div>
     </div>
+
+    <div class="notification" id="notification">
+        Данные успешно обновлены
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Функция для генерации случайных данных
+        // Состояние приложения
+        const state = {
+            machines: [],
+            filter: {
+                machine: 'all',
+                status: 'all',
+                sort: 'name'
+            },
+            autoRefresh: true,
+            refreshInterval: 5000,
+            refreshIntervalId: null
+        };
+
+        // Элементы DOM
+        const DOM = {
+            machineList: document.getElementById('machineList'),
+            machineFilter: document.getElementById('machineFilter'),
+            notification: document.getElementById('notification')
+        };
+
+        // Инициализация приложения
+        function init() {
+            generateRandomData();
+            setupEventListeners();
+            loadMachines();
+            startAutoRefresh();
+        }
+
+        // Генерация случайных данных
         function generateRandomData() {
-            const machines = Array.from({ length: 16 }, (_, i) => {
-                const status = Math.random() > 0.5 ? "Работает" : "Остановлен";
+            state.machines = Array.from({ length: 16 }, (_, i) => {
+                const statusRand = Math.random();
+                let status, statusClass;
+                
+                if (statusRand < 0.7) {
+                    status = "Работает";
+                    statusClass = "working";
+                } else if (statusRand < 0.9) {
+                    status = "Остановлен";
+                    statusClass = "stopped";
+                } else {
+                    status = "Предупреждение";
+                    statusClass = "warning";
+                }
+
                 const performance = Array.from({ length: 7 }, () => Math.floor(Math.random() * 100));
                 const spindleLoad = Array.from({ length: 3 }, () => Math.floor(Math.random() * 100));
+                
                 return {
                     id: i + 1,
                     name: `Станок ${i + 1}`,
                     status,
+                    statusClass,
                     performance,
-                    spindleLoad
+                    spindleLoad,
+                    currentPerformance: performance[performance.length - 1],
+                    avgSpindleLoad: Math.round(spindleLoad.reduce((a, b) => a + b, 0) / spindleLoad.length),
+                    lastUpdate: new Date()
                 };
             });
-            return machines;
         }
 
-        // Функция для обновления данных станков
-        function updateMachineData() {
-            const newData = generateRandomData();
-            machines.splice(0, machines.length, ...newData);
-            loadMachines(document.getElementById("machineFilter").value);
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            DOM.machineFilter.addEventListener('change', function() {
+                state.filter.machine = this.value;
+                loadMachines();
+            });
+
+            // Фильтрация по статусу
+            document.querySelectorAll('[data-status]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    state.filter.status = this.dataset.status;
+                    loadMachines();
+                });
+            });
+
+            // Сортировка
+            document.querySelectorAll('[data-sort]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    state.filter.sort = this.dataset.sort;
+                    sortMachines();
+                    renderMachines();
+                });
+            });
         }
 
-        const machines = generateRandomData();
+        // Загрузка и отображение станков
+        function loadMachines() {
+            const filtered = filterMachines();
+            sortMachines();
+            renderMachines(filtered);
+            updateSummary(filtered);
+        }
 
-        function loadMachines(filter = "all") {
-            const machineList = document.getElementById("machineList");
-            machineList.innerHTML = "";
-            machines.forEach(machine => {
-                if (filter === "all" || machine.id === parseInt(filter)) {
-                    const card = document.createElement("div");
-                    card.className = `machine-card ${machine.status === "Работает" ? "working" : "stopped"}`;
-                    card.innerHTML = `
-                        <h4>${machine.name}</h4>
-                        <p>Статус: <span class="status-indicator ${machine.status === "Работает" ? "working" : "stopped"}"></span>${machine.status}</p>
-                        <div class="chart-container">
-                            <h5>Производительность (%)</h5>
-                            <canvas id="performanceChart${machine.id}"></canvas>
-                        </div>
-                        <div class="chart-container">
-                            <h5>Нагрузка на шпиндель (%)</h5>
-                            <canvas id="spindleLoadChart${machine.id}"></canvas>
-                        </div>
-                    `;
-                    machineList.appendChild(card);
+        // Фильтрация станков
+        function filterMachines() {
+            return state.machines.filter(machine => {
+                const machineMatch = state.filter.machine === 'all' || machine.id === parseInt(state.filter.machine);
+                const statusMatch = state.filter.status === 'all' || 
+                                  (state.filter.status === 'working' && machine.status === "Работает") ||
+                                  (state.filter.status === 'stopped' && machine.status === "Остановлен") ||
+                                  (state.filter.status === 'warning' && machine.status === "Предупреждение");
+                return machineMatch && statusMatch;
+            });
+        }
 
-                    // График производительности
-                    new Chart(document.getElementById(`performanceChart${machine.id}`), {
-                        type: 'line',
-                        data: {
-                            labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
-                            datasets: [{
-                                label: 'Производительность (%)',
-                                data: machine.performance,
-                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 2,
-                                tension: 0.4
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    max: 100
-                                }
-                            }
-                        }
-                    });
-
-                    // График нагрузки на шпиндель
-                    new Chart(document.getElementById(`spindleLoadChart${machine.id}`), {
-                        type: 'bar',
-                        data: {
-                            labels: ['Утро', 'День', 'Вечер'],
-                            datasets: [{
-                                label: 'Нагрузка на шпиндель (%)',
-                                data: machine.spindleLoad,
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.7)',
-                                    'rgba(255, 206, 86, 0.7)',
-                                    'rgba(75, 192, 192, 0.7)'
-                                ],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    max: 100
-                                }
-                            }
-                        }
-                    });
+        // Сортировка станков
+        function sortMachines() {
+            state.machines.sort((a, b) => {
+                switch(state.filter.sort) {
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'status':
+                        return a.status.localeCompare(b.status);
+                    case 'performance':
+                        return b.currentPerformance - a.currentPerformance;
+                    default:
+                        return 0;
                 }
             });
         }
 
-        document.getElementById("machineFilter").addEventListener("change", function() {
-            loadMachines(this.value);
-        });
+        // Отрисовка станков
+        function renderMachines(filteredMachines = []) {
+            // Очищаем контейнер
+            DOM.machineList.innerHTML = '';
+            
+            // Добавляем кнопку обновления и сводную статистику
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'controls';
+            controlsDiv.innerHTML = `
+                <button class="refresh-btn" id="refreshBtn">
+                    <i class="fas fa-sync"></i> Обновить
+                </button>
+            `;
+            controlsDiv.querySelector('#refreshBtn').addEventListener('click', manualRefresh);
+            DOM.machineList.appendChild(controlsDiv);
+            
+            // Добавляем сводную статистику
+            const summaryCard = document.createElement('div');
+            summaryCard.className = 'summary-card';
+            summaryCard.id = 'summaryInfo';
+            summaryCard.innerHTML = `
+                <div class="summary-item">
+                    <span class="summary-label">Всего станков</span>
+                    <span class="summary-value" id="totalMachines">16</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Работают</span>
+                    <span class="summary-value" id="workingMachines">0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Остановлены</span>
+                    <span class="summary-value" id="stoppedMachines">0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Предупреждение</span>
+                    <span class="summary-value" id="warningMachines">0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Средняя загрузка</span>
+                    <span class="summary-value" id="avgLoad">0%</span>
+                </div>
+            `;
+            DOM.machineList.appendChild(summaryCard);
+            
+            // Отрисовываем карточки станков
+            const machinesToShow = filteredMachines.length > 0 ? filteredMachines : filterMachines();
+            
+            machinesToShow.forEach(machine => {
+                const card = document.createElement('div');
+                card.className = `machine-card ${machine.statusClass}`;
+                card.innerHTML = `
+                    <div class="machine-header">
+                        <div class="machine-name">${machine.name}</div>
+                        <div class="machine-status tooltip">
+                            <span class="status-indicator ${machine.statusClass}"></span>
+                            ${machine.status}
+                            <span class="tooltiptext">Последнее обновление: ${machine.lastUpdate.toLocaleTimeString()}</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Производительность: ${machine.currentPerformance}%</div>
+                        <canvas id="performanceChart${machine.id}"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Средняя нагрузка на шпиндель: ${machine.avgSpindleLoad}%</div>
+                        <canvas id="spindleLoadChart${machine.id}"></canvas>
+                    </div>
+                `;
+                DOM.machineList.appendChild(card);
 
-        loadMachines(); // Загрузка всех станков при открытии страницы
+                // График производительности
+                new Chart(document.getElementById(`performanceChart${machine.id}`), {
+                    type: 'line',
+                    data: {
+                        labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+                        datasets: [{
+                            label: 'Производительность (%)',
+                            data: machine.performance,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointBackgroundColor: machine.statusClass === 'working' ? 
+                                'rgba(46, 204, 113, 1)' : 
+                                machine.statusClass === 'stopped' ? 
+                                'rgba(231, 76, 60, 1)' : 
+                                'rgba(243, 156, 18, 1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Производительность: ${context.raw}%`;
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
 
-        // Обновление данных станков каждые 5 секунд
-        setInterval(updateMachineData, 5000);
+                // График нагрузки на шпиндель
+                new Chart(document.getElementById(`spindleLoadChart${machine.id}`), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Утро', 'День', 'Вечер'],
+                        datasets: [{
+                            label: 'Нагрузка на шпиндель (%)',
+                            data: machine.spindleLoad,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Нагрузка: ${context.raw}%`;
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            });
+            
+            // Обновляем сводную статистику
+            updateSummary(machinesToShow);
+        }
+
+        // Обновление сводной информации
+        function updateSummary(machines) {
+            const totalMachines = 16;
+            const working = machines.filter(m => m.status === "Работает").length;
+            const stopped = machines.filter(m => m.status === "Остановлен").length;
+            const warning = machines.filter(m => m.status === "Предупреждение").length;
+            
+            const avgLoad = machines.length > 0 ? 
+            Math.round(machines.reduce((sum, m) => sum + m.currentPerformance, 0) / (machines.length || 1)):
+            document.getElementById('totalMachines').textContent = totalMachines;
+            document.getElementById('workingMachines').textContent = working;
+            document.getElementById('stoppedMachines').textContent = stopped;
+            document.getElementById('warningMachines').textContent = warning;
+            document.getElementById('avgLoad').textContent = `${avgLoad}%`;
+        }
+
+        // Ручное обновление данных
+        function manualRefresh() {
+            const btn = document.querySelector('.refresh-btn');
+            btn.classList.add('rotating');
+            
+            generateRandomData();
+            loadMachines();
+            
+            setTimeout(() => {
+                btn.classList.remove('rotating');
+                showNotification('Данные успешно обновлены');
+            }, 800);
+        }
+
+        // Автоматическое обновление
+        function startAutoRefresh() {
+            // Останавливаем предыдущий интервал, если он был
+            if (state.refreshIntervalId) {
+                clearInterval(state.refreshIntervalId);
+            }
+            
+            // Запускаем новый интервал
+            state.refreshIntervalId = setInterval(() => {
+                generateRandomData();
+                loadMachines();
+                console.log('Данные автоматически обновлены в', new Date().toLocaleTimeString());
+            }, state.refreshInterval);
+        }
+
+        // Показать уведомление
+        function showNotification(message) {
+            DOM.notification.textContent = message;
+            DOM.notification.classList.add('show');
+            
+            setTimeout(() => {
+                DOM.notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>

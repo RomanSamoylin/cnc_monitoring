@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборды мониторинга</title>
+    <button class="logout-button" onclick="location.href='login.html'">Выйти</button>
+    <link rel="stylesheet" href="styles.css">
+    <script src="./node_modules/chart.js/dist/Chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+</head>
+<body>
+    <header>
+        <h1>Дашборды мониторинга</h1>
+    </header>
+    <nav>
+        <button class="active" onclick="location.href='dashboard.html'">Дашборды мониторинга</button>
+        <button onclick="location.href='charts.html'">Графики анализа</button>
+        <button onclick="location.href='reports.html'">Конструктор отчетов</button>
+    </nav>
+    <div class="container">
+        <div class="sidebar">
+            <h3>Фильтр по станкам</h3>
+            <select id="machineFilter">
+                <option value="all">Все станки</option>
+                <option value="1">Станок 1</option>
+                <option value="2">Станок 2</option>
+                <option value="3">Станок 3</option>
+                <option value="4">Станок 4</option>
+                <option value="5">Станок 5</option>
+                <option value="6">Станок 6</option>
+                <option value="7">Станок 7</option>
+                <option value="8">Станок 8</option>
+                <option value="9">Станок 9</option>
+                <option value="10">Станок 10</option>
+                <option value="11">Станок 11</option>
+                <option value="12">Станок 12</option>
+                <option value="13">Станок 13</option>
+                <option value="14">Станок 14</option>
+                <option value="15">Станок 15</option>
+                <option value="16">Станок 16</option>
+            </select>
+        </div>
+        <div class="content" id="machineList">
+            
+        </div>
+    </div>
+    <script>
+        // Функция для генерации случайных данных
+        function generateRandomData() {
+            const machines = Array.from({ length: 16 }, (_, i) => {
+                const status = Math.random() > 0.5 ? "Работает" : "Остановлен";
+                const performance = Array.from({ length: 7 }, () => Math.floor(Math.random() * 100));
+                const spindleLoad = Array.from({ length: 3 }, () => Math.floor(Math.random() * 100));
+                return {
+                    id: i + 1,
+                    name: `Станок ${i + 1}`,
+                    status,
+                    performance,
+                    spindleLoad
+                };
+            });
+            return machines;
+        }
+
+        // Функция для обновления данных станков
+        function updateMachineData() {
+            const newData = generateRandomData();
+            machines.splice(0, machines.length, ...newData);
+            loadMachines(document.getElementById("machineFilter").value);
+        }
+
+        const machines = generateRandomData();
+
+        function loadMachines(filter = "all") {
+            const machineList = document.getElementById("machineList");
+            machineList.innerHTML = "";
+            machines.forEach(machine => {
+                if (filter === "all" || machine.id === parseInt(filter)) {
+                    const card = document.createElement("div");
+                    card.className = `machine-card ${machine.status === "Работает" ? "working" : "stopped"}`;
+                    card.innerHTML = `
+                        <h4>${machine.name}</h4>
+                        <p>Статус: <span class="status-indicator ${machine.status === "Работает" ? "working" : "stopped"}"></span>${machine.status}</p>
+                        <div class="chart-container">
+                            <h5>Производительность (%)</h5>
+                            <canvas id="performanceChart${machine.id}"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h5>Нагрузка на шпиндель (%)</h5>
+                            <canvas id="spindleLoadChart${machine.id}"></canvas>
+                        </div>
+                    `;
+                    machineList.appendChild(card);
+
+                    // График производительности
+                    new Chart(document.getElementById(`performanceChart${machine.id}`), {
+                        type: 'line',
+                        data: {
+                            labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+                            datasets: [{
+                                label: 'Производительность (%)',
+                                data: machine.performance,
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 2,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+
+                    // График нагрузки на шпиндель
+                    new Chart(document.getElementById(`spindleLoadChart${machine.id}`), {
+                        type: 'bar',
+                        data: {
+                            labels: ['Утро', 'День', 'Вечер'],
+                            datasets: [{
+                                label: 'Нагрузка на шпиндель (%)',
+                                data: machine.spindleLoad,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.7)',
+                                    'rgba(255, 206, 86, 0.7)',
+                                    'rgba(75, 192, 192, 0.7)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        document.getElementById("machineFilter").addEventListener("change", function() {
+            loadMachines(this.value);
+        });
+
+        loadMachines(); // Загрузка всех станков при открытии страницы
+
+        // Обновление данных станков каждые 5 секунд
+        setInterval(updateMachineData, 5000);
+    </script>
+</body>
+</html>
