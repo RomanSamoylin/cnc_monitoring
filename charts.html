@@ -6,18 +6,33 @@
     <title>Графики анализа станков</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #e67e22;
+            --primary-hover: #d35400;
+            --working-color: #2ecc71;
+            --stopped-color: #e74c3c;
+            --warning-color: #f39c12;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5;
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
         header {
             background-color: #333;
             color: white;
             padding: 1rem;
             text-align: center;
+            position: relative;
         }
         nav {
             background-color: #444;
@@ -25,6 +40,7 @@
             display: flex;
             justify-content: center;
             gap: 1rem;
+            flex-wrap: wrap;
         }
         nav button {
             padding: 0.5rem 1rem;
@@ -33,22 +49,42 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        nav button:hover {
+            background-color: #666;
         }
         nav button.active {
-            background-color: #e67e22;
+            background-color: var(--primary-color);
         }
         .container {
             display: flex;
             padding: 1rem;
+            flex-direction: column;
+        }
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
         }
         .sidebar {
-            width: 250px;
+            width: 100%;
             background-color: #555;
             padding: 1rem;
             border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-right: 1rem;
+            margin-bottom: 1rem;
             color: white;
+        }
+        @media (min-width: 768px) {
+            .sidebar {
+                width: 250px;
+                margin-right: 1rem;
+                margin-bottom: 0;
+            }
         }
         .content {
             flex: 1;
@@ -57,21 +93,28 @@
             gap: 1rem;
         }
         .chart-container {
-            background-color: white;
+            background-color: var(--card-bg);
             padding: 1rem;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .logout-button {
             position: absolute;
             top: 1rem;
             right: 1rem;
             padding: 0.5rem 1rem;
-            background-color: #e67e22;
+            background-color: var(--primary-color);
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logout-button:hover {
+            background-color: var(--primary-hover);
         }
         select, input {
             width: 100%;
@@ -92,39 +135,57 @@
             display: flex;
             gap: 0.5rem;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
         }
         .period-buttons button {
             flex: 1;
             padding: 0.5rem;
-            background-color: #e67e22;
-            border: 1px solid #d35400;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
             border-radius: 4px;
             cursor: pointer;
-            color: white;
+            transition: background-color 0.3s;
+            min-width: 60px;
+        }
+        .period-buttons button:hover {
+            background-color: var(--primary-hover);
         }
         .period-buttons button.active {
-            background-color: #d35400;
-            color: white;
-            border-color: #d35400;
+            background-color: var(--primary-hover);
+            font-weight: bold;
         }
         option {
             background-color: #555;
+        }
+        h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: white;
         }
     </style>
 </head>
 <body>
     <header>
         <h1>Графики анализа станков</h1>
-        <button class="logout-button" onclick="location.href='login.html'">Выйти</button>
+        <button class="logout-button" onclick="location.href='login.html'">
+            <i class="fas fa-sign-out-alt"></i> Выйти
+        </button>
     </header>
     <nav>
-        <button onclick="location.href='dashboard.html'">Дашборды мониторинга</button>
-        <button class="active" onclick="location.href='charts.html'">Графики анализа</button>
-        <button onclick="location.href='reports.html'">Конструктор отчетов</button>
+        <button onclick="location.href='dashboard.html'">
+            <i class="fas fa-tachometer-alt"></i> Дашборды
+        </button>
+        <button class="active" onclick="location.href='charts.html'">
+            <i class="fas fa-chart-line"></i> Графики анализа
+        </button>
+        <button onclick="location.href='reports.html'">
+            <i class="fas fa-file-alt"></i> Конструктор отчетов
+        </button>
     </nav>
     <div class="container">
         <div class="sidebar">
-            <h3>Фильтр по станкам</h3>
+            <h3><i class="fas fa-filter"></i> Фильтр по станкам</h3>
             <select id="machineFilter">
                 <option value="all">Все станки</option>
                 <option value="1">Станок 1</option>
@@ -145,20 +206,20 @@
                 <option value="16">Станок 16</option>
             </select>
             
-            <h3>Период</h3>
+            <h3><i class="fas fa-calendar-alt"></i> Период</h3>
             <div class="period-buttons">
-                <button onclick="setPeriod('day')">День</button>
-                <button onclick="setPeriod('week')">Неделя</button>
-                <button onclick="setPeriod('month')">Месяц</button>
-                <button onclick="setPeriod('year')">Год</button>
+                <button onclick="setPeriod('day')"><i class="fas fa-calendar-day"></i> День</button>
+                <button onclick="setPeriod('week')"><i class="fas fa-calendar-week"></i> Неделя</button>
+                <button onclick="setPeriod('month')"><i class="fas fa-calendar"></i> Месяц</button>
+                <button onclick="setPeriod('year')"><i class="fas fa-calendar-year"></i> Год</button>
             </div>
             
             <div>
-                <label for="startDate">Начальная дата:</label>
+                <label for="startDate"><i class="fas fa-clock"></i> Начальная дата:</label>
                 <input type="date" id="startDate">
             </div>
             <div>
-                <label for="endDate">Конечная дата:</label>
+                <label for="endDate"><i class="fas fa-clock"></i> Конечная дата:</label>
                 <input type="date" id="endDate">
             </div>
         </div>
@@ -245,7 +306,7 @@
             // Обновляем кнопки периода
             document.querySelectorAll('.period-buttons button').forEach(button => {
                 button.classList.remove('active');
-                if (button.textContent.toLowerCase() === getPeriodName(period)) {
+                if (button.textContent.toLowerCase().includes(period)) {
                     button.classList.add('active');
                 }
             });
