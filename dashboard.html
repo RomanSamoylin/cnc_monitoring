@@ -117,7 +117,7 @@
             flex: 1;
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1rem;
+            gap: 1.5rem;
         }
 
         @media (min-width: 768px) {
@@ -175,10 +175,13 @@
 
         .machine-card {
             background-color: var(--card-bg);
-            padding: 1rem;
+            padding: 1.25rem;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
         .machine-card:hover {
@@ -202,7 +205,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
 
         .machine-name {
@@ -243,61 +246,68 @@
         }
 
         .chart-container {
-            margin-top: 1rem;
             position: relative;
             height: 200px;
+            margin-top: 0.5rem;
         }
 
         .chart-title {
             font-size: 0.9rem;
             color: #666;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            padding-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        .chart-wrapper {
+            margin-bottom: 1.5rem;
         }
 
         .summary-card {
             grid-column: 1 / -1;
             background-color: var(--card-bg);
-            padding: 1rem;
+            padding: 1.25rem;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
+            gap: 1.25rem;
         }
 
         .summary-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 0.5rem;
-            border-radius: 4px;
+            padding: 0.75rem;
+            border-radius: 6px;
             background-color: rgba(0,0,0,0.03);
         }
 
         .summary-value {
             font-size: 1.5rem;
             font-weight: bold;
-            margin: 0.3rem 0;
+            margin: 0.25rem 0;
         }
 
         .summary-label {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #666;
+            text-align: center;
         }
 
         .controls {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
         .refresh-btn {
             background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.1rem;
             border-radius: 4px;
             cursor: pointer;
             display: flex;
@@ -324,7 +334,7 @@
             right: 20px;
             background-color: var(--primary-color);
             color: white;
-            padding: 1rem;
+            padding: 1rem 1.5rem;
             border-radius: 4px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transform: translateY(100px);
@@ -351,7 +361,7 @@
             color: #fff;
             text-align: center;
             border-radius: 6px;
-            padding: 5px;
+            padding: 8px;
             position: absolute;
             z-index: 1;
             bottom: 125%;
@@ -360,6 +370,7 @@
             opacity: 0;
             transition: opacity 0.3s;
             font-size: 0.8rem;
+            line-height: 1.4;
         }
 
         .tooltip:hover .tooltiptext {
@@ -375,6 +386,7 @@
             <i class="fas fa-sign-out-alt"></i> Выйти
         </button>
     </header>
+    
     <nav>
         <button class="active" onclick="location.href='dashboard.html'">
             <i class="fas fa-tachometer-alt"></i> Дашборды
@@ -386,6 +398,7 @@
             <i class="fas fa-file-alt"></i> Конструктор отчетов
         </button>
     </nav>
+    
     <div class="container">
         <div class="sidebar">
             <div class="filters">
@@ -432,8 +445,9 @@
                 </div>
             </div>
         </div>
+        
         <div class="content" id="machineList">
-            <!-- Здесь будут карточки станков -->
+            <!-- Карточки станков будут добавляться здесь -->
         </div>
     </div>
 
@@ -476,10 +490,10 @@
             startHourlyUpdates();
         }
 
-        // Инициализация структур данных для графиков
+        // Инициализация структур данных
         function initializeDataStructures() {
             for (let i = 1; i <= 16; i++) {
-                // Инициализация данных для графика реального времени (8 часов работы)
+                // Данные для графика реального времени
                 state.realTimeData[i] = {
                     labels: Array.from({length: 8*60}, (_, j) => {
                         const hours = Math.floor(j / 60);
@@ -490,7 +504,7 @@
                     currentMinute: 0
                 };
 
-                // Инициализация данных для графика по часам (24 часа)
+                // Данные для графика по часам
                 state.hourlyData[i] = {
                     labels: Array.from({length: 24}, (_, h) => `${h.toString().padStart(2, '0')}:00`),
                     data: Array(24).fill(0),
@@ -510,33 +524,33 @@
             }
         }
 
-        // Планирование следующего события для станка
+        // Планирование следующего события
         function scheduleNextEvent(machineId) {
             const now = new Date();
             const rand = Math.random();
             
             if (rand < 0.5) { // 50% вероятность выключения
-                const hoursUntilShutdown = Math.random() * 12; // 0-12 часов до выключения
+                const hoursUntilShutdown = Math.random() * 12;
                 state.machineStates[machineId] = {
                     status: 'working',
                     statusChangeTime: now,
                     nextEventTime: new Date(now.getTime() + hoursUntilShutdown * 3600000),
                     nextEventType: 'shutdown',
-                    eventDuration: 6 + Math.random() * 2 // Длительность выключения 6-8 часов
+                    eventDuration: 6 + Math.random() * 2
                 };
             } 
-            else if (rand < 0.75) { // 25% вероятность остановки (25% из оставшихся 50%)
-                const hoursUntilStop = Math.random() * 6; // 0-6 часов до остановки
+            else if (rand < 0.75) { // 25% вероятность остановки
+                const hoursUntilStop = Math.random() * 6;
                 state.machineStates[machineId] = {
                     status: 'working',
                     statusChangeTime: now,
                     nextEventTime: new Date(now.getTime() + hoursUntilStop * 3600000),
                     nextEventType: 'stop',
-                    eventDuration: 1 + Math.random() * 1 // Длительность остановки 1-2 часа
+                    eventDuration: 1 + Math.random() * 1
                 };
             } 
             else { // 25% вероятность продолжения работы
-                const hoursUntilCheck = Math.random() * 24; // 0-24 часа до следующей проверки
+                const hoursUntilCheck = Math.random() * 24;
                 state.machineStates[machineId] = {
                     status: 'working',
                     statusChangeTime: now,
@@ -546,7 +560,7 @@
             }
         }
 
-        // Проверка и обновление состояний станков
+        // Обновление состояний станков
         function updateMachineStates() {
             const now = new Date();
             
@@ -555,33 +569,28 @@
                 
                 if (now >= machineState.nextEventTime) {
                     if (machineState.nextEventType === 'shutdown' && machineState.status === 'working') {
-                        // Начинаем выключение
                         machineState.status = 'shutdown';
                         machineState.statusChangeTime = now;
                         machineState.nextEventTime = new Date(now.getTime() + machineState.eventDuration * 3600000);
                         machineState.nextEventType = 'wakeup';
                     } 
                     else if (machineState.nextEventType === 'stop' && machineState.status === 'working') {
-                        // Начинаем остановку
                         machineState.status = 'stopped';
                         machineState.statusChangeTime = now;
                         machineState.nextEventTime = new Date(now.getTime() + machineState.eventDuration * 3600000);
                         machineState.nextEventType = 'restart';
                     } 
                     else if (machineState.nextEventType === 'wakeup' && machineState.status === 'shutdown') {
-                        // Заканчиваем выключение
                         machineState.status = 'working';
                         machineState.statusChangeTime = now;
                         scheduleNextEvent(i);
                     } 
                     else if (machineState.nextEventType === 'restart' && machineState.status === 'stopped') {
-                        // Заканчиваем остановку
                         machineState.status = 'working';
                         machineState.statusChangeTime = now;
                         scheduleNextEvent(i);
                     } 
                     else if (machineState.nextEventType === 'check') {
-                        // Просто планируем следующее событие
                         scheduleNextEvent(i);
                     }
                 }
@@ -590,7 +599,7 @@
 
         // Генерация случайных данных
         function generateRandomData() {
-            updateMachineStates(); // Сначала обновляем состояния станков
+            updateMachineStates();
             
             state.machines = Array.from({ length: 16 }, (_, i) => {
                 const id = i + 1;
@@ -612,13 +621,10 @@
                         break;
                 }
 
-                // Обновляем данные для графика реального времени
                 updateRealTimeData(id, statusClass);
 
-                // Текущая производительность
                 const currentPerformance = state.realTimeData[id].data[state.realTimeData[id].currentMinute - 1] || 0;
                 
-                // Средняя нагрузка за последние 24 часа
                 const hourlyData = state.hourlyData[id].data;
                 const hourlyCounts = state.hourlyData[id].counts;
                 const avgHourlyLoad = hourlyData.reduce((sum, val, idx) => {
@@ -637,7 +643,7 @@
             });
         }
 
-        // Обновление данных для графика реального времени
+        // Обновление данных реального времени
         function updateRealTimeData(machineId, status) {
             const data = state.realTimeData[machineId];
             
@@ -664,7 +670,7 @@
             data.currentMinute = (data.currentMinute + 1) % (8*60);
         }
 
-        // Обновление данных по часам (вызывается каждый час)
+        // Обновление данных по часам
         function updateHourlyData() {
             const now = new Date();
             const currentHour = now.getHours();
@@ -705,7 +711,7 @@
             });
         }
 
-        // Загрузка и отображение станков
+        // Загрузка станков
         function loadMachines() {
             const filtered = filterMachines();
             sortMachines();
@@ -745,6 +751,7 @@
         function renderMachines(filteredMachines = []) {
             DOM.machineList.innerHTML = '';
             
+            // Добавляем кнопку обновления
             const controlsDiv = document.createElement('div');
             controlsDiv.className = 'controls';
             controlsDiv.innerHTML = `
@@ -755,6 +762,7 @@
             controlsDiv.querySelector('#refreshBtn').addEventListener('click', manualRefresh);
             DOM.machineList.appendChild(controlsDiv);
             
+            // Добавляем сводную статистику
             const summaryCard = document.createElement('div');
             summaryCard.className = 'summary-card';
             summaryCard.id = 'summaryInfo';
@@ -782,11 +790,14 @@
             `;
             DOM.machineList.appendChild(summaryCard);
             
+            // Отрисовываем карточки станков
             const machinesToShow = filteredMachines.length > 0 ? filteredMachines : filterMachines();
             
             machinesToShow.forEach(machine => {
                 const card = document.createElement('div');
                 card.className = `machine-card ${machine.statusClass}`;
+                
+                // Добавляем заголовок карточки
                 card.innerHTML = `
                     <div class="machine-header">
                         <div class="machine-name">${machine.name}</div>
@@ -796,21 +807,38 @@
                             <span class="tooltiptext">Последнее обновление: ${machine.lastUpdate.toLocaleTimeString()}</span>
                         </div>
                     </div>
+                `;
+                
+                // Создаем контейнер для первого графика
+                const realTimeChartWrapper = document.createElement('div');
+                realTimeChartWrapper.className = 'chart-wrapper';
+                realTimeChartWrapper.innerHTML = `
+                    <div class="chart-title">Нагрузка на шпиндель: ${machine.currentPerformance}%</div>
                     <div class="chart-container">
-                        <div class="chart-title">Нагрузка на шпиндель: ${machine.currentPerformance}%</div>
                         <canvas id="realTimeChart${machine.id}"></canvas>
                     </div>
+                `;
+                card.appendChild(realTimeChartWrapper);
+                
+                // Создаем контейнер для второго графика с увеличенным отступом
+                const hourlyChartWrapper = document.createElement('div');
+                hourlyChartWrapper.className = 'chart-wrapper';
+                hourlyChartWrapper.innerHTML = `
+                    <div class="chart-title">Средняя нагрузка по часам: ${machine.avgHourlyLoad}%</div>
                     <div class="chart-container">
-                        <div class="chart-title">Средняя нагрузка по часам: ${machine.avgHourlyLoad}%</div>
                         <canvas id="hourlyChart${machine.id}"></canvas>
                     </div>
                 `;
+                card.appendChild(hourlyChartWrapper);
+                
                 DOM.machineList.appendChild(card);
 
+                // Получаем данные для графиков
                 const realTimeData = state.realTimeData[machine.id];
                 const realTimeLabels = realTimeData.labels.slice(Math.max(0, realTimeData.currentMinute - 60), realTimeData.currentMinute);
                 const realTimeValues = realTimeData.data.slice(Math.max(0, realTimeData.currentMinute - 60), realTimeData.currentMinute);
                 
+                // График нагрузки в реальном времени
                 new Chart(document.getElementById(`realTimeChart${machine.id}`), {
                     type: 'line',
                     data: {
@@ -863,6 +891,7 @@
                     }
                 });
 
+                // График нагрузки по часам
                 const hourlyData = state.hourlyData[machine.id];
                 const hourlyValues = hourlyData.data.map((val, idx) => {
                     return hourlyData.counts[idx] > 0 ? Math.round(val / hourlyData.counts[idx]) : 0;
@@ -950,7 +979,7 @@
             }, state.refreshInterval);
         }
 
-        // Обновление данных каждый час для графика по часам
+        // Обновление данных каждый час
         function startHourlyUpdates() {
             updateHourlyData();
             
