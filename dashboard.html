@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дашборды мониторинга</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -12,20 +13,17 @@
             --working-color: #2ecc71;
             --stopped-color: #e74c3c;
             --shutdown-color: #95a5a6;
+            --warning-color: #f39c12;
             --bg-color: #f5f5f5;
             --card-bg: #ffffff;
             --text-color: #333333;
             --border-color: #dddddd;
         }
 
-        * {
-            box-sizing: border-box;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
             background-color: var(--bg-color);
             color: var(--text-color);
             line-height: 1.6;
@@ -50,6 +48,9 @@
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .logout-button:hover {
@@ -73,6 +74,9 @@
             border-radius: 4px;
             cursor: pointer;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         nav button:hover {
@@ -117,26 +121,13 @@
             flex: 1;
             display: grid;
             grid-template-columns: 1fr;
-            gap: 1.5rem;
+            gap: 1rem;
         }
 
         @media (min-width: 768px) {
             .content {
                 grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             }
-        }
-
-        .filters {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
         }
 
         select, button {
@@ -147,9 +138,12 @@
 
         select {
             width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #777;
+            border-radius: 4px;
             background-color: #666;
             color: white;
-            border: 1px solid #777;
         }
 
         option {
@@ -160,8 +154,15 @@
             background-color: var(--primary-color);
             color: white;
             border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s;
+            min-width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .filter-btn:hover {
@@ -175,7 +176,7 @@
 
         .machine-card {
             background-color: var(--card-bg);
-            padding: 1.25rem;
+            padding: 1rem;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
@@ -377,6 +378,25 @@
             visibility: visible;
             opacity: 1;
         }
+
+        h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .filters {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -405,7 +425,17 @@
     <div class="container">
         <div class="sidebar">
             <div class="filters">
-                <h3>Фильтр по станкам</h3>
+                <h3><i class="fas fa-industry"></i> Цех</h3>
+                <select id="workshopFilter">
+                    <option value="all">Все цеха</option>
+                   
+                    <option value="workshop1">ЦЕХ-1</option>
+                    <option value="workshop2">ЦЕХ-2</option>
+                    <option value="workshop3">ЦЕХ-3</option>
+                    <option value="workshop4">ЦЕХ-4</option>
+                </select>
+
+                <h3><i class="fas fa-filter"></i> Фильтр по станкам</h3>
                 <select id="machineFilter">
                     <option value="all">Все станки</option>
                     <option value="1">Станок 1</option>
@@ -464,6 +494,7 @@
         const state = {
             machines: [],
             filter: {
+                workshop: 'all',
                 machine: 'all',
                 status: 'all',
                 sort: 'name'
@@ -473,12 +504,20 @@
             refreshIntervalId: null,
             realTimeData: {},
             hourlyData: {},
-            machineStates: {}
+            machineStates: {},
+            // Распределение станков по цехам
+            workshopMachines: {
+                workshop1: [1, 2, 3, 4],
+                workshop2: [5, 6, 7, 8],
+                workshop3: [9, 10, 11, 12],
+                workshop4: [13, 14, 15, 16]
+            }
         };
 
         // Элементы DOM
         const DOM = {
             machineList: document.getElementById('machineList'),
+            workshopFilter: document.getElementById('workshopFilter'),
             machineFilter: document.getElementById('machineFilter'),
             notification: document.getElementById('notification')
         };
@@ -689,6 +728,11 @@
 
         // Настройка обработчиков событий
         function setupEventListeners() {
+            DOM.workshopFilter.addEventListener('change', function() {
+                state.filter.workshop = this.value;
+                loadMachines();
+            });
+
             DOM.machineFilter.addEventListener('change', function() {
                 state.filter.machine = this.value;
                 loadMachines();
@@ -725,12 +769,20 @@
         // Фильтрация станков
         function filterMachines() {
             return state.machines.filter(machine => {
+                // Фильтр по цеху
+                const workshopMatch = state.filter.workshop === 'all' || 
+                    state.workshopMachines[state.filter.workshop]?.includes(machine.id);
+                
+                // Фильтр по станку
                 const machineMatch = state.filter.machine === 'all' || machine.id === parseInt(state.filter.machine);
+                
+                // Фильтр по статусу
                 const statusMatch = state.filter.status === 'all' || 
                                   (state.filter.status === 'working' && machine.status === "Работает") ||
                                   (state.filter.status === 'stopped' && machine.status === "Остановлен") ||
                                   (state.filter.status === 'shutdown' && machine.status === "Выключен");
-                return machineMatch && statusMatch;
+                
+                return workshopMatch && machineMatch && statusMatch;
             });
         }
 
