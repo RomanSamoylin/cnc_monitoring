@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки системы</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #e67e22;
+            --primary-hover: #d35400;
+            --working-color: #2ecc71;
+            --stopped-color: #e74c3c;
+            --warning-color: #f39c12;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+        }
+        nav {
+            background-color: #444;
+            padding: 0.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        nav button {
+            padding: 0.5rem 1rem;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        nav button:hover {
+            background-color: #666;
+        }
+        nav button.active {
+            background-color: var(--primary-color);
+        }
+        .container {
+            display: flex;
+            padding: 1rem;
+            flex-direction: column;
+        }
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
+        }
+        .sidebar {
+            width: 100%;
+            background-color: #555;
+            padding: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            color: white;
+        }
+        @media (min-width: 768px) {
+            .sidebar {
+                width: 250px;
+                margin-right: 1rem;
+                margin-bottom: 0;
+            }
+        }
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .settings-section {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        .settings-section h2 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .form-group input, 
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .form-group input:focus, 
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .logout-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logout-button:hover {
+            background-color: var(--primary-hover);
+        }
+        .machines-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        @media (min-width: 768px) {
+            .machines-list {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+        .machine-item {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .machine-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .machine-item-id {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Настройки системы</h1>
+        <button class="logout-button" onclick="location.href='login.html'">
+            <i class="fas fa-sign-out-alt"></i> Выйти
+        </button>
+    </header>
+    <nav>
+        <button onclick="location.href='dashboard.html'">
+            <i class="fas fa-tachometer-alt"></i> Дашборды
+        </button>
+        <button onclick="location.href='charts.html'">
+            <i class="fas fa-chart-line"></i> Графики анализа
+        </button>
+        <button onclick="location.href='reports.html'">
+            <i class="fas fa-file-alt"></i> Конструктор отчетов
+        </button>
+        <button class="active" onclick="location.href='settings.html'">
+            <i class="fas fa-cog"></i> Настройки
+        </button>
+    </nav>
+    <div class="container">
+        <div class="sidebar">
+            <h3><i class="fas fa-sliders-h"></i> Основные настройки</h3>
+            <div class="form-group">
+                <label for="workshopsCount">Количество цехов:</label>
+                <input type="number" id="workshopsCount" min="1" max="10" value="1">
+            </div>
+            <div class="form-group">
+                <label for="machinesCount">Количество станков:</label>
+                <input type="number" id="machinesCount" min="1" max="50" value="16">
+            </div>
+            <button class="btn" onclick="applySettings()">
+                <i class="fas fa-save"></i> Применить настройки
+            </button>
+        </div>
+        <div class="content">
+            <div class="settings-section">
+                <h2><i class="fas fa-industry"></i> Настройки цехов</h2>
+                <div id="workshopsSettings">
+                    <!-- Настройки цехов будут добавляться здесь -->
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h2><i class="fas fa-cogs"></i> Настройки станков</h2>
+                <div id="machinesSettings">
+                    <div class="machines-list" id="machinesList">
+                        <!-- Список станков будет добавляться здесь -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h2><i class="fas fa-database"></i> Экспорт/Импорт настроек</h2>
+                <div class="form-group">
+                    <button class="btn" onclick="exportSettings()">
+                        <i class="fas fa-file-export"></i> Экспорт настроек
+                    </button>
+                    <button class="btn btn-secondary" onclick="importSettings()" style="margin-left: 10px;">
+                        <i class="fas fa-file-import"></i> Импорт настроек
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        Настройки успешно сохранены
+    </div>
+    
+    <script>
+        // Состояние приложения
+        const state = {
+            workshops: [
+                { id: 1, name: "ЦЕХ-1", machinesCount: 16 }
+            ],
+            machines: Array.from({ length: 16 }, (_, i) => ({
+                id: i + 1,
+                name: `Станок ${i + 1}`,
+                workshopId: 1
+            }))
+        };
+        
+        // Элементы DOM
+        const DOM = {
+            workshopsCount: document.getElementById('workshopsCount'),
+            machinesCount: document.getElementById('machinesCount'),
+            workshopsSettings: document.getElementById('workshopsSettings'),
+            machinesList: document.getElementById('machinesList'),
+            notification: document.getElementById('notification')
+        };
+        
+        // Инициализация приложения
+        function init() {
+            loadFromLocalStorage();
+            renderWorkshopsSettings();
+            renderMachinesList();
+        }
+        
+        // Загрузка из localStorage
+        function loadFromLocalStorage() {
+            const savedSettings = localStorage.getItem('machineMonitoringSettings');
+            if (savedSettings) {
+                try {
+                    const parsed = JSON.parse(savedSettings);
+                    state.workshops = parsed.workshops || state.workshops;
+                    state.machines = parsed.machines || state.machines;
+                    
+                    DOM.workshopsCount.value = state.workshops.length;
+                    DOM.machinesCount.value = state.machines.length;
+                } catch (e) {
+                    console.error('Ошибка загрузки настроек:', e);
+                }
+            }
+        }
+        
+        // Сохранение в localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('machineMonitoringSettings', JSON.stringify({
+                workshops: state.workshops,
+                machines: state.machines
+            }));
+        }
+        
+        // Применение настроек
+        function applySettings() {
+            const workshopsCount = parseInt(DOM.workshopsCount.value);
+            const machinesCount = parseInt(DOM.machinesCount.value);
+            
+            // Обновляем цеха
+            if (workshopsCount > state.workshops.length) {
+                // Добавляем новые цеха
+                for (let i = state.workshops.length + 1; i <= workshopsCount; i++) {
+                    state.workshops.push({
+                        id: i,
+                        name: `ЦЕХ-${i}`,
+                        machinesCount: 0
+                    });
+                }
+            } else if (workshopsCount < state.workshops.length) {
+                // Удаляем лишние цеха
+                state.workshops = state.workshops.slice(0, workshopsCount);
+                
+                // Удаляем станки из удаленных цехов
+                state.machines = state.machines.filter(m => m.workshopId <= workshopsCount);
+            }
+            
+            // Обновляем станки
+            if (machinesCount > state.machines.length) {
+                // Добавляем новые станки
+                const lastWorkshopId = state.workshops[state.workshops.length - 1].id;
+                for (let i = state.machines.length + 1; i <= machinesCount; i++) {
+                    state.machines.push({
+                        id: i,
+                        name: `Станок ${i}`,
+                        workshopId: lastWorkshopId
+                    });
+                }
+            } else if (machinesCount < state.machines.length) {
+                // Удаляем лишние станки
+                state.machines = state.machines.slice(0, machinesCount);
+            }
+            
+            // Обновляем количество станков в цехах
+            updateWorkshopsMachinesCount();
+            
+            // Перерисовываем интерфейс
+            renderWorkshopsSettings();
+            renderMachinesList();
+            
+            // Сохраняем настройки
+            saveToLocalStorage();
+            
+            // Показываем уведомление
+            showNotification('Настройки успешно сохранены');
+        }
+        
+        // Обновление количества станков в цехах
+        function updateWorkshopsMachinesCount() {
+            state.workshops.forEach(workshop => {
+                workshop.machinesCount = state.machines.filter(m => m.workshopId === workshop.id).length;
+            });
+        }
+        
+        // Отрисовка настроек цехов
+        function renderWorkshopsSettings() {
+            DOM.workshopsSettings.innerHTML = '';
+            
+            state.workshops.forEach(workshop => {
+                const workshopDiv = document.createElement('div');
+                workshopDiv.className = 'form-group';
+                workshopDiv.innerHTML = `
+                    <label for="workshopName${workshop.id}">Название цеха ${workshop.id}:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="workshopName${workshop.id}" value="${workshop.name}" style="flex: 1;">
+                        <select id="workshopMachines${workshop.id}" onchange="updateMachinesWorkshop(${workshop.id})">
+                            <option value="0">Без станков</option>
+                            ${Array.from({ length: state.machines.length }, (_, i) => {
+                                const machineId = i + 1;
+                                const selected = state.machines[i].workshopId === workshop.id ? 'selected' : '';
+                                return `<option value="${machineId}" ${selected}>Станок ${machineId}</option>`;
+                            }).join('')}
+                        </select>
+                    </div>
+                `;
+                
+                // Обработчик изменения названия цеха
+                workshopDiv.querySelector(`#workshopName${workshop.id}`).addEventListener('change', function() {
+                    workshop.name = this.value;
+                    saveToLocalStorage();
+                });
+                
+                DOM.workshopsSettings.appendChild(workshopDiv);
+            });
+        }
+        
+        // Обновление цеха для станка
+        function updateMachinesWorkshop(workshopId) {
+            const select = document.getElementById(`workshopMachines${workshopId}`);
+            const machineId = parseInt(select.value);
+            
+            if (machineId > 0) {
+                const machine = state.machines.find(m => m.id === machineId);
+                if (machine) {
+                    machine.workshopId = workshopId;
+                    updateWorkshopsMachinesCount();
+                    saveToLocalStorage();
+                    renderWorkshopsSettings(); // Перерисовываем, чтобы обновить селекторы
+                    renderMachinesList(); // Перерисовываем список станков
+                }
+            }
+        }
+        
+        // Отрисовка списка станков
+        function renderMachinesList() {
+            DOM.machinesList.innerHTML = '';
+            
+            state.machines.forEach(machine => {
+                const machineItem = document.createElement('div');
+                machineItem.className = 'machine-item';
+                machineItem.innerHTML = `
+                    <div class="machine-item-header">
+                        <span class="machine-item-id">ID: ${machine.id}</span>
+                        <span>Цех: ${state.workshops.find(w => w.id === machine.workshopId)?.name || 'Не назначен'}</span>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="machineName${machine.id}">Название станка:</label>
+                        <input type="text" id="machineName${machine.id}" value="${machine.name}">
+                    </div>
+                `;
+                
+                // Обработчик изменения названия станка
+                machineItem.querySelector(`#machineName${machine.id}`).addEventListener('change', function() {
+                    machine.name = this.value;
+                    saveToLocalStorage();
+                });
+                
+                DOM.machinesList.appendChild(machineItem);
+            });
+        }
+        
+        // Экспорт настроек
+        function exportSettings() {
+            const data = JSON.stringify({
+                workshops: state.workshops,
+                machines: state.machines
+            }, null, 2);
+            
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'machine_monitoring_settings.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('Настройки успешно экспортированы');
+        }
+        
+        // Импорт настроек
+        function importSettings() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = event => {
+                    try {
+                        const imported = JSON.parse(event.target.result);
+                        
+                        if (imported.workshops && imported.machines) {
+                            state.workshops = imported.workshops;
+                            state.machines = imported.machines;
+                            
+                            DOM.workshopsCount.value = state.workshops.length;
+                            DOM.machinesCount.value = state.machines.length;
+                            
+                            renderWorkshopsSettings();
+                            renderMachinesList();
+                            saveToLocalStorage();
+                            
+                            showNotification('Настройки успешно импортированы');
+                        } else {
+                            throw new Error('Неверный формат файла');
+                        }
+                    } catch (err) {
+                        alert('Ошибка при импорте настроек: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+        
+        // Показать уведомление
+        function showNotification(message) {
+            DOM.notification.textContent = message;
+            DOM.notification.classList.add('show');
+            
+            setTimeout(() => {
+                DOM.notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
