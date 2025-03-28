@@ -9,8 +9,8 @@
         :root {
             --primary-color: #e67e22;
             --primary-hover: #d35400;
-            --working-color: #2ecc71;
-            --stopped-color: #e74c3c;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
             --warning-color: #f39c12;
             --bg-color: #f5f5f5;
             --card-bg: #ffffff;
@@ -25,6 +25,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
         }
+        
         header {
             background-color: #333;
             color: white;
@@ -32,6 +33,7 @@
             text-align: center;
             position: relative;
         }
+        
         nav {
             background-color: #444;
             padding: 0.5rem;
@@ -40,6 +42,7 @@
             gap: 1rem;
             flex-wrap: wrap;
         }
+        
         nav button {
             padding: 0.5rem 1rem;
             background-color: #555;
@@ -52,22 +55,27 @@
             align-items: center;
             gap: 0.5rem;
         }
+        
         nav button:hover {
             background-color: #666;
         }
+        
         nav button.active {
             background-color: var(--primary-color);
         }
+        
         .container {
             display: flex;
             padding: 1rem;
             flex-direction: column;
         }
+        
         @media (min-width: 768px) {
             .container {
                 flex-direction: row;
             }
         }
+        
         .sidebar {
             width: 100%;
             background-color: #555;
@@ -77,6 +85,7 @@
             margin-bottom: 1rem;
             color: white;
         }
+        
         @media (min-width: 768px) {
             .sidebar {
                 width: 250px;
@@ -84,12 +93,14 @@
                 margin-bottom: 0;
             }
         }
+        
         .content {
             flex: 1;
             display: flex;
             flex-direction: column;
             gap: 1rem;
         }
+        
         .settings-section {
             background-color: var(--card-bg);
             padding: 1.5rem;
@@ -97,21 +108,28 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             margin-bottom: 1rem;
         }
+        
         .settings-section h2 {
             margin-top: 0;
             margin-bottom: 1.5rem;
             color: var(--primary-color);
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+        
         .form-group {
             margin-bottom: 1.25rem;
         }
+        
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
         }
+        
         .form-group input, 
         .form-group select {
             width: 100%;
@@ -120,12 +138,14 @@
             border-radius: 4px;
             font-size: 1rem;
         }
+        
         .form-group input:focus, 
         .form-group select:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2);
         }
+        
         .btn {
             padding: 0.75rem 1.5rem;
             background-color: var(--primary-color);
@@ -140,15 +160,40 @@
             align-items: center;
             gap: 0.5rem;
         }
+        
         .btn:hover {
             background-color: var(--primary-hover);
         }
-        .btn-secondary {
-            background-color: #6c757d;
+        
+        .btn-success {
+            background-color: var(--success-color);
         }
-        .btn-secondary:hover {
-            background-color: #5a6268;
+        
+        .btn-success:hover {
+            background-color: #27ae60;
         }
+        
+        .btn-danger {
+            background-color: var(--error-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .btn-sm {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+        }
+        
         .logout-button {
             position: absolute;
             top: 1rem;
@@ -164,20 +209,24 @@
             align-items: center;
             gap: 0.5rem;
         }
+        
         .logout-button:hover {
             background-color: var(--primary-hover);
         }
+        
         .machines-list {
             display: grid;
             grid-template-columns: 1fr;
             gap: 1rem;
             margin-top: 1rem;
         }
+        
         @media (min-width: 768px) {
             .machines-list {
                 grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             }
         }
+        
         .machine-item {
             background-color: #f8f9fa;
             padding: 1rem;
@@ -186,16 +235,33 @@
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            position: relative;
         }
+        
         .machine-item-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+        
         .machine-item-id {
             font-weight: bold;
             color: var(--primary-color);
         }
+        
+        .workshop-dropzone {
+            border: 2px dashed #ccc;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .workshop-dropzone.drop-hover {
+            border-color: var(--primary-color);
+            background-color: rgba(230, 126, 34, 0.1);
+        }
+        
         .notification {
             position: fixed;
             bottom: 20px;
@@ -209,10 +275,45 @@
             opacity: 0;
             transition: all 0.3s ease;
             z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+        
         .notification.show {
             transform: translateY(0);
             opacity: 1;
+        }
+        
+        .notification.error {
+            background-color: var(--error-color);
+        }
+        
+        .notification.warning {
+            background-color: var(--warning-color);
+        }
+        
+        .notification.success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .machine-actions {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.3rem;
+        }
+        
+        .machine-actions .btn {
+            padding: 0.2rem 0.4rem;
+            font-size: 0.7rem;
         }
     </style>
 </head>
@@ -223,6 +324,7 @@
             <i class="fas fa-sign-out-alt"></i> Выйти
         </button>
     </header>
+    
     <nav>
         <button onclick="location.href='dashboard.html'">
             <i class="fas fa-tachometer-alt"></i> Дашборды
@@ -237,6 +339,7 @@
             <i class="fas fa-cog"></i> Настройки
         </button>
     </nav>
+    
     <div class="container">
         <div class="sidebar">
             <h3><i class="fas fa-sliders-h"></i> Основные настройки</h3>
@@ -248,20 +351,40 @@
                 <label for="machinesCount">Количество станков:</label>
                 <input type="number" id="machinesCount" min="1" max="50" value="16">
             </div>
-            <button class="btn" onclick="applySettings()">
+            <button class="btn btn-success" onclick="applySettings()">
                 <i class="fas fa-save"></i> Применить настройки
             </button>
+            <button class="btn btn-danger" onclick="resetToDefaults()" style="margin-top: 10px;">
+                <i class="fas fa-undo"></i> Сбросить настройки
+            </button>
         </div>
+        
         <div class="content">
             <div class="settings-section">
                 <h2><i class="fas fa-industry"></i> Настройки цехов</h2>
                 <div id="workshopsSettings">
                     <!-- Настройки цехов будут добавляться здесь -->
                 </div>
+                <div class="btn-group">
+                    <button class="btn btn-success btn-sm" onclick="addWorkshop()" id="addWorkshopBtn">
+                        <i class="fas fa-plus"></i> Добавить цех
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="removeLastWorkshop()" id="removeWorkshopBtn">
+                        <i class="fas fa-minus"></i> Удалить цех
+                    </button>
+                </div>
             </div>
             
             <div class="settings-section">
                 <h2><i class="fas fa-cogs"></i> Настройки станков</h2>
+                <div class="btn-group">
+                    <button class="btn btn-success btn-sm" onclick="addMachine()" id="addMachineBtn">
+                        <i class="fas fa-plus"></i> Добавить станок
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="removeLastMachine()" id="removeMachineBtn">
+                        <i class="fas fa-minus"></i> Удалить станок
+                    </button>
+                </div>
                 <div id="machinesSettings">
                     <div class="machines-list" id="machinesList">
                         <!-- Список станков будет добавляться здесь -->
@@ -275,17 +398,19 @@
                     <button class="btn" onclick="exportSettings()">
                         <i class="fas fa-file-export"></i> Экспорт настроек
                     </button>
-                    <button class="btn btn-secondary" onclick="importSettings()" style="margin-left: 10px;">
+                    <button class="btn" onclick="importSettings()" style="margin-left: 10px;">
                         <i class="fas fa-file-import"></i> Импорт настроек
                     </button>
+                </div>
+                <div class="form-group">
+                    <label>Последние резервные копии:</label>
+                    <div id="backupsList"></div>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="notification" id="notification">
-        Настройки успешно сохранены
-    </div>
+    <div class="notification" id="notification"></div>
     
     <script>
         // Состояние приложения
@@ -300,13 +425,18 @@
             }))
         };
         
-        // Элементы DOM
+        // Кэш DOM элементов
         const DOM = {
             workshopsCount: document.getElementById('workshopsCount'),
             machinesCount: document.getElementById('machinesCount'),
             workshopsSettings: document.getElementById('workshopsSettings'),
             machinesList: document.getElementById('machinesList'),
-            notification: document.getElementById('notification')
+            notification: document.getElementById('notification'),
+            backupsList: document.getElementById('backupsList'),
+            addWorkshopBtn: document.getElementById('addWorkshopBtn'),
+            removeWorkshopBtn: document.getElementById('removeWorkshopBtn'),
+            addMachineBtn: document.getElementById('addMachineBtn'),
+            removeMachineBtn: document.getElementById('removeMachineBtn')
         };
         
         // Инициализация приложения
@@ -314,6 +444,27 @@
             loadFromLocalStorage();
             renderWorkshopsSettings();
             renderMachinesList();
+            initDragAndDrop();
+            renderBackupsList();
+            updateButtonsState();
+            
+            // Делегирование событий
+            DOM.machinesList.addEventListener('change', handleMachineNameChange);
+            
+            // Загрузка начальных значений
+            DOM.workshopsCount.value = state.workshops.length;
+            DOM.machinesCount.value = state.machines.length;
+        }
+        
+        // Обновление состояния кнопок
+        function updateButtonsState() {
+            // Кнопки цехов
+            DOM.addWorkshopBtn.disabled = state.workshops.length >= 10;
+            DOM.removeWorkshopBtn.disabled = state.workshops.length <= 1;
+            
+            // Кнопки станков
+            DOM.addMachineBtn.disabled = state.machines.length >= 50;
+            DOM.removeMachineBtn.disabled = state.machines.length <= 1;
         }
         
         // Загрузка из localStorage
@@ -322,76 +473,201 @@
             if (savedSettings) {
                 try {
                     const parsed = JSON.parse(savedSettings);
-                    state.workshops = parsed.workshops || state.workshops;
-                    state.machines = parsed.machines || state.machines;
-                    
-                    DOM.workshopsCount.value = state.workshops.length;
-                    DOM.machinesCount.value = state.machines.length;
+                    if (validateSettings(parsed)) {
+                        state.workshops = parsed.workshops;
+                        state.machines = parsed.machines;
+                    } else {
+                        showNotification('Ошибка загрузки настроек. Используются значения по умолчанию', 'error');
+                        createBackup('corrupted_settings');
+                    }
                 } catch (e) {
                     console.error('Ошибка загрузки настроек:', e);
+                    showNotification('Ошибка загрузки настроек. Используются значения по умолчанию', 'error');
+                    createBackup('corrupted_settings');
                 }
             }
         }
         
-        // Сохранение в localStorage
+        // Валидация настроек
+        function validateSettings(settings) {
+            if (!settings) return false;
+            if (!Array.isArray(settings.workshops) || !Array.isArray(settings.machines)) return false;
+            
+            // Проверка цехов
+            const workshopIds = new Set();
+            for (const workshop of settings.workshops) {
+                if (!workshop.id || !workshop.name || typeof workshop.machinesCount !== 'number') return false;
+                if (workshopIds.has(workshop.id)) return false;
+                workshopIds.add(workshop.id);
+            }
+            
+            // Проверка станков
+            const machineIds = new Set();
+            for (const machine of settings.machines) {
+                if (!machine.id || !machine.name || !machine.workshopId) return false;
+                if (machineIds.has(machine.id)) return false;
+                if (!workshopIds.has(machine.workshopId)) return false;
+                machineIds.add(machine.id);
+            }
+            
+            return true;
+        }
+        
+        // Сохранение в localStorage с дебаунсом
+        let saveTimeout;
         function saveToLocalStorage() {
-            localStorage.setItem('machineMonitoringSettings', JSON.stringify({
-                workshops: state.workshops,
-                machines: state.machines
-            }));
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                localStorage.setItem('machineMonitoringSettings', JSON.stringify({
+                    workshops: state.workshops,
+                    machines: state.machines
+                }));
+                createBackup('manual_save');
+                updateButtonsState();
+            }, 500);
+        }
+        
+        // Создание резервной копии
+        function createBackup(reason = 'auto') {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const backupKey = `settings_backup_${timestamp}_${reason}`;
+            localStorage.setItem(backupKey, JSON.stringify(state));
+            
+            // Ограничение количества бэкапов
+            const backups = Object.keys(localStorage)
+                .filter(key => key.startsWith('settings_backup_'))
+                .sort()
+                .reverse();
+            
+            if (backups.length > 5) {
+                backups.slice(5).forEach(key => localStorage.removeItem(key));
+            }
+            
+            renderBackupsList();
+        }
+        
+        // Отображение списка резервных копий
+        function renderBackupsList() {
+            const backups = Object.keys(localStorage)
+                .filter(key => key.startsWith('settings_backup_'))
+                .sort()
+                .reverse()
+                .slice(0, 3);
+            
+            DOM.backupsList.innerHTML = '';
+            
+            if (backups.length === 0) {
+                DOM.backupsList.innerHTML = '<p>Резервные копии отсутствуют</p>';
+                return;
+            }
+            
+            const list = document.createElement('ul');
+            list.style.paddingLeft = '20px';
+            
+            backups.forEach(backupKey => {
+                const li = document.createElement('li');
+                li.style.marginBottom = '8px';
+                
+                const dateStr = backupKey.split('_')[2].replace(/-/g, ':').slice(0, -3);
+                const reason = backupKey.split('_')[3] || 'auto';
+                
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-sm';
+                btn.style.padding = '0.3rem 0.6rem';
+                btn.style.fontSize = '0.8rem';
+                btn.innerHTML = `<i class="fas fa-history"></i> ${dateStr} (${reason})`;
+                btn.onclick = () => restoreBackup(backupKey);
+                
+                li.appendChild(btn);
+                list.appendChild(li);
+            });
+            
+            DOM.backupsList.appendChild(list);
+        }
+        
+        // Восстановление из резервной копии
+        function restoreBackup(backupKey) {
+            if (!confirm(`Восстановить настройки из резервной копии ${backupKey}?`)) return;
+            
+            try {
+                const backup = JSON.parse(localStorage.getItem(backupKey));
+                if (validateSettings(backup)) {
+                    state.workshops = backup.workshops;
+                    state.machines = backup.machines;
+                    
+                    DOM.workshopsCount.value = state.workshops.length;
+                    DOM.machinesCount.value = state.machines.length;
+                    
+                    renderWorkshopsSettings();
+                    renderMachinesList();
+                    saveToLocalStorage();
+                    
+                    showNotification('Настройки восстановлены из резервной копии', 'success');
+                } else {
+                    showNotification('Ошибка: резервная копия повреждена', 'error');
+                }
+            } catch (e) {
+                console.error('Ошибка восстановления:', e);
+                showNotification('Ошибка восстановления из резервной копии', 'error');
+            }
+        }
+        
+        // Валидация ввода
+        function validateInputs() {
+            const workshopsCount = parseInt(DOM.workshopsCount.value);
+            const machinesCount = parseInt(DOM.machinesCount.value);
+            
+            if (isNaN(workshopsCount) || workshopsCount < 1 || workshopsCount > 10) {
+                showNotification('Количество цехов должно быть от 1 до 10', 'error');
+                return false;
+            }
+            
+            if (isNaN(machinesCount) || machinesCount < 1 || machinesCount > 50) {
+                showNotification('Количество станков должно быть от 1 до 50', 'error');
+                return false;
+            }
+            
+            return true;
         }
         
         // Применение настроек
         function applySettings() {
+            if (!validateInputs()) return;
+            
             const workshopsCount = parseInt(DOM.workshopsCount.value);
             const machinesCount = parseInt(DOM.machinesCount.value);
             
             // Обновляем цеха
             if (workshopsCount > state.workshops.length) {
                 // Добавляем новые цеха
-                for (let i = state.workshops.length + 1; i <= workshopsCount; i++) {
-                    state.workshops.push({
-                        id: i,
-                        name: `ЦЕХ-${i}`,
-                        machinesCount: 0
-                    });
+                for (let i = state.workshops.length; i < workshopsCount; i++) {
+                    addWorkshop();
                 }
             } else if (workshopsCount < state.workshops.length) {
                 // Удаляем лишние цеха
-                state.workshops = state.workshops.slice(0, workshopsCount);
-                
-                // Удаляем станки из удаленных цехов
-                state.machines = state.machines.filter(m => m.workshopId <= workshopsCount);
+                while (state.workshops.length > workshopsCount) {
+                    removeLastWorkshop();
+                }
             }
             
             // Обновляем станки
             if (machinesCount > state.machines.length) {
                 // Добавляем новые станки
-                const lastWorkshopId = state.workshops[state.workshops.length - 1].id;
-                for (let i = state.machines.length + 1; i <= machinesCount; i++) {
-                    state.machines.push({
-                        id: i,
-                        name: `Станок ${i}`,
-                        workshopId: lastWorkshopId
-                    });
+                for (let i = state.machines.length; i < machinesCount; i++) {
+                    addMachine();
                 }
             } else if (machinesCount < state.machines.length) {
                 // Удаляем лишние станки
-                state.machines = state.machines.slice(0, machinesCount);
+                while (state.machines.length > machinesCount) {
+                    removeLastMachine();
+                }
             }
-            
-            // Обновляем количество станков в цехах
-            updateWorkshopsMachinesCount();
-            
-            // Перерисовываем интерфейс
-            renderWorkshopsSettings();
-            renderMachinesList();
             
             // Сохраняем настройки
             saveToLocalStorage();
             
             // Показываем уведомление
-            showNotification('Настройки успешно сохранены');
+            showNotification('Настройки успешно сохранены', 'success');
         }
         
         // Обновление количества станков в цехах
@@ -403,64 +679,161 @@
         
         // Отрисовка настроек цехов
         function renderWorkshopsSettings() {
-            DOM.workshopsSettings.innerHTML = '';
+            const fragment = document.createDocumentFragment();
             
             state.workshops.forEach(workshop => {
                 const workshopDiv = document.createElement('div');
-                workshopDiv.className = 'form-group';
+                workshopDiv.className = 'form-group workshop-dropzone';
+                workshopDiv.dataset.workshopId = workshop.id;
+                
                 workshopDiv.innerHTML = `
                     <label for="workshopName${workshop.id}">Название цеха ${workshop.id}:</label>
-                    <div style="display: flex; gap: 10px;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
                         <input type="text" id="workshopName${workshop.id}" value="${workshop.name}" style="flex: 1;">
-                        <select id="workshopMachines${workshop.id}" onchange="updateMachinesWorkshop(${workshop.id})">
-                            <option value="0">Без станков</option>
-                            ${Array.from({ length: state.machines.length }, (_, i) => {
-                                const machineId = i + 1;
-                                const selected = state.machines[i].workshopId === workshop.id ? 'selected' : '';
-                                return `<option value="${machineId}" ${selected}>Станок ${machineId}</option>`;
-                            }).join('')}
+                        <span style="white-space: nowrap;">Станков: ${workshop.machinesCount}</span>
+                    </div>
+                    <div style="margin-top: 5px;">
+                        <select id="workshopMachines${workshop.id}" multiple style="height: auto; min-height: 80px;">
+                            ${state.machines
+                                .filter(m => m.workshopId === workshop.id)
+                                .map(m => `<option value="${m.id}">${m.name}</option>`)
+                                .join('')}
                         </select>
                     </div>
                 `;
                 
                 // Обработчик изменения названия цеха
-                workshopDiv.querySelector(`#workshopName${workshop.id}`).addEventListener('change', function() {
+                workshopDiv.querySelector(`#workshopName${workshop.id}`).addEventListener('input', function() {
                     workshop.name = this.value;
                     saveToLocalStorage();
                 });
                 
-                DOM.workshopsSettings.appendChild(workshopDiv);
-            });
-        }
-        
-        // Обновление цеха для станка
-        function updateMachinesWorkshop(workshopId) {
-            const select = document.getElementById(`workshopMachines${workshopId}`);
-            const machineId = parseInt(select.value);
-            
-            if (machineId > 0) {
-                const machine = state.machines.find(m => m.id === machineId);
-                if (machine) {
-                    machine.workshopId = workshopId;
+                // Обработчик изменения списка станков
+                workshopDiv.querySelector(`#workshopMachines${workshop.id}`).addEventListener('change', function() {
+                    const selectedOptions = Array.from(this.selectedOptions).map(opt => parseInt(opt.value));
+                    
+                    // Сбрасываем все станки этого цеха
+                    state.machines.forEach(m => {
+                        if (m.workshopId === workshop.id) {
+                            m.workshopId = 1; // Переназначаем в первый цех по умолчанию
+                        }
+                    });
+                    
+                    // Устанавливаем выбранные станки в этот цех
+                    selectedOptions.forEach(machineId => {
+                        const machine = state.machines.find(m => m.id === machineId);
+                        if (machine) machine.workshopId = workshop.id;
+                    });
+                    
                     updateWorkshopsMachinesCount();
                     saveToLocalStorage();
-                    renderWorkshopsSettings(); // Перерисовываем, чтобы обновить селекторы
-                    renderMachinesList(); // Перерисовываем список станков
+                    renderWorkshopsSettings(); // Перерисовываем для обновления счетчиков
+                    renderMachinesList();
+                });
+                
+                fragment.appendChild(workshopDiv);
+            });
+            
+            DOM.workshopsSettings.innerHTML = '';
+            DOM.workshopsSettings.appendChild(fragment);
+        }
+        
+        // Добавление нового цеха
+        function addWorkshop() {
+            if (state.workshops.length >= 10) return;
+            
+            const newId = state.workshops.length ? Math.max(...state.workshops.map(w => w.id)) + 1 : 1;
+            state.workshops.push({
+                id: newId,
+                name: `ЦЕХ-${newId}`,
+                machinesCount: 0
+            });
+            
+            DOM.workshopsCount.value = state.workshops.length;
+            saveToLocalStorage();
+            renderWorkshopsSettings();
+            updateButtonsState();
+        }
+        
+        // Удаление последнего цеха
+        function removeLastWorkshop() {
+            if (state.workshops.length <= 1) return;
+            
+            const lastWorkshop = state.workshops[state.workshops.length - 1];
+            
+            // Переназначаем станки в первый цех
+            state.machines.forEach(m => {
+                if (m.workshopId === lastWorkshop.id) {
+                    m.workshopId = 1;
                 }
-            }
+            });
+            
+            // Удаляем цех
+            state.workshops.pop();
+            
+            DOM.workshopsCount.value = state.workshops.length;
+            saveToLocalStorage();
+            renderWorkshopsSettings();
+            renderMachinesList();
+            updateButtonsState();
+        }
+        
+        // Добавление нового станка
+        function addMachine() {
+            if (state.machines.length >= 50) return;
+            
+            const newId = state.machines.length ? Math.max(...state.machines.map(m => m.id)) + 1 : 1;
+            const lastWorkshopId = state.workshops[state.workshops.length - 1].id;
+            
+            state.machines.push({
+                id: newId,
+                name: `Станок ${newId}`,
+                workshopId: lastWorkshopId
+            });
+            
+            DOM.machinesCount.value = state.machines.length;
+            updateWorkshopsMachinesCount();
+            saveToLocalStorage();
+            renderWorkshopsSettings();
+            renderMachinesList();
+            updateButtonsState();
+        }
+        
+        // Удаление последнего станка
+        function removeLastMachine() {
+            if (state.machines.length <= 1) return;
+            
+            state.machines.pop();
+            
+            DOM.machinesCount.value = state.machines.length;
+            updateWorkshopsMachinesCount();
+            saveToLocalStorage();
+            renderWorkshopsSettings();
+            renderMachinesList();
+            updateButtonsState();
         }
         
         // Отрисовка списка станков
         function renderMachinesList() {
-            DOM.machinesList.innerHTML = '';
+            const fragment = document.createDocumentFragment();
             
             state.machines.forEach(machine => {
+                const workshop = state.workshops.find(w => w.id === machine.workshopId);
+                const workshopName = workshop ? workshop.name : 'Не назначен';
+                
                 const machineItem = document.createElement('div');
                 machineItem.className = 'machine-item';
+                machineItem.dataset.machineId = machine.id;
+                machineItem.draggable = true;
                 machineItem.innerHTML = `
+                    <div class="machine-actions">
+                        <button class="btn btn-danger btn-sm" onclick="removeMachine(${machine.id})" title="Удалить станок">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                     <div class="machine-item-header">
                         <span class="machine-item-id">ID: ${machine.id}</span>
-                        <span>Цех: ${state.workshops.find(w => w.id === machine.workshopId)?.name || 'Не назначен'}</span>
+                        <span>Цех: ${workshopName}</span>
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label for="machineName${machine.id}">Название станка:</label>
@@ -468,13 +841,106 @@
                     </div>
                 `;
                 
-                // Обработчик изменения названия станка
-                machineItem.querySelector(`#machineName${machine.id}`).addEventListener('change', function() {
-                    machine.name = this.value;
+                fragment.appendChild(machineItem);
+            });
+            
+            DOM.machinesList.innerHTML = '';
+            DOM.machinesList.appendChild(fragment);
+        }
+        
+        // Удаление конкретного станка
+        function removeMachine(machineId) {
+            if (state.machines.length <= 1) return;
+            
+            if (!confirm(`Удалить станок ${machineId}?`)) return;
+            
+            state.machines = state.machines.filter(m => m.id !== machineId);
+            
+            // Перенумеровываем оставшиеся станки для сохранения порядка
+            state.machines.forEach((m, index) => {
+                m.id = index + 1;
+                m.name = m.name.replace(/Станок \d+/, `Станок ${index + 1}`);
+            });
+            
+            DOM.machinesCount.value = state.machines.length;
+            updateWorkshopsMachinesCount();
+            saveToLocalStorage();
+            renderWorkshopsSettings();
+            renderMachinesList();
+            updateButtonsState();
+            
+            showNotification(`Станок ${machineId} удален`, 'success');
+        }
+        
+        // Обработчик изменения названия станка
+        function handleMachineNameChange(e) {
+            if (e.target && e.target.matches('input[id^="machineName"]')) {
+                const machineId = parseInt(e.target.id.replace('machineName', ''));
+                const machine = state.machines.find(m => m.id === machineId);
+                if (machine) {
+                    machine.name = e.target.value;
                     saveToLocalStorage();
+                }
+            }
+        }
+        
+        // Инициализация drag-and-drop
+        function initDragAndDrop() {
+            document.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+            
+            document.addEventListener('drop', function(e) {
+                e.preventDefault();
+                
+                const workshopDropzones = document.querySelectorAll('.workshop-dropzone');
+                workshopDropzones.forEach(zone => zone.classList.remove('drop-hover'));
+            });
+            
+            // Обработчики для станков
+            document.addEventListener('dragstart', function(e) {
+                if (e.target.classList.contains('machine-item')) {
+                    e.dataTransfer.setData('text/plain', e.target.dataset.machineId);
+                    e.target.style.opacity = '0.4';
+                }
+            });
+            
+            document.addEventListener('dragend', function(e) {
+                if (e.target.classList.contains('machine-item')) {
+                    e.target.style.opacity = '1';
+                }
+            });
+            
+            // Обработчики для зон сброса (цехов)
+            const workshopDropzones = document.querySelectorAll('.workshop-dropzone');
+            workshopDropzones.forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drop-hover');
                 });
                 
-                DOM.machinesList.appendChild(machineItem);
+                zone.addEventListener('dragleave', function() {
+                    this.classList.remove('drop-hover');
+                });
+                
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drop-hover');
+                    
+                    const machineId = parseInt(e.dataTransfer.getData('text/plain'));
+                    const workshopId = parseInt(this.dataset.workshopId);
+                    
+                    const machine = state.machines.find(m => m.id === machineId);
+                    if (machine) {
+                        machine.workshopId = workshopId;
+                        updateWorkshopsMachinesCount();
+                        saveToLocalStorage();
+                        renderWorkshopsSettings();
+                        renderMachinesList();
+                        
+                        showNotification(`Станок ${machineId} перемещен в ${state.workshops.find(w => w.id === workshopId).name}`, 'success');
+                    }
+                });
             });
         }
         
@@ -496,7 +962,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            showNotification('Настройки успешно экспортированы');
+            showNotification('Настройки успешно экспортированы', 'success');
         }
         
         // Импорт настроек
@@ -514,23 +980,28 @@
                     try {
                         const imported = JSON.parse(event.target.result);
                         
-                        if (imported.workshops && imported.machines) {
-                            state.workshops = imported.workshops;
-                            state.machines = imported.machines;
-                            
-                            DOM.workshopsCount.value = state.workshops.length;
-                            DOM.machinesCount.value = state.machines.length;
-                            
-                            renderWorkshopsSettings();
-                            renderMachinesList();
-                            saveToLocalStorage();
-                            
-                            showNotification('Настройки успешно импортированы');
-                        } else {
-                            throw new Error('Неверный формат файла');
+                        if (!validateSettings(imported)) {
+                            throw new Error('Неверный формат файла настроек');
                         }
+                        
+                        if (!confirm('Заменить текущие настройки импортированными? Это действие нельзя отменить.')) {
+                            return;
+                        }
+                        
+                        state.workshops = imported.workshops;
+                        state.machines = imported.machines;
+                        
+                        DOM.workshopsCount.value = state.workshops.length;
+                        DOM.machinesCount.value = state.machines.length;
+                        
+                        renderWorkshopsSettings();
+                        renderMachinesList();
+                        saveToLocalStorage();
+                        
+                        showNotification('Настройки успешно импортированы', 'success');
                     } catch (err) {
-                        alert('Ошибка при импорте настроек: ' + err.message);
+                        console.error('Ошибка импорта:', err);
+                        showNotification('Ошибка при импорте настроек: ' + err.message, 'error');
                     }
                 };
                 reader.readAsText(file);
@@ -539,10 +1010,42 @@
             input.click();
         }
         
+        // Сброс к настройкам по умолчанию
+        function resetToDefaults() {
+            if (!confirm('Вы уверены, что хотите сбросить все настройки к значениям по умолчанию? Это действие нельзя отменить.')) {
+                return;
+            }
+            
+            state.workshops = [{ id: 1, name: "ЦЕХ-1", machinesCount: 16 }];
+            state.machines = Array.from({ length: 16 }, (_, i) => ({
+                id: i + 1,
+                name: `Станок ${i + 1}`,
+                workshopId: 1
+            }));
+            
+            DOM.workshopsCount.value = 1;
+            DOM.machinesCount.value = 16;
+            
+            renderWorkshopsSettings();
+            renderMachinesList();
+            saveToLocalStorage();
+            
+            showNotification('Настройки сброшены к значениям по умолчанию', 'success');
+        }
+        
         // Показать уведомление
-        function showNotification(message) {
-            DOM.notification.textContent = message;
-            DOM.notification.classList.add('show');
+        function showNotification(message, type = 'success') {
+            const types = {
+                success: { bg: 'var(--success-color)', icon: 'fa-check' },
+                error: { bg: 'var(--error-color)', icon: 'fa-exclamation-circle' },
+                warning: { bg: 'var(--warning-color)', icon: 'fa-exclamation-triangle' }
+            };
+            
+            DOM.notification.innerHTML = `
+                <i class="fas ${types[type].icon}"></i> ${message}
+            `;
+            DOM.notification.style.backgroundColor = types[type].bg;
+            DOM.notification.className = 'notification show';
             
             setTimeout(() => {
                 DOM.notification.classList.remove('show');
