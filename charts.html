@@ -155,6 +155,30 @@
             background-color: var(--primary-hover);
             font-weight: bold;
         }
+        .workshop-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .workshop-buttons button {
+            flex: 1;
+            padding: 0.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            min-width: 60px;
+        }
+        .workshop-buttons button:hover {
+            background-color: var(--primary-hover);
+        }
+        .workshop-buttons button.active {
+            background-color: var(--primary-hover);
+            font-weight: bold;
+        }
         option {
             background-color: #555;
         }
@@ -185,6 +209,13 @@
     </nav>
     <div class="container">
         <div class="sidebar">
+            <h3><i class="fas fa-industry"></i> Цех</h3>
+            <div class="workshop-buttons">
+                <button id="workshop1Btn" class="active" onclick="showWorkshopData('workshop1')">
+                    <i class="fas fa-building"></i> ЦЕХ-1
+                </button>
+            </div>
+            
             <h3><i class="fas fa-filter"></i> Фильтр по станкам</h3>
             <select id="machineFilter">
                 <option value="all">Все станки</option>
@@ -225,7 +256,7 @@
         </div>
         <div class="content">
             <div class="chart-container">
-                <h3>Состояние станков (часы)</h3>
+                <h3 id="chartTitle">Состояние станков (часы)</h3>
                 <canvas id="machineStatusChart"></canvas>
             </div>
         </div>
@@ -260,6 +291,9 @@
         
         // Текущий выбранный период
         let currentPeriod = 'day';
+        
+        // Текущий режим отображения (workshop1 или individual)
+        let currentViewMode = 'workshop1';
         
         // Данные по станкам
         let machinesData = {};
@@ -423,6 +457,8 @@
                         tooltip: {
                             callbacks: {
                                 afterBody: function(context) {
+                                    if (currentViewMode === 'workshop1') return '';
+                                    
                                     const machineIndex = context[0].dataIndex;
                                     const machineNumber = machineIndex + 1;
                                     const status = machinesData[machineNumber].status;
@@ -443,20 +479,157 @@
         function updateChart() {
             if (!machineStatusChart) return;
             
-            // Устанавливаем максимальное значение для шкалы X в зависимости от периода
-            machineStatusChart.options.scales.x.max = MAX_HOURS[currentPeriod];
-            
-            // Обновляем данные для каждого станка
-            for (let i = 1; i <= 16; i++) {
-                const hours = machinesData[i].hours;
+            if (currentViewMode === 'workshop1') {
+                // Режим отображения цеха - круговая диаграмма
+                machineStatusChart.destroy();
                 
-                // Обновляем данные для каждого состояния
-                machineStatusChart.data.datasets[0].data[i-1] = hours[STATUS_OFF];
-                machineStatusChart.data.datasets[1].data[i-1] = hours[STATUS_IDLE];
-                machineStatusChart.data.datasets[2].data[i-1] = hours[STATUS_ACTIVE];
+                const ctx = document.getElementById('machineStatusChart').getContext('2d');
+                
+                // Суммируем часы по всем станкам
+                let totalOff = 0, totalIdle = 0, totalActive = 0;
+                
+                for (let i = 1; i <= 16; i++) {
+                    totalOff += machinesData[i].hours[STATUS_OFF];
+                    totalIdle += machinesData[i].hours[STATUS_IDLE];
+                    totalActive += machinesData[i].hours[STATUS_ACTIVE];
+                }
+                
+                machineStatusChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: [
+                            STATUS_LABELS[STATUS_OFF],
+                            STATUS_LABELS[STATUS_IDLE],
+                            STATUS_LABELS[STATUS_ACTIVE]
+                        ],
+                        datasets: [{
+                            data: [totalOff, totalIdle, totalActive],
+                            backgroundColor: [
+                                STATUS_COLORS[STATUS_OFF],
+                                STATUS_COLORS[STATUS_IDLE],
+                                STATUS_COLORS[STATUS_ACTIVE]
+                            ],
+                            borderColor: '#fff',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} ч (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                document.getElementById('chartTitle').textContent = 'Состояние станков ЦЕХ-1 (часы)';
+            } else {
+                // Режим отображения отдельных станков - столбчатая диаграмма
+                machineStatusChart.destroy();
+                
+                const ctx = document.getElementById('machineStatusChart').getContext('2d');
+                
+                machineStatusChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Array.from({length: 16}, (_, i) => `Станок ${i+1}`),
+                        datasets: [
+                            {
+                                label: STATUS_LABELS[STATUS_OFF],
+                                data: Array(16).fill(0),
+                                backgroundColor: STATUS_COLORS[STATUS_OFF],
+                                borderColor: STATUS_COLORS[STATUS_OFF],
+                                borderWidth: 1
+                            },
+                            {
+                                label: STATUS_LABELS[STATUS_IDLE],
+                                data: Array(16).fill(0),
+                                backgroundColor: STATUS_COLORS[STATUS_IDLE],
+                                borderColor: STATUS_COLORS[STATUS_IDLE],
+                                borderWidth: 1
+                            },
+                            {
+                                label: STATUS_LABELS[STATUS_ACTIVE],
+                                data: Array(16).fill(0),
+                                backgroundColor: STATUS_COLORS[STATUS_ACTIVE],
+                                borderColor: STATUS_COLORS[STATUS_ACTIVE],
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        scales: {
+                            x: {
+                                stacked: true,
+                                title: {
+                                    display: true,
+                                    text: 'Часы'
+                                },
+                                max: MAX_HOURS[currentPeriod]
+                            },
+                            y: {
+                                stacked: true
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    afterBody: function(context) {
+                                        const machineIndex = context[0].dataIndex;
+                                        const machineNumber = machineIndex + 1;
+                                        const status = machinesData[machineNumber].status;
+                                        return `Текущее состояние: ${STATUS_LABELS[status]}`;
+                                    }
+                                }
+                            },
+                            legend: {
+                                position: 'top',
+                                onClick: null
+                            }
+                        }
+                    }
+                });
+                
+                // Устанавливаем максимальное значение для шкалы X в зависимости от периода
+                machineStatusChart.options.scales.x.max = MAX_HOURS[currentPeriod];
+                
+                // Обновляем данные для каждого станка
+                for (let i = 1; i <= 16; i++) {
+                    const hours = machinesData[i].hours;
+                    
+                    // Обновляем данные для каждого состояния
+                    machineStatusChart.data.datasets[0].data[i-1] = hours[STATUS_OFF];
+                    machineStatusChart.data.datasets[1].data[i-1] = hours[STATUS_IDLE];
+                    machineStatusChart.data.datasets[2].data[i-1] = hours[STATUS_ACTIVE];
+                }
+                
+                document.getElementById('chartTitle').textContent = 'Состояние станков (часы)';
+                machineStatusChart.update();
             }
-            
-            machineStatusChart.update();
+        }
+        
+        // Показать данные по цеху
+        function showWorkshopData(workshop) {
+            currentViewMode = workshop;
+            document.getElementById('workshop1Btn').classList.add('active');
+            updateChart();
         }
         
         // Обработчик изменения фильтра станков
@@ -464,10 +637,16 @@
             const selectedMachine = this.value;
             
             if (selectedMachine === 'all') {
+                currentViewMode = 'individual';
+                document.getElementById('workshop1Btn').classList.remove('active');
+                
                 // Показываем все станки
                 machineStatusChart.data.labels = Array.from({length: 16}, (_, i) => `Станок ${i+1}`);
                 machineStatusChart.update();
             } else {
+                currentViewMode = 'individual';
+                document.getElementById('workshop1Btn').classList.remove('active');
+                
                 // Показываем только выбранный станок
                 const machineNumber = parseInt(selectedMachine);
                 machineStatusChart.data.labels = [`Станок ${machineNumber}`];
@@ -483,13 +662,11 @@
         
         // Обработчики изменения дат
         document.getElementById('startDate').addEventListener('change', function() {
-            // Можно добавить дополнительную логику при изменении даты вручную
             updateMachinesData();
             updateChart();
         });
         
         document.getElementById('endDate').addEventListener('change', function() {
-            // Можно добавить дополнительную логику при изменении даты вручную
             updateMachinesData();
             updateChart();
         });
