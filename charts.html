@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Графики анализа станков</title>
-    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -27,6 +26,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
         }
+
         header {
             background-color: #333;
             color: white;
@@ -34,6 +34,7 @@
             text-align: center;
             position: relative;
         }
+
         nav {
             background-color: #444;
             padding: 0.5rem;
@@ -42,6 +43,7 @@
             gap: 1rem;
             flex-wrap: wrap;
         }
+
         nav button {
             padding: 0.5rem 1rem;
             background-color: #555;
@@ -54,22 +56,27 @@
             align-items: center;
             gap: 0.5rem;
         }
+
         nav button:hover {
             background-color: #666;
         }
+
         nav button.active {
             background-color: var(--primary-color);
         }
+
         .container {
             display: flex;
             padding: 1rem;
             flex-direction: column;
         }
+
         @media (min-width: 768px) {
             .container {
                 flex-direction: row;
             }
         }
+
         .sidebar {
             width: 100%;
             background-color: #555;
@@ -79,6 +86,7 @@
             margin-bottom: 1rem;
             color: white;
         }
+
         @media (min-width: 768px) {
             .sidebar {
                 width: 250px;
@@ -86,12 +94,14 @@
                 margin-bottom: 0;
             }
         }
+
         .content {
             flex: 1;
             display: grid;
             grid-template-columns: 1fr;
             gap: 1rem;
         }
+
         .chart-container {
             background-color: var(--card-bg);
             padding: 1rem;
@@ -99,6 +109,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             margin-bottom: 1rem;
         }
+
         .logout-button {
             position: absolute;
             top: 1rem;
@@ -114,9 +125,11 @@
             align-items: center;
             gap: 0.5rem;
         }
+
         .logout-button:hover {
             background-color: var(--primary-hover);
         }
+
         select, input {
             width: 100%;
             padding: 0.5rem;
@@ -126,18 +139,21 @@
             background-color: #666;
             color: white;
         }
+
         label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: bold;
             color: white;
         }
+
         .period-buttons {
             display: flex;
             gap: 0.5rem;
             margin-bottom: 1rem;
             flex-wrap: wrap;
         }
+
         .period-buttons button {
             flex: 1;
             padding: 0.5rem;
@@ -149,30 +165,67 @@
             transition: background-color 0.3s;
             min-width: 60px;
         }
+
         .period-buttons button:hover {
             background-color: var(--primary-hover);
         }
+
         .period-buttons button.active {
             background-color: var(--primary-hover);
             font-weight: bold;
         }
+
         option {
             background-color: #555;
         }
+
         h3 {
             margin-top: 1rem;
             margin-bottom: 0.5rem;
             color: white;
         }
+
         .charts-row {
             display: grid;
             grid-template-columns: 1fr;
             gap: 1rem;
         }
+
         @media (min-width: 992px) {
             .charts-row {
                 grid-template-columns: 1fr 1fr 1fr;
             }
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification.error {
+            background-color: var(--stopped-color);
+        }
+
+        .notification.success {
+            background-color: var(--working-color);
         }
     </style>
 </head>
@@ -183,11 +236,12 @@
             <i class="fas fa-sign-out-alt"></i> Выйти
         </button>
     </header>
+    
     <nav>
-        <button class="active" onclick="location.href='dashboard.html'">
+        <button onclick="location.href='dashboard.html'">
             <i class="fas fa-tachometer-alt"></i> Дашборды
         </button>
-        <button onclick="location.href='charts.html'">
+        <button class="active" onclick="location.href='charts.html'">
             <i class="fas fa-chart-line"></i> Графики анализа
         </button>
         <button onclick="location.href='reports.html'">
@@ -197,36 +251,19 @@
             <i class="fas fa-cog"></i> Настройки
         </button>
     </nav>
+    
     <div class="container">
         <div class="sidebar">
             <h3><i class="fas fa-industry"></i> Цех</h3>
             <select id="workshopFilter">
                 <option value="all">Все цеха</option>
-                <option value="workshop1">ЦЕХ-1</option>
-                <option value="workshop2">ЦЕХ-2</option>
-                <option value="workshop3">ЦЕХ-3</option>
-                <option value="workshop4">ЦЕХ-4</option>
+                <!-- Опции будут добавляться динамически -->
             </select>
             
             <h3><i class="fas fa-filter"></i> Фильтр по станкам</h3>
             <select id="machineFilter">
                 <option value="all">Все станки</option>
-                <option value="1">Станок 1</option>
-                <option value="2">Станок 2</option>
-                <option value="3">Станок 3</option>
-                <option value="4">Станок 4</option>
-                <option value="5">Станок 5</option>
-                <option value="6">Станок 6</option>
-                <option value="7">Станок 7</option>
-                <option value="8">Станок 8</option>
-                <option value="9">Станок 9</option>
-                <option value="10">Станок 10</option>
-                <option value="11">Станок 11</option>
-                <option value="12">Станок 12</option>
-                <option value="13">Станок 13</option>
-                <option value="14">Станок 14</option>
-                <option value="15">Станок 15</option>
-                <option value="16">Станок 16</option>
+                <!-- Опции будут добавляться динамически -->
             </select>
             
             <h3><i class="fas fa-calendar-alt"></i> Период</h3>
@@ -246,6 +283,7 @@
                 <input type="date" id="endDate">
             </div>
         </div>
+        
         <div class="content">
             <div id="workshopCharts" class="charts-row">
                 <div class="chart-container">
@@ -270,6 +308,9 @@
             </div>
         </div>
     </div>
+    
+    <div class="notification" id="notification"></div>
+    
     <script>
         // Константы для состояний станков
         const STATUS_OFF = 0;
@@ -305,23 +346,110 @@
         let currentViewMode = 'workshop';
         
         // Данные по станкам для каждого цеха
-        let workshopsData = {
-            workshop1: {},
-            workshop2: {},
-            workshop3: {},
-            workshop4: {}
-        };
+        let workshopsData = {};
         
-        // Инициализация данных для всех станков во всех цехах
-        function initializeWorkshopsData() {
-            for (const workshop in workshopsData) {
-                workshopsData[workshop] = {};
-                for (let i = 1; i <= 16; i++) {
-                    workshopsData[workshop][i] = {
-                        status: generateRandomStatus(),
-                        hours: generateRandomHours(currentPeriod)
-                    };
+        // Объекты графиков
+        let pieChart, barChart, horizontalBarChart, machineStatusChart;
+        
+        // DOM элементы
+        const DOM = {
+            workshopFilter: document.getElementById('workshopFilter'),
+            machineFilter: document.getElementById('machineFilter'),
+            notification: document.getElementById('notification')
+        };
+
+        // Загрузка настроек из localStorage
+        function loadSettings() {
+            const settings = localStorage.getItem('machineMonitoringSettings');
+            if (settings) {
+                try {
+                    const parsed = JSON.parse(settings);
+                    workshopsData = {};
+                    
+                    // Инициализируем данные для каждого цеха
+                    parsed.workshops.forEach(workshop => {
+                        const workshopKey = `workshop${workshop.id}`;
+                        workshopsData[workshopKey] = {};
+                        
+                        // Инициализируем данные для каждого станка в цехе
+                        parsed.machines
+                            .filter(m => m.workshopId === workshop.id)
+                            .forEach(machine => {
+                                workshopsData[workshopKey][machine.id] = {
+                                    status: generateRandomStatus(),
+                                    hours: generateRandomHours(currentPeriod)
+                                };
+                            });
+                    });
+                    
+                    // Обновляем фильтры
+                    updateWorkshopFilter();
+                    updateMachineFilter();
+                    
+                    return true;
+                } catch (e) {
+                    console.error('Ошибка загрузки настроек:', e);
+                    showNotification('Ошибка загрузки настроек', 'error');
+                    return false;
                 }
+            }
+            return false;
+        }
+
+        // Обновление фильтра цехов
+        function updateWorkshopFilter() {
+            DOM.workshopFilter.innerHTML = '<option value="all">Все цеха</option>';
+            
+            const settings = JSON.parse(localStorage.getItem('machineMonitoringSettings'));
+            if (settings && settings.workshops) {
+                settings.workshops.forEach(workshop => {
+                    const option = document.createElement('option');
+                    option.value = `workshop${workshop.id}`;
+                    option.textContent = workshop.name;
+                    DOM.workshopFilter.appendChild(option);
+                });
+            }
+        }
+
+        // Обновление фильтра станков
+        function updateMachineFilter() {
+            DOM.machineFilter.innerHTML = '<option value="all">Все станки</option>';
+            
+            const settings = JSON.parse(localStorage.getItem('machineMonitoringSettings'));
+            if (settings && settings.machines) {
+                settings.machines.forEach(machine => {
+                    const option = document.createElement('option');
+                    option.value = machine.id;
+                    option.textContent = machine.name;
+                    DOM.machineFilter.appendChild(option);
+                });
+            }
+        }
+
+        // Инициализация данных
+        function initializeWorkshopsData() {
+            // Пытаемся загрузить настройки
+            if (!loadSettings()) {
+                // Если настройки не загружены, используем значения по умолчанию
+                workshopsData = {
+                    workshop1: {},
+                    workshop2: {},
+                    workshop3: {},
+                    workshop4: {}
+                };
+                
+                // Инициализируем 16 станков по умолчанию
+                for (const workshop in workshopsData) {
+                    for (let i = 1; i <= 16; i++) {
+                        workshopsData[workshop][i] = {
+                            status: generateRandomStatus(),
+                            hours: generateRandomHours(currentPeriod)
+                        };
+                    }
+                }
+                
+                updateWorkshopFilter();
+                updateMachineFilter();
             }
         }
         
@@ -404,16 +532,14 @@
         // Обновление данных станков
         function updateWorkshopsData() {
             for (const workshop in workshopsData) {
-                for (let i = 1; i <= 16; i++) {
-                    workshopsData[workshop][i].status = generateRandomStatus();
-                    workshopsData[workshop][i].hours = generateRandomHours(currentPeriod);
+                for (const machineId in workshopsData[workshop]) {
+                    workshopsData[workshop][machineId].status = generateRandomStatus();
+                    workshopsData[workshop][machineId].hours = generateRandomHours(currentPeriod);
                 }
             }
         }
         
         // Создание всех графиков
-        let pieChart, barChart, horizontalBarChart, machineStatusChart;
-        
         function createCharts() {
             // Создаем круговую диаграмму
             const pieCtx = document.getElementById('pieChart').getContext('2d');
@@ -669,7 +795,7 @@
             if (currentViewMode === 'workshop') {
                 if (selectedWorkshop === 'all') {
                     // Режим "Все цеха"
-                    const workshopNames = ['ЦЕХ-1', 'ЦЕХ-2', 'ЦЕХ-3', 'ЦЕХ-4'];
+                    const workshopNames = [];
                     const offData = [];
                     const idleData = [];
                     const activeData = [];
@@ -678,12 +804,16 @@
                     let totalOff = 0, totalIdle = 0, totalActive = 0;
                     
                     for (const workshop in workshopsData) {
+                        const workshopName = document.getElementById('workshopFilter')
+                            .querySelector(`option[value="${workshop}"]`)?.textContent || workshop;
+                        workshopNames.push(workshopName);
+                        
                         let workshopOff = 0, workshopIdle = 0, workshopActive = 0;
                         
-                        for (let i = 1; i <= 16; i++) {
-                            workshopOff += workshopsData[workshop][i].hours[STATUS_OFF];
-                            workshopIdle += workshopsData[workshop][i].hours[STATUS_IDLE];
-                            workshopActive += workshopsData[workshop][i].hours[STATUS_ACTIVE];
+                        for (const machineId in workshopsData[workshop]) {
+                            workshopOff += workshopsData[workshop][machineId].hours[STATUS_OFF];
+                            workshopIdle += workshopsData[workshop][machineId].hours[STATUS_IDLE];
+                            workshopActive += workshopsData[workshop][machineId].hours[STATUS_ACTIVE];
                         }
                         
                         offData.push(workshopOff);
@@ -704,7 +834,7 @@
                     barChart.data.datasets[0].data = offData;
                     barChart.data.datasets[1].data = idleData;
                     barChart.data.datasets[2].data = activeData;
-                    barChart.options.scales.y.max = MAX_HOURS[currentPeriod] * 16 * 4; // Увеличиваем максимум для 4 цехов
+                    barChart.options.scales.y.max = MAX_HOURS[currentPeriod] * getMaxMachinesInWorkshop() * Object.keys(workshopsData).length;
                     barChart.update();
                     
                     // Обновляем горизонтальную столбчатую диаграмму (данные по каждому цеху)
@@ -712,7 +842,7 @@
                     horizontalBarChart.data.datasets[0].data = offData;
                     horizontalBarChart.data.datasets[1].data = idleData;
                     horizontalBarChart.data.datasets[2].data = activeData;
-                    horizontalBarChart.options.scales.x.max = MAX_HOURS[currentPeriod] * 16 * 4; // Увеличиваем максимум для 4 цехов
+                    horizontalBarChart.options.scales.x.max = MAX_HOURS[currentPeriod] * getMaxMachinesInWorkshop() * Object.keys(workshopsData).length;
                     horizontalBarChart.update();
                     
                     // Обновляем заголовки
@@ -726,10 +856,10 @@
                     // Суммируем часы по всем станкам выбранного цеха
                     let totalOff = 0, totalIdle = 0, totalActive = 0;
                     
-                    for (let i = 1; i <= 16; i++) {
-                        totalOff += workshopsData[selectedWorkshop][i].hours[STATUS_OFF];
-                        totalIdle += workshopsData[selectedWorkshop][i].hours[STATUS_IDLE];
-                        totalActive += workshopsData[selectedWorkshop][i].hours[STATUS_ACTIVE];
+                    for (const machineId in workshopsData[selectedWorkshop]) {
+                        totalOff += workshopsData[selectedWorkshop][machineId].hours[STATUS_OFF];
+                        totalIdle += workshopsData[selectedWorkshop][machineId].hours[STATUS_IDLE];
+                        totalActive += workshopsData[selectedWorkshop][machineId].hours[STATUS_ACTIVE];
                     }
                     
                     // Обновляем круговую диаграмму
@@ -741,7 +871,7 @@
                     barChart.data.datasets[0].data = [totalOff];
                     barChart.data.datasets[1].data = [totalIdle];
                     barChart.data.datasets[2].data = [totalActive];
-                    barChart.options.scales.y.max = MAX_HOURS[currentPeriod] * 16;
+                    barChart.options.scales.y.max = MAX_HOURS[currentPeriod] * Object.keys(workshopsData[selectedWorkshop]).length;
                     barChart.update();
                     
                     // Обновляем горизонтальную столбчатую диаграмму
@@ -749,7 +879,7 @@
                     horizontalBarChart.data.datasets[0].data = [totalOff];
                     horizontalBarChart.data.datasets[1].data = [totalIdle];
                     horizontalBarChart.data.datasets[2].data = [totalActive];
-                    horizontalBarChart.options.scales.x.max = MAX_HOURS[currentPeriod] * 16;
+                    horizontalBarChart.options.scales.x.max = MAX_HOURS[currentPeriod] * Object.keys(workshopsData[selectedWorkshop]).length;
                     horizontalBarChart.update();
                     
                     // Обновляем заголовки
@@ -763,15 +893,19 @@
                 
                 if (selectedMachine === 'all') {
                     // Показываем все станки выбранного цеха
-                    const labels = Array.from({length: 16}, (_, i) => `Станок ${i+1}`);
+                    const labels = [];
                     const offData = [];
                     const idleData = [];
                     const activeData = [];
                     
-                    for (let i = 1; i <= 16; i++) {
-                        offData.push(workshopsData[selectedWorkshop][i].hours[STATUS_OFF]);
-                        idleData.push(workshopsData[selectedWorkshop][i].hours[STATUS_IDLE]);
-                        activeData.push(workshopsData[selectedWorkshop][i].hours[STATUS_ACTIVE]);
+                    for (const machineId in workshopsData[selectedWorkshop]) {
+                        const machineName = document.getElementById('machineFilter')
+                            .querySelector(`option[value="${machineId}"]`)?.textContent || `Станок ${machineId}`;
+                        labels.push(machineName);
+                        
+                        offData.push(workshopsData[selectedWorkshop][machineId].hours[STATUS_OFF]);
+                        idleData.push(workshopsData[selectedWorkshop][machineId].hours[STATUS_IDLE]);
+                        activeData.push(workshopsData[selectedWorkshop][machineId].hours[STATUS_ACTIVE]);
                     }
                     
                     machineStatusChart.data.labels = labels;
@@ -786,18 +920,30 @@
                     const machineNumber = parseInt(selectedMachine);
                     const hours = workshopsData[selectedWorkshop][machineNumber].hours;
                     const status = workshopsData[selectedWorkshop][machineNumber].status;
+                    const machineName = document.getElementById('machineFilter')
+                        .querySelector(`option[value="${machineNumber}"]`)?.textContent || `Станок ${machineNumber}`;
                     
-                    machineStatusChart.data.labels = [`Станок ${machineNumber}`];
+                    machineStatusChart.data.labels = [machineName];
                     machineStatusChart.data.datasets[0].data = [hours[STATUS_OFF]];
                     machineStatusChart.data.datasets[1].data = [hours[STATUS_IDLE]];
                     machineStatusChart.data.datasets[2].data = [hours[STATUS_ACTIVE]];
                     machineStatusChart.options.scales.x.max = MAX_HOURS[currentPeriod];
                     machineStatusChart.options.indexAxis = 'y';
-                    document.getElementById('chartTitle').textContent = `Состояние станка ${machineNumber} цеха ${selectedWorkshop} (часы)`;
+                    document.getElementById('chartTitle').textContent = `Состояние станка ${machineName} цеха ${selectedWorkshop} (часы)`;
                 }
                 
                 machineStatusChart.update();
             }
+        }
+        
+        // Получение максимального количества станков в цехе
+        function getMaxMachinesInWorkshop() {
+            let max = 0;
+            for (const workshop in workshopsData) {
+                const count = Object.keys(workshopsData[workshop]).length;
+                if (count > max) max = count;
+            }
+            return max;
         }
         
         // Показать данные по цеху/цехам
@@ -816,13 +962,25 @@
             updateCharts();
         }
         
+        // Показать уведомление
+        function showNotification(message, type = 'success') {
+            DOM.notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check' : 'fa-exclamation-circle'}"></i> ${message}
+            `;
+            DOM.notification.className = `notification show ${type === 'error' ? 'error' : 'success'}`;
+            
+            setTimeout(() => {
+                DOM.notification.classList.remove('show');
+            }, 3000);
+        }
+
         // Обработчик изменения фильтра цехов
-        document.getElementById('workshopFilter').addEventListener('change', function() {
+        DOM.workshopFilter.addEventListener('change', function() {
             showWorkshopData();
         });
         
         // Обработчик изменения фильтра станков
-        document.getElementById('machineFilter').addEventListener('change', function() {
+        DOM.machineFilter.addEventListener('change', function() {
             const selectedMachine = this.value;
             
             if (selectedMachine === 'all') {
@@ -849,6 +1007,15 @@
             createCharts();
             setPeriod('day');
             showWorkshopData();
+            
+            // Слушаем изменения в localStorage
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'machineMonitoringSettings') {
+                    initializeWorkshopsData();
+                    updateCharts();
+                    showNotification('Настройки обновлены', 'success');
+                }
+            });
         });
     </script>
 </body>
