@@ -803,6 +803,64 @@
                 }
             }
         }
+        async function fetchMachineData() {
+    try {
+        const response = await fetch('http://localhost:3000/api/machines');
+        const data = await response.json();
+        
+        if (data.success) {
+            return data.machines;
+        } else {
+            console.error('Ошибка получения данных:', data.error);
+            return null;
+        }
+    } catch (error) {
+        console.error('Ошибка при запросе данных:', error);
+        return null;
+    }
+}
+
+// Подключение к WebSocket
+const ws = new WebSocket('ws://localhost:8080');
+
+ws.onmessage = function(event) {
+    const machinesData = JSON.parse(event.data);
+    // Обновляем данные на странице
+    updateMachinesFromServer(machinesData);
+};
+
+function updateMachinesFromServer(machinesData) {
+    state.machines = [];
+    
+    if (state.settings && state.settings.machines) {
+        state.settings.machines.forEach(machine => {
+            const id = machine.id;
+            const machineData = machinesData[id] || {
+                status: 'shutdown',
+                statusText: 'Выключен'
+            };
+            
+            let currentPerformance = 0;
+            if (machineData.status === 'working') {
+                currentPerformance = Math.floor(Math.random() * 21) + 70;
+            }
+            
+            updateRealTimeData(id, machineData.status);
+            
+            state.machines.push({
+                id,
+                name: machine.name,
+                status: machineData.statusText,
+                statusClass: machineData.status,
+                currentPerformance,
+                avgHourlyLoad: machineData.status === 'working' ? Math.floor(Math.random() * 21) + 70 : 0,
+                lastUpdate: new Date()
+            });
+        });
+    }
+    
+    loadMachines();
+}
 
         // Настройка обработчиков событий
         function setupEventListeners() {
