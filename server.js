@@ -3,7 +3,10 @@ const mysql = require('mysql2/promise');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001; // или любой другой свободный порт
+app.listen(PORT, () => {
+  console.log(`Сервер запущен на порту ${PORT}`);
+});
 
 // Настройка CORS
 app.use(cors());
@@ -49,6 +52,7 @@ const dbConfig = {
   password: 'victoria123',
   database: 'cnc_monitoring'
 };
+
 
 // Функция для создания соединения с БД
 async function getDbConnection() {
