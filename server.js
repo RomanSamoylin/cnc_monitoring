@@ -44,9 +44,9 @@ wss.on('connection', ws => {
 
 // Конфигурация подключения к MySQL
 const dbConfig = {
-  host: '192.168.1.79',
-  user: 'root',
-  password: 'victoria1234',
+    host: '192.168.1.79',
+    user: 'monitor',
+  password: 'victoria123',
   database: 'cnc_monitoring'
 };
 
