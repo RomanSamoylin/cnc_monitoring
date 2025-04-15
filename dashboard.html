@@ -473,711 +473,108 @@
     <script>
         // Состояние приложения
         const state = {
-            machines: [],
-            filter: {
-                workshop: 'all',
-                machine: 'all',
-                status: 'all',
-                sort: 'name'
-            },
-            autoRefresh: true,
-            refreshInterval: 5000,
-            refreshIntervalId: null,
-            realTimeData: {},
-            hourlyData: {},
-            machineStates: {},
-            workshopMachines: {},
-            totalMachines: 0,
-            settings: null
+            machines: {},
+            workshops: {
+                1: "ЦЕХ-1",
+                2: "ЦЕХ-2"
+            }
         };
 
-        // Элементы DOM
-        const DOM = {
-            machineList: document.getElementById('machineList'),
-            workshopFilter: document.getElementById('workshopFilter'),
-            machineFilter: document.getElementById('machineFilter'),
-            notification: document.getElementById('notification')
+        // Подключение к WebSocket
+        const ws = new WebSocket('ws://localhost:8080');
+
+        ws.onmessage = function(event) {
+            const message = JSON.parse(event.data);
+            
+            if (message.type === 'INITIAL_DATA') {
+                // Первоначальная загрузка данных
+                state.machines = message.data;
+                renderMachines();
+            } else if (message.type === 'UPDATE') {
+                // Обновление данных
+                Object.assign(state.machines, message.data);
+                updateMachines();
+            }
         };
 
-        // Загрузка настроек из localStorage
-        function loadSettings() {
-            const savedSettings = localStorage.getItem('machineMonitoringSettings');
-            if (savedSettings) {
-                try {
-                    state.settings = JSON.parse(savedSettings);
-                    state.workshopMachines = {};
-                    state.totalMachines = state.settings.machines.length;
-                    
-                    state.settings.workshops.forEach(workshop => {
-                        state.workshopMachines[`workshop${workshop.id}`] = 
-                            state.settings.machines
-                                .filter(m => m.workshopId === workshop.id)
-                                .map(m => m.id);
-                    });
-                    
-                    updateWorkshopFilter();
-                    updateMachineFilter();
-                    return true;
-                } catch (e) {
-                    console.error('Ошибка загрузки настроек:', e);
-                    return false;
-                }
-            }
-            return false;
-        }
-
-        // Обновление фильтра цехов
-        function updateWorkshopFilter() {
-            DOM.workshopFilter.innerHTML = '<option value="all">Все цеха</option>';
-            
-            if (state.settings && state.settings.workshops) {
-                state.settings.workshops.forEach(workshop => {
-                    const option = document.createElement('option');
-                    option.value = `workshop${workshop.id}`;
-                    option.textContent = workshop.name;
-                    DOM.workshopFilter.appendChild(option);
-                });
-            }
-        }
-
-        // Обновление фильтра станков
-        function updateMachineFilter() {
-            DOM.machineFilter.innerHTML = '<option value="all">Все станки</option>';
-            
-            if (state.settings && state.settings.machines) {
-                state.settings.machines.forEach(machine => {
-                    const option = document.createElement('option');
-                    option.value = machine.id;
-                    option.textContent = machine.name;
-                    DOM.machineFilter.appendChild(option);
-                });
-            }
-        }
-
-        // Инициализация приложения
-        function init() {
-            if (!loadSettings()) {
-                const defaultSettings = {
-                    workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 16 }],
-                    machines: Array.from({ length: 16 }, (_, i) => ({
-                        id: i + 1,
-                        name: `Станок ${i + 1}`,
-                        workshopId: 1
-                    }))
-                };
-                localStorage.setItem('machineMonitoringSettings', JSON.stringify(defaultSettings));
-                loadSettings();
-            }
-            
-            initializeDataStructures();
-            generateRandomData();
-            setupEventListeners();
-            loadMachines();
-            startAutoRefresh();
-            startHourlyUpdates();
-            
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'machineMonitoringSettings') {
-                    loadSettings();
-                    initializeDataStructures();
-                    generateRandomData();
-                    loadMachines();
-                    showNotification('Настройки обновлены', 'success');
-                }
-            });
-        }
-
-        // Инициализация структур данных
-        function initializeDataStructures() {
-            state.realTimeData = {};
-            state.hourlyData = {};
-            state.machineStates = {};
-            
-            if (state.settings && state.settings.machines) {
-                state.settings.machines.forEach(machine => {
-                    const id = machine.id;
-                    
-                    state.realTimeData[id] = {
-                        labels: Array.from({length: 8*60}, (_, j) => {
-                            const hours = Math.floor(j / 60);
-                            const mins = j % 60;
-                            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-                        }),
-                        data: Array(8*60).fill(0),
-                        currentMinute: 0
-                    };
-
-                    state.hourlyData[id] = {
-                        labels: Array.from({length: 24}, (_, h) => `${h.toString().padStart(2, '0')}:00`),
-                        data: Array(24).fill(0),
-                        counts: Array(24).fill(0)
-                    };
-                    
-                    state.machineStates[id] = {
-                        status: 'working',
-                        statusChangeTime: new Date(),
-                        nextEventTime: new Date(),
-                        nextEventType: null
-                    };
-                    
-                    scheduleNextEvent(id);
-                });
-            }
-        }
-
-        // Планирование следующего события
-        function scheduleNextEvent(machineId) {
-            const now = new Date();
-            const rand = Math.random();
-            
-            if (rand < 0.5) {
-                const hoursUntilShutdown = Math.random() * 12;
-                state.machineStates[machineId] = {
-                    status: 'working',
-                    statusChangeTime: now,
-                    nextEventTime: new Date(now.getTime() + hoursUntilShutdown * 3600000),
-                    nextEventType: 'shutdown',
-                    eventDuration: 6 + Math.random() * 2
-                };
-            } 
-            else if (rand < 0.75) {
-                const hoursUntilStop = Math.random() * 6;
-                state.machineStates[machineId] = {
-                    status: 'working',
-                    statusChangeTime: now,
-                    nextEventTime: new Date(now.getTime() + hoursUntilStop * 3600000),
-                    nextEventType: 'stop',
-                    eventDuration: 1 + Math.random() * 1
-                };
-            } 
-            else {
-                const hoursUntilCheck = Math.random() * 24;
-                state.machineStates[machineId] = {
-                    status: 'working',
-                    statusChangeTime: now,
-                    nextEventTime: new Date(now.getTime() + hoursUntilCheck * 3600000),
-                    nextEventType: 'check'
-                };
-            }
-        }
-
-        // Обновление состояний станков
-        function updateMachineStates() {
+        // Функция обновления UI станков
+        function updateMachines() {
             const now = new Date();
             
-            for (const machineId in state.machineStates) {
-                const machineState = state.machineStates[machineId];
-                
-                if (now >= machineState.nextEventTime) {
-                    if (machineState.nextEventType === 'shutdown' && machineState.status === 'working') {
-                        machineState.status = 'shutdown';
-                        machineState.statusChangeTime = now;
-                        machineState.nextEventTime = new Date(now.getTime() + machineState.eventDuration * 3600000);
-                        machineState.nextEventType = 'wakeup';
-                    } 
-                    else if (machineState.nextEventType === 'stop' && machineState.status === 'working') {
-                        machineState.status = 'stopped';
-                        machineState.statusChangeTime = now;
-                        machineState.nextEventTime = new Date(now.getTime() + machineState.eventDuration * 3600000);
-                        machineState.nextEventType = 'restart';
-                    } 
-                    else if (machineState.nextEventType === 'wakeup' && machineState.status === 'shutdown') {
-                        machineState.status = 'working';
-                        machineState.statusChangeTime = now;
-                        scheduleNextEvent(machineId);
-                    } 
-                    else if (machineState.nextEventType === 'restart' && machineState.status === 'stopped') {
-                        machineState.status = 'working';
-                        machineState.statusChangeTime = now;
-                        scheduleNextEvent(machineId);
-                    } 
-                    else if (machineState.nextEventType === 'check') {
-                        scheduleNextEvent(machineId);
-                    }
-                }
-            }
-        }
-
-        // Генерация случайных данных
-        function generateRandomData() {
-            updateMachineStates();
-            
-            state.machines = [];
-            
-            if (state.settings && state.settings.machines) {
-                state.settings.machines.forEach(machine => {
-                    const id = machine.id;
-                    const machineState = state.machineStates[id];
-                    let status, statusClass;
+            Object.values(state.machines).forEach(machine => {
+                const element = document.getElementById(`machine-${machine.internalId}`);
+                if (element) {
+                    // Обновляем только изменяемые элементы
+                    element.querySelector('.machine-status').innerHTML = `
+                        <span class="status-indicator ${machine.status}"></span>
+                        ${machine.statusText}
+                    `;
+                    element.querySelector('.last-update').textContent = 
+                        `Обновлено: ${new Date(machine.lastUpdate).toLocaleTimeString()}`;
                     
-                    switch(machineState.status) {
-                        case 'working':
-                            status = "Работает";
-                            statusClass = "working";
-                            break;
-                        case 'stopped':
-                            status = "Остановлен";
-                            statusClass = "stopped";
-                            break;
-                        case 'shutdown':
-                            status = "Выключен";
-                            statusClass = "shutdown";
-                            break;
-                    }
-
-                    updateRealTimeData(id, statusClass);
-
-                    const currentPerformance = state.realTimeData[id].data[state.realTimeData[id].currentMinute - 1] || 0;
-                    
-                    // FIXED: Корректный расчет средней почасовой нагрузки
-                    const currentHour = new Date().getHours();
-                    const hourlyData = state.hourlyData[id];
-                    let avgHourlyLoad = 0;
-                    
-                    if (statusClass === 'working') {
-                        if (hourlyData.counts[currentHour] > 0) {
-                            avgHourlyLoad = hourlyData.data[currentHour] / hourlyData.counts[currentHour];
-                        } else {
-                            avgHourlyLoad = currentPerformance;
-                        }
-                    }
-                    
-                    state.machines.push({
-                        id,
-                        name: machine.name,
-                        status,
-                        statusClass,
-                        currentPerformance,
-                        avgHourlyLoad: Math.round(avgHourlyLoad),
-                        lastUpdate: new Date()
-                    });
-                });
-            }
-        }
-
-        // Обновление данных реального времени (FIXED: реалистичные значения нагрузки)
-        function updateRealTimeData(machineId, status) {
-            const data = state.realTimeData[machineId];
-            
-            if (status !== 'working') {
-                data.data[data.currentMinute] = 0;
-            } else {
-                if (data.currentMinute === 0) {
-                    // FIXED: Базовая нагрузка 70-90% для работающих станков
-                    data.data[0] = Math.floor(Math.random() * 21) + 70; // 70-90%
-                } else {
-                    const prevValue = data.data[data.currentMinute - 1];
-                    // Небольшие случайные колебания (±2%)
-                    const change = (Math.random() * 4) - 2; 
-                    let newValue = prevValue + change;
-                    // Ограничиваем диапазон 70-90%
-                    newValue = Math.max(70, Math.min(90, newValue));
-                    
-                    // Редкие скачки нагрузки (±5%)
-                    if (Math.random() < 0.05) {
-                        newValue += (Math.random() > 0.5 ? 5 : -5);
-                        newValue = Math.max(70, Math.min(90, newValue));
-                    }
-                    
-                    data.data[data.currentMinute] = Math.round(newValue);
-                }
-            }
-            
-            data.currentMinute = (data.currentMinute + 1) % (8*60);
-        }
-
-        // Обновление данных по часам (FIXED: корректный учет нагрузки)
-        function updateHourlyData() {
-            const now = new Date();
-            const currentHour = now.getHours();
-            
-            for (const machine of state.machines) {
-                if (machine.statusClass === 'working') {
-                    // FIXED: Учитываем только текущую нагрузку работающих станков
-                    state.hourlyData[machine.id].data[currentHour] += machine.currentPerformance;
-                    state.hourlyData[machine.id].counts[currentHour]++;
-                } else {
-                    // Для неработающих станков нагрузка = 0
-                    state.hourlyData[machine.id].data[currentHour] = 0;
-                    state.hourlyData[machine.id].counts[currentHour] = 0;
-                }
-            }
-        }
-        async function fetchMachineData() {
-    try {
-        const response = await fetch('http://localhost:3000/api/machines');
-        const data = await response.json();
-        
-        if (data.success) {
-            return data.machines;
-        } else {
-            console.error('Ошибка получения данных:', data.error);
-            return null;
-        }
-    } catch (error) {
-        console.error('Ошибка при запросе данных:', error);
-        return null;
-    }
-}
-
-// Подключение к WebSocket
-const ws = new WebSocket('ws://localhost:8080');
-
-ws.onmessage = function(event) {
-    const machinesData = JSON.parse(event.data);
-    // Обновляем данные на странице
-    updateMachinesFromServer(machinesData);
-};
-
-function updateMachinesFromServer(machinesData) {
-    state.machines = [];
-    
-    if (state.settings && state.settings.machines) {
-        state.settings.machines.forEach(machine => {
-            const id = machine.id;
-            const machineData = machinesData[id] || {
-                status: 'shutdown',
-                statusText: 'Выключен'
-            };
-            
-            let currentPerformance = 0;
-            if (machineData.status === 'working') {
-                currentPerformance = Math.floor(Math.random() * 21) + 70;
-            }
-            
-            updateRealTimeData(id, machineData.status);
-            
-            state.machines.push({
-                id,
-                name: machine.name,
-                status: machineData.statusText,
-                statusClass: machineData.status,
-                currentPerformance,
-                avgHourlyLoad: machineData.status === 'working' ? Math.floor(Math.random() * 21) + 70 : 0,
-                lastUpdate: new Date()
-            });
-        });
-    }
-    
-    loadMachines();
-}
-
-        // Настройка обработчиков событий
-        function setupEventListeners() {
-            DOM.workshopFilter.addEventListener('change', function() {
-                state.filter.workshop = this.value;
-                loadMachines();
-            });
-
-            DOM.machineFilter.addEventListener('change', function() {
-                state.filter.machine = this.value;
-                loadMachines();
-            });
-
-            document.querySelectorAll('[data-status]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    state.filter.status = this.dataset.status;
-                    loadMachines();
-                });
-            });
-
-            document.querySelectorAll('[data-sort]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    state.filter.sort = this.dataset.sort;
-                    sortMachines();
-                    renderMachines();
-                });
-            });
-        }
-
-        // Загрузка станков
-        function loadMachines() {
-            const filtered = filterMachines();
-            sortMachines();
-            renderMachines(filtered);
-            updateSummary(filtered);
-        }
-
-        // Фильтрация станков
-        function filterMachines() {
-            return state.machines.filter(machine => {
-                const workshopMatch = state.filter.workshop === 'all' || 
-                    state.workshopMachines[state.filter.workshop]?.includes(machine.id);
-                
-                const machineMatch = state.filter.machine === 'all' || machine.id === parseInt(state.filter.machine);
-                
-                const statusMatch = state.filter.status === 'all' || 
-                                  (state.filter.status === 'working' && machine.status === "Работает") ||
-                                  (state.filter.status === 'stopped' && machine.status === "Остановлен") ||
-                                  (state.filter.status === 'shutdown' && machine.status === "Выключен");
-                
-                return workshopMatch && machineMatch && statusMatch;
-            });
-        }
-
-        // Сортировка станков
-        function sortMachines() {
-            state.machines.sort((a, b) => {
-                switch(state.filter.sort) {
-                    case 'name':
-                        return a.name.localeCompare(b.name);
-                    case 'status':
-                        return a.status.localeCompare(b.status);
-                    case 'performance':
-                        return b.currentPerformance - a.currentPerformance;
-                    default:
-                        return 0;
+                    // Обновляем классы статуса
+                    element.className = `machine-card ${machine.status}`;
                 }
             });
         }
 
-        // Отрисовка станков
-        function renderMachines(filteredMachines = []) {
-            DOM.machineList.innerHTML = '';
+        // Полная отрисовка всех станков
+        function renderMachines() {
+            const container = document.getElementById('machineList');
+            container.innerHTML = '';
+
+            // Сортируем станки по ID
+            const sortedMachines = Object.values(state.machines).sort((a, b) => a.internalId - b.internalId);
             
-            const controlsDiv = document.createElement('div');
-            controlsDiv.className = 'controls';
-            controlsDiv.innerHTML = `
-                <button class="refresh-btn" id="refreshBtn">
-                    <i class="fas fa-sync"></i> Обновить
-                </button>
-            `;
-            controlsDiv.querySelector('#refreshBtn').addEventListener('click', manualRefresh);
-            DOM.machineList.appendChild(controlsDiv);
-            
-            const summaryCard = document.createElement('div');
-            summaryCard.className = 'summary-card';
-            summaryCard.id = 'summaryInfo';
-            summaryCard.innerHTML = `
-                <div class="summary-item">
-                    <span class="summary-label">Всего станков</span>
-                    <span class="summary-value" id="totalMachines">${state.totalMachines}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">Работают</span>
-                    <span class="summary-value" id="workingMachines">0</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">Остановлены</span>
-                    <span class="summary-value" id="stoppedMachines">0</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">Выключены</span>
-                    <span class="summary-value" id="shutdownMachines">0</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">Средняя загрузка</span>
-                    <span class="summary-value" id="avgLoad">0%</span>
-                </div>
-            `;
-            DOM.machineList.appendChild(summaryCard);
-            
-            const machinesToShow = filteredMachines.length > 0 ? filteredMachines : filterMachines();
-            
-            machinesToShow.forEach(machine => {
+            sortedMachines.forEach(machine => {
                 const card = document.createElement('div');
-                card.className = `machine-card ${machine.statusClass}`;
+                card.className = `machine-card ${machine.status}`;
+                card.id = `machine-${machine.internalId}`;
+                
+                // Определяем цех на основе ID (примерная логика)
+                const workshopId = machine.internalId <= 16 ? 1 : 2;
                 
                 card.innerHTML = `
                     <div class="machine-header">
-                        <div class="machine-name">${machine.name}</div>
-                        <div class="machine-status tooltip">
-                            <span class="status-indicator ${machine.statusClass}"></span>
-                            ${machine.status}
-                            <span class="tooltiptext">Последнее обновление: ${machine.lastUpdate.toLocaleTimeString()}</span>
+                        <div class="machine-name">${machine.displayName}</div>
+                        <div class="machine-status">
+                            <span class="status-indicator ${machine.status}"></span>
+                            ${machine.statusText}
                         </div>
                     </div>
-                `;
-                
-                const realTimeChartWrapper = document.createElement('div');
-                realTimeChartWrapper.className = 'chart-wrapper';
-                realTimeChartWrapper.innerHTML = `
-                    <div class="chart-title">Нагрузка на шпиндель: ${machine.currentPerformance}%</div>
-                    <div class="chart-container">
-                        <canvas id="realTimeChart${machine.id}"></canvas>
+                    <div class="machine-details">
+                        <div>ID: ${machine.internalId}</div>
+                        <div>Цех: ${state.workshops[workshopId]}</div>
+                        <div class="last-update">Обновлено: ${new Date(machine.lastUpdate).toLocaleTimeString()}</div>
                     </div>
                 `;
-                card.appendChild(realTimeChartWrapper);
                 
-                const hourlyChartWrapper = document.createElement('div');
-                hourlyChartWrapper.className = 'chart-wrapper';
-                hourlyChartWrapper.innerHTML = `
-                    <div class="chart-title">Средняя нагрузка по часам: ${machine.avgHourlyLoad}%</div>
-                    <div class="chart-container">
-                        <canvas id="hourlyChart${machine.id}"></canvas>
-                    </div>
-                `;
-                card.appendChild(hourlyChartWrapper);
-                
-                DOM.machineList.appendChild(card);
-
-                const realTimeData = state.realTimeData[machine.id];
-                const realTimeLabels = realTimeData.labels.slice(Math.max(0, realTimeData.currentMinute - 60), realTimeData.currentMinute);
-                const realTimeValues = realTimeData.data.slice(Math.max(0, realTimeData.currentMinute - 60), realTimeData.currentMinute);
-                
-                new Chart(document.getElementById(`realTimeChart${machine.id}`), {
-                    type: 'line',
-                    data: {
-                        labels: realTimeLabels,
-                        datasets: [{
-                            label: 'Нагрузка на шпиндель (%)',
-                            data: realTimeValues,
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 2,
-                            tension: 0.1,
-                            pointRadius: 2,
-                            pointBackgroundColor: machine.statusClass === 'working' ? 
-                                'rgba(46, 204, 113, 1)' : 
-                                machine.statusClass === 'stopped' ? 
-                                'rgba(231, 76, 60, 1)' : 
-                                'rgba(149, 165, 166, 1)'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `Нагрузка: ${context.raw}%`;
-                                    }
-                                }
-                            },
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            x: {
-                                ticks: {
-                                    maxRotation: 45,
-                                    minRotation: 45,
-                                    autoSkip: true,
-                                    maxTicksLimit: 10
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                max: 100,
-                                min: 50
-                            }
-                        }
-                    }
-                });
-
-                const hourlyData = state.hourlyData[machine.id];
-                const hourlyValues = hourlyData.data.map((val, idx) => {
-                    return hourlyData.counts[idx] > 0 ? Math.round(val / hourlyData.counts[idx]) : 0;
-                });
-                
-                new Chart(document.getElementById(`hourlyChart${machine.id}`), {
-                    type: 'bar',
-                    data: {
-                        labels: hourlyData.labels,
-                        datasets: [{
-                            label: 'Средняя нагрузка (%)',
-                            data: hourlyValues,
-                            backgroundColor: 'rgba(75, 192, 192, 0.7)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return `Средняя нагрузка: ${context.raw}%`;
-                                    }
-                                }
-                            },
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100
-                            }
-                        }
-                    }
-                });
+                container.appendChild(card);
             });
-            
-            updateSummary(machinesToShow);
         }
 
-        // Обновление сводной информации
-        function updateSummary(machines) {
-            const working = state.machines.filter(m => m.status === "Работает").length;
-            const stopped = state.machines.filter(m => m.status === "Остановлен").length;
-            const shutdown = state.machines.filter(m => m.status === "Выключен").length;
-            
-            const avgLoad = machines.length > 0 ? 
-                Math.round(machines.reduce((sum, m) => sum + m.currentPerformance, 0) / machines.length) : 0;
-            
-            document.getElementById('workingMachines').textContent = working;
-            document.getElementById('stoppedMachines').textContent = stopped;
-            document.getElementById('shutdownMachines').textContent = shutdown;
-            document.getElementById('avgLoad').textContent = `${avgLoad}%`;
-        }
+        // Обработка ошибок WebSocket
+        ws.onerror = function(error) {
+            console.error('WebSocket error:', error);
+            document.getElementById('machineList').innerHTML = `
+                <div class="error">Ошибка подключения к серверу. Пожалуйста, обновите страницу.</div>
+            `;
+        };
 
-        // Ручное обновление данных
-        function manualRefresh() {
-            const btn = document.querySelector('.refresh-btn');
-            btn.classList.add('rotating');
-            
-            generateRandomData();
-            loadMachines();
-            
-            setTimeout(() => {
-                btn.classList.remove('rotating');
-                showNotification('Данные успешно обновлены');
-            }, 800);
-        }
-
-        // Автоматическое обновление
-        function startAutoRefresh() {
-            if (state.refreshIntervalId) {
-                clearInterval(state.refreshIntervalId);
-            }
-            
-            state.refreshIntervalId = setInterval(() => {
-                generateRandomData();
-                loadMachines();
-            }, state.refreshInterval);
-        }
-
-        // Обновление данных каждый час
-        function startHourlyUpdates() {
-            updateHourlyData();
-            
-            setInterval(() => {
-                updateHourlyData();
-                loadMachines();
-            }, 3600000);
-        }
-
-        // Показать уведомление
-        function showNotification(message) {
-            DOM.notification.textContent = message;
-            DOM.notification.classList.add('show');
-            
-            setTimeout(() => {
-                DOM.notification.classList.remove('show');
-            }, 3000);
-        }
-
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', init);
+        // Первоначальная загрузка через HTTP на случай проблем с WebSocket
+        window.addEventListener('DOMContentLoaded', () => {
+            fetch('http://localhost:3000/api/machines')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        state.machines = data.machines;
+                        renderMachines();
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке данных:', error);
+                });
+        });
     </script>
 </body>
 </html>
