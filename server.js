@@ -90,6 +90,7 @@ app.get('/api/machines', async (req, res) => {
   }
 });
 
+
 // WebSocket обработчик
 wss.on('connection', (ws) => {
   console.log('Новый клиент подключен');
