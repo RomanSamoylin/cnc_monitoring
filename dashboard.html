@@ -429,13 +429,11 @@
                 <h3><i class="fas fa-industry"></i> Цех</h3>
                 <select id="workshopFilter">
                     <option value="all">Все цеха</option>
-                    <!-- Опции будут добавляться динамически -->
                 </select>
 
                 <h3><i class="fas fa-filter"></i> Фильтр по станкам</h3>
                 <select id="machineFilter">
                     <option value="all">Все станки</option>
-                    <!-- Опции будут добавляться динамически -->
                 </select>
 
                 <h3>Статус станков</h3>
@@ -462,7 +460,6 @@
         </div>
         
         <div class="content" id="machineList">
-            <!-- Баннер статистики -->
             <div class="summary-card" id="summaryInfo">
                 <div class="summary-item">
                     <span class="summary-label">Всего станков</span>
@@ -485,8 +482,6 @@
                     <span class="summary-value" id="avgLoad">0%</span>
                 </div>
             </div>
-            
-            <!-- Карточки станков будут добавляться здесь -->
         </div>
     </div>
 
@@ -508,26 +503,115 @@
                 stopped: 0,
                 shutdown: 0,
                 avgLoad: 0
+            },
+            filters: {
+                workshop: 'all',
+                machine: 'all',
+                status: 'all'
             }
         };
 
         // Подключение к WebSocket
         const ws = new WebSocket('ws://localhost:8080');
 
-        // Обработка входящих сообщений
-        ws.onmessage = function(event) {
-            const message = JSON.parse(event.data);
+        // Функция для заполнения фильтров
+        function populateFilters() {
+            const workshopFilter = document.getElementById('workshopFilter');
+            const machineFilter = document.getElementById('machineFilter');
             
-            if (message.type === 'INITIAL_DATA') {
-                state.machines = message.data;
-                updateSummary();
-                renderMachines();
-            } else if (message.type === 'UPDATE') {
-                Object.assign(state.machines, message.data);
-                updateSummary();
-                updateMachines();
+            // Очищаем фильтры
+            workshopFilter.innerHTML = '<option value="all">Все цеха</option>';
+            machineFilter.innerHTML = '<option value="all">Все станки</option>';
+            
+            // Заполняем фильтр цехов
+            Object.entries(state.workshops).forEach(([id, name]) => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = name;
+                workshopFilter.appendChild(option);
+            });
+            
+            // Заполняем фильтр станков
+            const machines = Object.values(state.machines);
+            machines.forEach(machine => {
+                const option = document.createElement('option');
+                option.value = machine.internalId;
+                option.textContent = `${machine.displayName} (ID: ${machine.internalId})`;
+                machineFilter.appendChild(option);
+            });
+
+            // Восстанавливаем выбранные значения фильтров
+            workshopFilter.value = state.filters.workshop;
+            machineFilter.value = state.filters.machine;
+            
+            // Находим активную кнопку статуса и обновляем фильтр
+            const activeStatusBtn = document.querySelector('.filter-btn[data-status].active');
+            if (activeStatusBtn) {
+                state.filters.status = activeStatusBtn.dataset.status;
             }
-        };
+        }
+
+        // Функция применения фильтров
+        function applyFilters() {
+            // Сохраняем текущие значения фильтров
+            state.filters.workshop = document.getElementById('workshopFilter').value;
+            state.filters.machine = document.getElementById('machineFilter').value;
+            
+            // Получаем активный статус
+            const activeStatusBtn = document.querySelector('.filter-btn[data-status].active');
+            if (activeStatusBtn) {
+                state.filters.status = activeStatusBtn.dataset.status;
+            } else {
+                state.filters.status = 'all';
+            }
+
+            // Обновляем отображение карточек
+            updateMachinesDisplay();
+        }
+
+        // Функция обновления отображения карточек на основе фильтров
+        function updateMachinesDisplay() {
+            const cards = document.querySelectorAll('.machine-card');
+            if (cards.length === 0) return;
+
+            cards.forEach(card => {
+                const cardMachineId = card.id.split('-')[1];
+                const machine = state.machines[cardMachineId];
+                if (!machine) return;
+
+                const cardWorkshopId = machine.internalId <= 16 ? '1' : '2';
+                
+                const workshopMatch = state.filters.workshop === 'all' || cardWorkshopId === state.filters.workshop;
+                const machineMatch = state.filters.machine === 'all' || cardMachineId === state.filters.machine;
+                const statusMatch = state.filters.status === 'all' || machine.status === state.filters.status;
+                
+                card.style.display = (workshopMatch && machineMatch && statusMatch) ? 'block' : 'none';
+            });
+
+            // Обновляем сводную информацию с учетом фильтров
+            updateFilteredSummary();
+        }
+
+        // Обновление сводной информации с учетом фильтров
+        function updateFilteredSummary() {
+            const filteredMachines = Object.values(state.machines).filter(machine => {
+                const workshopId = machine.internalId <= 16 ? '1' : '2';
+                
+                const workshopMatch = state.filters.workshop === 'all' || workshopId === state.filters.workshop;
+                const machineMatch = state.filters.machine === 'all' || machine.internalId.toString() === state.filters.machine;
+                const statusMatch = state.filters.status === 'all' || machine.status === state.filters.status;
+                
+                return workshopMatch && machineMatch && statusMatch;
+            });
+
+            document.getElementById('totalMachines').textContent = filteredMachines.length;
+            document.getElementById('workingMachines').textContent = filteredMachines.filter(m => m.status === 'working').length;
+            document.getElementById('stoppedMachines').textContent = filteredMachines.filter(m => m.status === 'stopped').length;
+            document.getElementById('shutdownMachines').textContent = filteredMachines.filter(m => m.status === 'shutdown').length;
+            
+            const avgLoad = calculateAverageLoad(filteredMachines);
+            document.getElementById('avgLoad').textContent = `${avgLoad}%`;
+        }
 
         // Обновление сводной статистики
         function updateSummary() {
@@ -627,12 +711,15 @@
                 
                 container.appendChild(card);
                 
-                // Инициализация графика (примерная реализация)
+                // Инициализация графика
                 initMachineChart(machine.internalId, machine.currentPerformance || 0);
             });
+            
+            // Применяем фильтры после отрисовки
+            applyFilters();
         }
 
-        // Инициализация графика для станка (заглушка)
+        // Инициализация графика для станка
         function initMachineChart(machineId, performance) {
             const ctx = document.getElementById(`chart-${machineId}`).getContext('2d');
             new Chart(ctx, {
@@ -677,12 +764,35 @@
                     if (data.success) {
                         state.machines = data.machines;
                         updateSummary();
+                        populateFilters();
                         renderMachines();
                     }
                 })
                 .catch(error => {
                     console.error('Ошибка при загрузке данных:', error);
                 });
+
+            // Обработчики для фильтров
+            document.getElementById('workshopFilter').addEventListener('change', applyFilters);
+            document.getElementById('machineFilter').addEventListener('change', applyFilters);
+
+            // Обработчики для кнопок фильтрации по статусу
+            document.querySelectorAll('.filter-btn[data-status]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn[data-status]').forEach(b => 
+                        b.classList.remove('active'));
+                    this.classList.add('active');
+                    applyFilters();
+                });
+            });
+
+            // Обработчики для кнопок сортировки
+            document.querySelectorAll('.filter-btn[data-sort]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Здесь можно добавить логику сортировки
+                    console.log('Сортировка по:', this.dataset.sort);
+                });
+            });
         });
     </script>
 </body>

@@ -8,6 +8,7 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* Стили остаются без изменений */
         :root {
             --primary-color: #e67e22;
             --primary-hover: #d35400;
@@ -376,10 +377,9 @@
                 setPeriod('day');
                 showWorkshopData();
             } else if (message.type === 'UPDATE') {
-                // Обновление данных
+                // Обновление данных - только обновляем статусы, без генерации новых часов
                 Object.assign(machinesData, message.data);
-                processMachineData();
-                updateCharts();
+                updateMachineStatuses();
             }
         };
 
@@ -426,6 +426,19 @@
                     hours: generateRandomHours(currentPeriod, status)
                 };
             });
+        }
+
+        // Обновление только статусов станков без генерации новых часов
+        function updateMachineStatuses() {
+            for (const workshop in workshopsData) {
+                for (const machineId in workshopsData[workshop]) {
+                    const machine = machinesData[machineId];
+                    if (machine) {
+                        workshopsData[workshop][machineId].status = getMachineStatus(machine);
+                    }
+                }
+            }
+            updateCharts();
         }
 
         // Определение статуса станка на основе данных с сервера
@@ -544,23 +557,22 @@
             document.getElementById('startDate').valueAsDate = startDate;
             document.getElementById('endDate').valueAsDate = endDate;
             
-            // Обновляем данные станков
-            updateWorkshopsData();
-            updateCharts();
+            // Генерируем новые данные для графиков
+            generateNewChartData();
         }
         
-        // Обновление данных станков
-        function updateWorkshopsData() {
+        // Генерация новых данных для графиков при изменении дат
+        function generateNewChartData() {
             for (const workshop in workshopsData) {
                 for (const machineId in workshopsData[workshop]) {
                     const machine = machinesData[machineId];
                     if (machine) {
                         const status = getMachineStatus(machine);
-                        workshopsData[workshop][machineId].status = status;
                         workshopsData[workshop][machineId].hours = generateRandomHours(currentPeriod, status);
                     }
                 }
             }
+            updateCharts();
         }
         
         // Создание всех графиков
