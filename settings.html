@@ -420,10 +420,10 @@
             <div class="settings-section">
                 <h2><i class="fas fa-cogs"></i> Настройки станков</h2>
                 <div class="btn-group">
-                    <button class="btn btn-success btn-sm" onclick="addMachine()" id="addMachineBtn">
+                    <button class="btn btn-success btn-sm" id="addMachineBtn" disabled>
                         <i class="fas fa-plus"></i> Добавить станок
                     </button>
-                    <button class="btn btn-danger btn-sm" onclick="removeLastMachine()" id="removeMachineBtn">
+                    <button class="btn btn-danger btn-sm" id="removeMachineBtn" disabled>
                         <i class="fas fa-minus"></i> Удалить станок
                     </button>
                 </div>
@@ -458,13 +458,9 @@
         // Состояние приложения
         const state = {
             workshops: [
-                { id: 1, name: "ЦЕХ-1", machinesCount: 16 }
+                { id: 1, name: "ЦЕХ-1", machinesCount: 0 }
             ],
-            machines: Array.from({ length: 16 }, (_, i) => ({
-                id: i + 1,
-                name: `Станок ${i + 1}`,
-                workshopId: 1
-            }))
+            machines: []
         };
         
         // Кэш DOM элементов
@@ -481,235 +477,37 @@
             removeMachineBtn: document.getElementById('removeMachineBtn')
         };
         
-        // Инициализация приложения
-        function init() {
-            loadFromLocalStorage();
-            renderWorkshopsSettings();
-            renderMachinesList();
-            initDragAndDrop();
-            renderBackupsList();
-            updateButtonsState();
-            
-            // Делегирование событий
-            DOM.machinesList.addEventListener('change', handleMachineNameChange);
-            
-            // Загрузка начальных значений
-            DOM.workshopsCount.value = state.workshops.length;
-            DOM.machinesCount.value = state.machines.length;
-        }
-        
-        // Обновление состояния кнопок
-        function updateButtonsState() {
-            // Кнопки цехов
-            DOM.addWorkshopBtn.disabled = state.workshops.length >= 10;
-            DOM.removeWorkshopBtn.disabled = state.workshops.length <= 1;
-            
-            // Кнопки станков
-            DOM.addMachineBtn.disabled = state.machines.length >= 50;
-            DOM.removeMachineBtn.disabled = state.machines.length <= 1;
-        }
-        
-        // Загрузка из localStorage
-        function loadFromLocalStorage() {
-            const savedSettings = localStorage.getItem('machineMonitoringSettings');
-            if (savedSettings) {
-                try {
-                    const parsed = JSON.parse(savedSettings);
-                    if (validateSettings(parsed)) {
-                        state.workshops = parsed.workshops;
-                        state.machines = parsed.machines;
-                    } else {
-                        showNotification('Ошибка загрузки настроек. Используются значения по умолчанию', 'error');
-                        createBackup('corrupted_settings');
-                    }
-                } catch (e) {
-                    console.error('Ошибка загрузки настроек:', e);
-                    showNotification('Ошибка загрузки настроек. Используются значения по умолчанию', 'error');
-                    createBackup('corrupted_settings');
-                }
-            }
-        }
-        
-        // Валидация настроек
-        function validateSettings(settings) {
-            if (!settings) return false;
-            if (!Array.isArray(settings.workshops) || !Array.isArray(settings.machines)) return false;
-            
-            // Проверка цехов
-            const workshopIds = new Set();
-            for (const workshop of settings.workshops) {
-                if (!workshop.id || !workshop.name || typeof workshop.machinesCount !== 'number') return false;
-                if (workshopIds.has(workshop.id)) return false;
-                workshopIds.add(workshop.id);
-            }
-            
-            // Проверка станков
-            const machineIds = new Set();
-            for (const machine of settings.machines) {
-                if (!machine.id || !machine.name || !machine.workshopId) return false;
-                if (machineIds.has(machine.id)) return false;
-                if (!workshopIds.has(machine.workshopId)) return false;
-                machineIds.add(machine.id);
-            }
-            
-            return true;
-        }
-        
-        // Сохранение в localStorage с дебаунсом
-        let saveTimeout;
-        function saveToLocalStorage() {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
-                localStorage.setItem('machineMonitoringSettings', JSON.stringify({
-                    workshops: state.workshops,
-                    machines: state.machines
-                }));
-                createBackup('manual_save');
-                updateButtonsState();
-            }, 500);
-        }
-        
-        // Создание резервной копии
-        function createBackup(reason = 'auto') {
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const backupKey = `settings_backup_${timestamp}_${reason}`;
-            localStorage.setItem(backupKey, JSON.stringify(state));
-            
-            // Ограничение количества бэкапов
-            const backups = Object.keys(localStorage)
-                .filter(key => key.startsWith('settings_backup_'))
-                .sort()
-                .reverse();
-            
-            if (backups.length > 5) {
-                backups.slice(5).forEach(key => localStorage.removeItem(key));
-            }
-            
-            renderBackupsList();
-        }
-        
-        // Отображение списка резервных копий
-        function renderBackupsList() {
-            const backups = Object.keys(localStorage)
-                .filter(key => key.startsWith('settings_backup_'))
-                .sort()
-                .reverse()
-                .slice(0, 3);
-            
-            DOM.backupsList.innerHTML = '';
-            
-            if (backups.length === 0) {
-                DOM.backupsList.innerHTML = '<p>Резервные копии отсутствуют</p>';
-                return;
-            }
-            
-            const list = document.createElement('ul');
-            list.style.paddingLeft = '20px';
-            
-            backups.forEach(backupKey => {
-                const li = document.createElement('li');
-                li.style.marginBottom = '8px';
-                
-                const dateStr = backupKey.split('_')[2].replace(/-/g, ':').slice(0, -3);
-                const reason = backupKey.split('_')[3] || 'auto';
-                
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-sm';
-                btn.style.padding = '0.3rem 0.6rem';
-                btn.style.fontSize = '0.8rem';
-                btn.innerHTML = `<i class="fas fa-history"></i> ${dateStr} (${reason})`;
-                btn.onclick = () => restoreBackup(backupKey);
-                
-                li.appendChild(btn);
-                list.appendChild(li);
-            });
-            
-            DOM.backupsList.appendChild(list);
-        }
-        
-        // Восстановление из резервной копии
-        function restoreBackup(backupKey) {
-            if (!confirm(`Восстановить настройки из резервной копии ${backupKey}?`)) return;
-            
+        // Функция для загрузки данных станков с сервера
+        async function fetchMachineData() {
             try {
-                const backup = JSON.parse(localStorage.getItem(backupKey));
-                if (validateSettings(backup)) {
-                    state.workshops = backup.workshops;
-                    state.machines = backup.machines;
-                    
-                    DOM.workshopsCount.value = state.workshops.length;
-                    DOM.machinesCount.value = state.machines.length;
-                    
-                    renderWorkshopsSettings();
-                    renderMachinesList();
-                    saveToLocalStorage();
-                    
-                    showNotification('Настройки восстановлены из резервной копии', 'success');
-                } else {
-                    showNotification('Ошибка: резервная копия повреждена', 'error');
-                }
-            } catch (e) {
-                console.error('Ошибка восстановления:', e);
-                showNotification('Ошибка восстановления из резервной копии', 'error');
+                const response = await fetch('http://localhost:3000/api/machines');
+                if (!response.ok) throw new Error('Ошибка сети');
+                
+                const data = await response.json();
+                if (!data.success) throw new Error('Ошибка в данных');
+                
+                // Преобразуем данные из сервера в наш формат
+                state.machines = Object.values(data.machines).map(machine => ({
+                    id: machine.internalId,
+                    name: machine.displayName,
+                    workshopId: 1 // По умолчанию все станки в первом цехе
+                }));
+                
+                // Обновляем счетчик станков
+                DOM.machinesCount.value = state.machines.length;
+                
+                // Обновляем счетчик станков в цехах
+                updateWorkshopsMachinesCount();
+                
+                // Рендерим интерфейс
+                renderWorkshopsSettings();
+                renderMachinesList();
+                
+                showNotification('Данные станков успешно загружены', 'success');
+            } catch (error) {
+                console.error('Ошибка загрузки данных станков:', error);
+                showNotification('Ошибка загрузки данных станков', 'error');
             }
-        }
-        
-        // Валидация ввода
-        function validateInputs() {
-            const workshopsCount = parseInt(DOM.workshopsCount.value);
-            const machinesCount = parseInt(DOM.machinesCount.value);
-            
-            if (isNaN(workshopsCount) || workshopsCount < 1 || workshopsCount > 10) {
-                showNotification('Количество цехов должно быть от 1 до 10', 'error');
-                return false;
-            }
-            
-            if (isNaN(machinesCount) || machinesCount < 1 || machinesCount > 50) {
-                showNotification('Количество станков должно быть от 1 до 50', 'error');
-                return false;
-            }
-            
-            return true;
-        }
-        
-        // Применение настроек
-        function applySettings() {
-            if (!validateInputs()) return;
-            
-            const workshopsCount = parseInt(DOM.workshopsCount.value);
-            const machinesCount = parseInt(DOM.machinesCount.value);
-            
-            // Обновляем цеха
-            if (workshopsCount > state.workshops.length) {
-                // Добавляем новые цеха
-                for (let i = state.workshops.length; i < workshopsCount; i++) {
-                    addWorkshop();
-                }
-            } else if (workshopsCount < state.workshops.length) {
-                // Удаляем лишние цеха
-                while (state.workshops.length > workshopsCount) {
-                    removeLastWorkshop();
-                }
-            }
-            
-            // Обновляем станки
-            if (machinesCount > state.machines.length) {
-                // Добавляем новые станки
-                for (let i = state.machines.length; i < machinesCount; i++) {
-                    addMachine();
-                }
-            } else if (machinesCount < state.machines.length) {
-                // Удаляем лишние станки
-                while (state.machines.length > machinesCount) {
-                    removeLastMachine();
-                }
-            }
-            
-            // Сохраняем настройки
-            saveToLocalStorage();
-            
-            // Показываем уведомление
-            showNotification('Настройки успешно сохранены', 'success');
         }
         
         // Обновление количества станков в цехах
@@ -780,81 +578,6 @@
             DOM.workshopsSettings.appendChild(fragment);
         }
         
-        // Добавление нового цеха
-        function addWorkshop() {
-            if (state.workshops.length >= 10) return;
-            
-            const newId = state.workshops.length ? Math.max(...state.workshops.map(w => w.id)) + 1 : 1;
-            state.workshops.push({
-                id: newId,
-                name: `ЦЕХ-${newId}`,
-                machinesCount: 0
-            });
-            
-            DOM.workshopsCount.value = state.workshops.length;
-            saveToLocalStorage();
-            renderWorkshopsSettings();
-            updateButtonsState();
-        }
-        
-        // Удаление последнего цеха
-        function removeLastWorkshop() {
-            if (state.workshops.length <= 1) return;
-            
-            const lastWorkshop = state.workshops[state.workshops.length - 1];
-            
-            // Переназначаем станки в первый цех
-            state.machines.forEach(m => {
-                if (m.workshopId === lastWorkshop.id) {
-                    m.workshopId = 1;
-                }
-            });
-            
-            // Удаляем цех
-            state.workshops.pop();
-            
-            DOM.workshopsCount.value = state.workshops.length;
-            saveToLocalStorage();
-            renderWorkshopsSettings();
-            renderMachinesList();
-            updateButtonsState();
-        }
-        
-        // Добавление нового станка
-        function addMachine() {
-            if (state.machines.length >= 50) return;
-            
-            const newId = state.machines.length ? Math.max(...state.machines.map(m => m.id)) + 1 : 1;
-            const lastWorkshopId = state.workshops[state.workshops.length - 1].id;
-            
-            state.machines.push({
-                id: newId,
-                name: `Станок ${newId}`,
-                workshopId: lastWorkshopId
-            });
-            
-            DOM.machinesCount.value = state.machines.length;
-            updateWorkshopsMachinesCount();
-            saveToLocalStorage();
-            renderWorkshopsSettings();
-            renderMachinesList();
-            updateButtonsState();
-        }
-        
-        // Удаление последнего станка
-        function removeLastMachine() {
-            if (state.machines.length <= 1) return;
-            
-            state.machines.pop();
-            
-            DOM.machinesCount.value = state.machines.length;
-            updateWorkshopsMachinesCount();
-            saveToLocalStorage();
-            renderWorkshopsSettings();
-            renderMachinesList();
-            updateButtonsState();
-        }
-        
         // Отрисовка списка станков
         function renderMachinesList() {
             const fragment = document.createDocumentFragment();
@@ -868,11 +591,6 @@
                 machineItem.dataset.machineId = machine.id;
                 machineItem.draggable = true;
                 machineItem.innerHTML = `
-                    <div class="machine-actions">
-                        <button class="btn btn-danger btn-sm" onclick="removeMachine(${machine.id})" title="Удалить станок">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
                     <div class="machine-item-header">
                         <span class="machine-item-id">ID: ${machine.id}</span>
                         <span>Цех: ${workshopName}</span>
@@ -883,6 +601,12 @@
                     </div>
                 `;
                 
+                // Обработчик изменения названия станка
+                machineItem.querySelector(`#machineName${machine.id}`).addEventListener('input', function() {
+                    machine.name = this.value;
+                    saveToLocalStorage();
+                });
+                
                 fragment.appendChild(machineItem);
             });
             
@@ -890,197 +614,34 @@
             DOM.machinesList.appendChild(fragment);
         }
         
-        // Удаление конкретного станка
-        function removeMachine(machineId) {
-            if (state.machines.length <= 1) return;
-            
-            if (!confirm(`Удалить станок ${machineId}?`)) return;
-            
-            state.machines = state.machines.filter(m => m.id !== machineId);
-            
-            // Перенумеровываем оставшиеся станки для сохранения порядка
-            state.machines.forEach((m, index) => {
-                m.id = index + 1;
-                m.name = m.name.replace(/Станок \d+/, `Станок ${index + 1}`);
-            });
-            
-            DOM.machinesCount.value = state.machines.length;
-            updateWorkshopsMachinesCount();
-            saveToLocalStorage();
-            renderWorkshopsSettings();
-            renderMachinesList();
-            updateButtonsState();
-            
-            showNotification(`Станок ${machineId} удален`, 'success');
-        }
-        
-        // Обработчик изменения названия станка
-        function handleMachineNameChange(e) {
-            if (e.target && e.target.matches('input[id^="machineName"]')) {
-                const machineId = parseInt(e.target.id.replace('machineName', ''));
-                const machine = state.machines.find(m => m.id === machineId);
-                if (machine) {
-                    machine.name = e.target.value;
-                    saveToLocalStorage();
-                }
-            }
-        }
-        
-        // Инициализация drag-and-drop
-        function initDragAndDrop() {
-            document.addEventListener('dragover', function(e) {
-                e.preventDefault();
-            });
-            
-            document.addEventListener('drop', function(e) {
-                e.preventDefault();
-                
-                const workshopDropzones = document.querySelectorAll('.workshop-dropzone');
-                workshopDropzones.forEach(zone => zone.classList.remove('drop-hover'));
-            });
-            
-            // Обработчики для станков
-            document.addEventListener('dragstart', function(e) {
-                if (e.target.classList.contains('machine-item')) {
-                    e.dataTransfer.setData('text/plain', e.target.dataset.machineId);
-                    e.target.style.opacity = '0.4';
-                }
-            });
-            
-            document.addEventListener('dragend', function(e) {
-                if (e.target.classList.contains('machine-item')) {
-                    e.target.style.opacity = '1';
-                }
-            });
-            
-            // Обработчики для зон сброса (цехов)
-            const workshopDropzones = document.querySelectorAll('.workshop-dropzone');
-            workshopDropzones.forEach(zone => {
-                zone.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    this.classList.add('drop-hover');
-                });
-                
-                zone.addEventListener('dragleave', function() {
-                    this.classList.remove('drop-hover');
-                });
-                
-                zone.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    this.classList.remove('drop-hover');
-                    
-                    const machineId = parseInt(e.dataTransfer.getData('text/plain'));
-                    const workshopId = parseInt(this.dataset.workshopId);
-                    
-                    const machine = state.machines.find(m => m.id === machineId);
-                    if (machine) {
-                        machine.workshopId = workshopId;
-                        updateWorkshopsMachinesCount();
-                        saveToLocalStorage();
-                        renderWorkshopsSettings();
-                        renderMachinesList();
-                        
-                        showNotification(`Станок ${machineId} перемещен в ${state.workshops.find(w => w.id === workshopId).name}`, 'success');
-                    }
-                });
-            });
-        }
-        
-        // Экспорт настроек
-        function exportSettings() {
-            const data = JSON.stringify({
+        // Сохранение в localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('machineMonitoringSettings', JSON.stringify({
                 workshops: state.workshops,
                 machines: state.machines
-            }, null, 2);
-            
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'machine_monitoring_settings.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showNotification('Настройки успешно экспортированы', 'success');
-        }
-        
-        // Импорт настроек
-        function importSettings() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            
-            input.onchange = e => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = event => {
-                    try {
-                        const imported = JSON.parse(event.target.result);
-                        
-                        if (!validateSettings(imported)) {
-                            throw new Error('Неверный формат файла настроек');
-                        }
-                        
-                        if (!confirm('Заменить текущие настройки импортированными? Это действие нельзя отменить.')) {
-                            return;
-                        }
-                        
-                        state.workshops = imported.workshops;
-                        state.machines = imported.machines;
-                        
-                        DOM.workshopsCount.value = state.workshops.length;
-                        DOM.machinesCount.value = state.machines.length;
-                        
-                        renderWorkshopsSettings();
-                        renderMachinesList();
-                        saveToLocalStorage();
-                        
-                        showNotification('Настройки успешно импортированы', 'success');
-                    } catch (err) {
-                        console.error('Ошибка импорта:', err);
-                        showNotification('Ошибка при импорте настроек: ' + err.message, 'error');
-                    }
-                };
-                reader.readAsText(file);
-            };
-            
-            input.click();
-        }
-        
-        // Сброс к настройкам по умолчанию
-        function resetToDefaults() {
-            if (!confirm('Вы уверены, что хотите сбросить все настройки к значениям по умолчанию? Это действие нельзя отменить.')) {
-                return;
-            }
-            
-            state.workshops = [{ id: 1, name: "ЦЕХ-1", machinesCount: 16 }];
-            state.machines = Array.from({ length: 16 }, (_, i) => ({
-                id: i + 1,
-                name: `Станок ${i + 1}`,
-                workshopId: 1
             }));
-            
-            DOM.workshopsCount.value = 1;
-            DOM.machinesCount.value = 16;
-            
-            renderWorkshopsSettings();
-            renderMachinesList();
-            saveToLocalStorage();
-            
-            showNotification('Настройки сброшены к значениям по умолчанию', 'success');
+        }
+        
+        // Загрузка из localStorage
+        function loadFromLocalStorage() {
+            const savedSettings = localStorage.getItem('machineMonitoringSettings');
+            if (savedSettings) {
+                try {
+                    const parsed = JSON.parse(savedSettings);
+                    if (parsed.workshops) state.workshops = parsed.workshops;
+                    if (parsed.machines) state.machines = parsed.machines;
+                } catch (e) {
+                    console.error('Ошибка загрузки настроек:', e);
+                }
+            }
         }
         
         // Показать уведомление
         function showNotification(message, type = 'success') {
             const types = {
-                success: { bg: 'var(--success-color)', icon: 'fa-check' },
-                error: { bg: 'var(--error-color)', icon: 'fa-exclamation-circle' },
-                warning: { bg: 'var(--warning-color)', icon: 'fa-exclamation-triangle' }
+                success: { bg: '#2ecc71', icon: 'fa-check' },
+                error: { bg: '#e74c3c', icon: 'fa-exclamation-circle' },
+                warning: { bg: '#f39c12', icon: 'fa-exclamation-triangle' }
             };
             
             DOM.notification.innerHTML = `
@@ -1095,7 +656,17 @@
         }
         
         // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', () => {
+            // Загружаем сохраненные настройки
+            loadFromLocalStorage();
+            
+            // Загружаем данные станков с сервера
+            fetchMachineData();
+            
+            // Обновляем UI
+            DOM.workshopsCount.value = state.workshops.length;
+            DOM.machinesCount.value = state.machines.length;
+        });
     </script>
 </body>
 </html>

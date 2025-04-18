@@ -123,7 +123,7 @@ setInterval(async () => {
   } catch (error) {
     console.error('Update error:', error);
   }
-}, 5000); // Обновление каждые 5 секунд
+}, 10000); // Обновление каждые 10 секунд
 
 // Запуск HTTP сервера
 app.listen(PORT, () => {
