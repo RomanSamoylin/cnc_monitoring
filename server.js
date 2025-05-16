@@ -28,48 +28,56 @@ async function getMachineData() {
     // Получаем список всех станков
     const [machines] = await connection.execute('SELECT machine_id, cnc_name FROM cnc_id_mapping');
     
-    // Получаем последние значения параметров для каждого станка
-    const [params] = await connection.execute(`
+    // Получаем последние статусы станков
+    const [statusParams] = await connection.execute(`
       SELECT 
-        b1.machine_id,
-        MAX(CASE WHEN b1.name = 'MUSP' THEN b1.event_type END) as MUSP,
-        MAX(CASE WHEN b1.name = 'SystemState' THEN b1.event_type END) as SystemState,
-        MAX(b1.timestamp) as last_update
+        machine_id,
+        name,
+        value,
+        timestamp
       FROM 
-        (SELECT machine_id, name, event_type, timestamp
-         FROM bit8_data
-         WHERE name IN ('MUSP', 'SystemState')
-         ORDER BY timestamp DESC) b1
-      GROUP BY b1.machine_id
+        bit8_data
+      WHERE 
+        name IN ('MUSP', 'SystemState')
+        AND (machine_id, name, timestamp) IN (
+          SELECT 
+            machine_id, 
+            name, 
+            MAX(timestamp) as max_timestamp
+          FROM 
+            bit8_data
+          WHERE 
+            name IN ('MUSP', 'SystemState')
+          GROUP BY 
+            machine_id, name
+        )
     `);
 
+    // Группируем статусы по machine_id
+    const statusByMachine = {};
+    statusParams.forEach(row => {
+      if (!statusByMachine[row.machine_id]) {
+        statusByMachine[row.machine_id] = {};
+      }
+      statusByMachine[row.machine_id][row.name] = {
+        value: row.value,
+        timestamp: row.timestamp
+      };
+    });
+
+    // Создаем объект с данными станков
     const machinesData = {};
     machines.forEach(machine => {
-      // Находим статус для текущего станка
-      const status = params.find(p => p.machine_id === machine.machine_id);
+      const status = statusByMachine[machine.machine_id] || {};
       
-      let state = 'unknown';
-      let stateText = 'Нет данных';
-      
-      if (status) {
-        if (status.MUSP == 1) {
-          state = 'shutdown';
-          stateText = 'Выключен';
-        } else if (status.SystemState == 2) {
-          state = 'working';
-          stateText = 'Работает';
-        } else if (status.SystemState == 3) {
-          state = 'stopped';
-          stateText = 'Остановлен';
-        }
-      }
-
       machinesData[machine.machine_id] = {
         internalId: machine.machine_id,
         displayName: machine.cnc_name,
-        status,
-        statusText: stateText,
-        lastUpdate: status?.last_update || new Date().toISOString()
+        status: {
+          MUSP: status.MUSP ? status.MUSP.value : null,
+          SystemState: status.SystemState ? status.SystemState.value : null
+        },
+        lastUpdate: status.MUSP ? status.MUSP.timestamp : new Date().toISOString()
       };
     });
 
@@ -79,7 +87,46 @@ async function getMachineData() {
   }
 }
 
-// HTTP API endpoint
+// Функция для получения исторических данных по станкам
+async function getMachineHistoryData(machineId, startDate, endDate) {
+    const connection = await mysql.createConnection(dbConfig);
+    
+    try {
+        const [historyData] = await connection.execute(`
+            SELECT 
+                machine_id,
+                name,
+                value,
+                timestamp
+            FROM 
+                bit8_data
+            WHERE 
+                machine_id = ?
+                AND name IN ('MUSP', 'SystemState')
+                AND timestamp BETWEEN ? AND ?
+            ORDER BY 
+                timestamp ASC
+        `, [machineId, startDate, endDate]);
+
+        // Удаляем дубликаты (на случай если в БД есть повторы)
+        const uniqueData = [];
+        const seen = new Set();
+        
+        historyData.forEach(item => {
+            const key = `${item.timestamp}_${item.name}_${item.value}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                uniqueData.push(item);
+            }
+        });
+
+        return uniqueData;
+    } finally {
+        await connection.end();
+    }
+}
+
+// HTTP API endpoint для получения данных станков
 app.get('/api/machines', async (req, res) => {
   try {
     const machines = await getMachineData();
@@ -90,6 +137,19 @@ app.get('/api/machines', async (req, res) => {
   }
 });
 
+// HTTP API endpoint для получения исторических данных
+app.get('/api/machines/:id/history', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { startDate, endDate } = req.query;
+    
+    const historyData = await getMachineHistoryData(id, startDate, endDate);
+    res.json({ success: true, data: historyData });
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // WebSocket обработчик
 wss.on('connection', (ws) => {
@@ -129,4 +189,8 @@ setInterval(async () => {
 app.listen(PORT, () => {
   console.log(`HTTP сервер запущен на порту ${PORT}`);
   console.log(`WebSocket сервер запущен на порту 8080`);
+  // В server.js после получения данных
+console.log('Last update:', new Date(), 'Data:', machines);
+console.log('Отправляемые данные:', machines);
+
 });

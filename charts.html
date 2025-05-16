@@ -333,14 +333,6 @@
             [STATUS_ACTIVE]: 'Работает'
         };
         
-        // Максимальное количество часов для разных периодов
-        const MAX_HOURS = {
-            day: 24,
-            week: 24 * 7,
-            month: 24 * 30,
-            year: 24 * 365
-        };
-        
         // Текущий выбранный период
         let currentPeriod = 'day';
         
@@ -358,30 +350,33 @@
         const DOM = {
             workshopFilter: document.getElementById('workshopFilter'),
             machineFilter: document.getElementById('machineFilter'),
-            notification: document.getElementById('notification')
+            notification: document.getElementById('notification'),
+            startDate: document.getElementById('startDate'),
+            endDate: document.getElementById('endDate')
         };
 
         // Подключение к WebSocket
         const ws = new WebSocket('ws://localhost:8080');
 
-        ws.onmessage = function(event) {
-            const message = JSON.parse(event.data);
-            
-            if (message.type === 'INITIAL_DATA') {
-                // Первоначальная загрузка данных
-                machinesData = message.data;
-                processMachineData();
-                updateWorkshopFilter();
-                updateMachineFilter();
-                createCharts();
-                setPeriod('day');
-                showWorkshopData();
-            } else if (message.type === 'UPDATE') {
-                // Обновление данных - только обновляем статусы, без генерации новых часов
-                Object.assign(machinesData, message.data);
-                updateMachineStatuses();
-            }
-        };
+       ws.onmessage = function(event) {
+    const message = JSON.parse(event.data);
+    
+    if (message.type === 'INITIAL_DATA') {
+        // Первоначальная загрузка данных
+        machinesData = message.data;
+        processMachineData();
+        updateWorkshopFilter();
+        updateMachineFilter();
+        createCharts();
+        setPeriod('day');
+        showWorkshopData();
+    } else if (message.type === 'UPDATE') {
+        // Важно: нужно пересчитать часы работы при обновлении
+        Object.assign(machinesData, message.data);
+        updateMachineStatuses();
+        loadAllMachineHistory(); // Добавьте эту строку!
+    }
+};
 
         // Обработка ошибок WebSocket
         ws.onerror = function(error) {
@@ -417,18 +412,96 @@
             };
             
             // Группируем станки по цехам (первые 16 станков - цех1, остальные - цех2)
-            Object.values(machinesData).forEach(machine => {
-                const workshopId = machine.internalId <= 16 ? 'workshop1' : 'workshop2';
+            Object.entries(machinesData).forEach(([machineId, machine]) => {
+                const workshopId = parseInt(machineId) <= 16 ? 'workshop1' : 'workshop2';
                 const status = getMachineStatus(machine);
                 
-                workshopsData[workshopId][machine.internalId] = {
+                workshopsData[workshopId][machineId] = {
                     status: status,
-                    hours: generateRandomHours(currentPeriod, status)
+                    hours: { [STATUS_OFF]: 0, [STATUS_IDLE]: 0, [STATUS_ACTIVE]: 0 }
                 };
+                
+                // Загружаем исторические данные для станка
+                loadMachineHistory(machineId);
             });
         }
 
-        // Обновление только статусов станков без генерации новых часов
+        // Загрузка исторических данных для станка
+        function loadMachineHistory(machineId) {
+            const startDate = new Date(DOM.startDate.value);
+            const endDate = new Date(DOM.endDate.value);
+            
+            fetch(`http://localhost:3000/api/machines/${machineId}/history?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        calculateMachineHours(machineId, data.data);
+                        updateCharts();
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке исторических данных:', error);
+                });
+        }
+
+        // Расчет часов работы станка на основе исторических данных
+       function calculateMachineHours(machineId, historyData) {
+    const workshopId = parseInt(machineId) <= 16 ? 'workshop1' : 'workshop2';
+    let offHours = 0, idleHours = 0, activeHours = 0;
+
+    // Добавляем текущий статус как последнюю запись
+    const currentStatus = {
+        timestamp: new Date().toISOString(),
+        MUSP: machinesData[machineId]?.status?.MUSP,
+        SystemState: machinesData[machineId]?.status?.SystemState
+    };
+    
+    const fullHistory = [...historyData, currentStatus]
+        .map(item => ({
+            timestamp: item.timestamp,
+            MUSP: item.MUSP,
+            SystemState: item.SystemState
+        }))
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    // Обрабатываем все временные отрезки
+    for (let i = 0; i < fullHistory.length - 1; i++) {
+        const current = fullHistory[i];
+        const next = fullHistory[i + 1];
+        
+        const durationHours = (new Date(next.timestamp) - new Date(current.timestamp)) / (1000 * 60 * 60);
+        const status = getStatusFromValues(current.MUSP, current.SystemState);
+
+        if (status === STATUS_OFF) offHours += durationHours;
+        else if (status === STATUS_IDLE) idleHours += durationHours;
+        else if (status === STATUS_ACTIVE) activeHours += durationHours;
+    }
+
+    // Обновляем данные
+    if (workshopsData[workshopId] && workshopsData[workshopId][machineId]) {
+        workshopsData[workshopId][machineId].hours = {
+            [STATUS_OFF]: offHours,
+            [STATUS_IDLE]: idleHours,
+            [STATUS_ACTIVE]: activeHours
+        };
+    }
+}
+
+        // Определение статуса на основе значений MUSP и SystemState
+        function getStatusFromValues(muspValue, systemStateValue) {
+    // MUSP=1 - Выключен (приоритетный статус)
+    if (muspValue === 1) return STATUS_OFF;
+    
+    // MUSP=0 и SystemState=2 - Работает
+    if (muspValue === 0 && systemStateValue === 2) return STATUS_ACTIVE;
+    
+    // MUSP=0 и SystemState=3 - Остановлен
+    if (muspValue === 0 && systemStateValue === 3) return STATUS_IDLE;
+    
+    // По умолчанию считаем выключенным
+    return STATUS_OFF;
+}
+        // Обновление только статусов станков
         function updateMachineStatuses() {
             for (const workshop in workshopsData) {
                 for (const machineId in workshopsData[workshop]) {
@@ -443,44 +516,22 @@
 
         // Определение статуса станка на основе данных с сервера
         function getMachineStatus(machineData) {
-            if (machineData.status?.MUSP == 1) {
-                return STATUS_OFF;
-            } else if (machineData.status?.SystemState == 2) {
-                return STATUS_ACTIVE;
-            } else if (machineData.status?.SystemState == 3) {
-                return STATUS_IDLE;
-            }
-            return STATUS_OFF; // По умолчанию считаем выключенным
-        }
+    // MUSP=1 - Выключен
+    if (machineData.status?.MUSP === 1) {
+        return STATUS_OFF;
+    }
+    // MUSP=0 и SystemState=2 - Работает
+    if (machineData.status?.MUSP === 0 && machineData.status?.SystemState === 2) {
+        return STATUS_ACTIVE;
+    }
+    // MUSP=0 и SystemState=3 - Остановлен
+    if (machineData.status?.MUSP === 0 && machineData.status?.SystemState === 3) {
+        return STATUS_IDLE;
+    }
+    // По умолчанию считаем выключенным
+    return STATUS_OFF;
+}
 
-        // Генерация случайного количества часов для каждого состояния
-        function generateRandomHours(period, currentStatus) {
-            const maxHours = MAX_HOURS[period];
-            
-            // Генерируем часы в зависимости от текущего статуса
-            let offHours, idleHours, activeHours;
-            
-            if (currentStatus === STATUS_OFF) {
-                offHours = Math.floor(maxHours * 0.8 + Math.random() * maxHours * 0.2);
-                idleHours = Math.floor(Math.random() * (maxHours - offHours) * 0.5);
-                activeHours = maxHours - offHours - idleHours;
-            } else if (currentStatus === STATUS_IDLE) {
-                idleHours = Math.floor(maxHours * 0.6 + Math.random() * maxHours * 0.3);
-                offHours = Math.floor(Math.random() * (maxHours - idleHours) * 0.5);
-                activeHours = maxHours - offHours - idleHours;
-            } else { // STATUS_ACTIVE
-                activeHours = Math.floor(maxHours * 0.7 + Math.random() * maxHours * 0.2);
-                idleHours = Math.floor(Math.random() * (maxHours - activeHours) * 0.7);
-                offHours = maxHours - activeHours - idleHours;
-            }
-            
-            return {
-                [STATUS_OFF]: offHours,
-                [STATUS_IDLE]: idleHours,
-                [STATUS_ACTIVE]: activeHours
-            };
-        }
-        
         // Обновление фильтра цехов
         function updateWorkshopFilter() {
             DOM.workshopFilter.innerHTML = '<option value="all">Все цеха</option>';
@@ -495,10 +546,10 @@
             DOM.machineFilter.innerHTML = '<option value="all">Все станки</option>';
             
             // Добавляем станки из данных
-            Object.values(machinesData).forEach(machine => {
+            Object.entries(machinesData).forEach(([id, machine]) => {
                 const option = document.createElement('option');
-                option.value = machine.internalId;
-                option.textContent = `${machine.displayName} (ID: ${machine.internalId})`;
+                option.value = id;
+                option.textContent = `${machine.displayName} (ID: ${id})`;
                 DOM.machineFilter.appendChild(option);
             });
         }
@@ -554,27 +605,20 @@
                     break;
             }
             
-            document.getElementById('startDate').valueAsDate = startDate;
-            document.getElementById('endDate').valueAsDate = endDate;
+            DOM.startDate.valueAsDate = startDate;
+            DOM.endDate.valueAsDate = endDate;
             
-            // Генерируем новые данные для графиков
-            generateNewChartData();
+            // Загружаем новые данные для графиков
+            loadAllMachineHistory();
         }
         
-        // Генерация новых данных для графиков при изменении дат
-        function generateNewChartData() {
-            for (const workshop in workshopsData) {
-                for (const machineId in workshopsData[workshop]) {
-                    const machine = machinesData[machineId];
-                    if (machine) {
-                        const status = getMachineStatus(machine);
-                        workshopsData[workshop][machineId].hours = generateRandomHours(currentPeriod, status);
-                    }
-                }
-            }
-            updateCharts();
+        // Загрузка исторических данных для всех станков
+        function loadAllMachineHistory() {
+            Object.keys(machinesData).forEach(machineId => {
+                loadMachineHistory(machineId);
+            });
         }
-        
+
         // Создание всех графиков
         function createCharts() {
             // Создаем круговую диаграмму
@@ -667,8 +711,7 @@
                             title: {
                                 display: true,
                                 text: 'Часы'
-                            },
-                            max: MAX_HOURS[currentPeriod] * 16
+                            }
                         }
                     },
                     plugins: {
@@ -728,8 +771,7 @@
                             title: {
                                 display: true,
                                 text: 'Часы'
-                            },
-                            max: MAX_HOURS[currentPeriod] * 16
+                            }
                         },
                         y: {
                             stacked: true
@@ -792,8 +834,7 @@
                             title: {
                                 display: true,
                                 text: 'Часы'
-                            },
-                            max: MAX_HOURS[currentPeriod]
+                            }
                         },
                         y: {
                             stacked: true
@@ -804,9 +845,9 @@
                             callbacks: {
                                 afterBody: function(context) {
                                     const machineIndex = context[0].dataIndex;
-                                    const machineNumber = machineIndex + 1;
+                                    const machineNumber = context[0].label.split('ID: ')[1]?.replace(')', '');
                                     const selectedWorkshop = document.getElementById('workshopFilter').value;
-                                    const status = workshopsData[selectedWorkshop][machineNumber]?.status;
+                                    const status = workshopsData[selectedWorkshop]?.[machineNumber]?.status;
                                     return status ? `Текущее состояние: ${STATUS_LABELS[status]}` : '';
                                 }
                             }
@@ -870,7 +911,6 @@
                     barChart.data.datasets[0].data = offData;
                     barChart.data.datasets[1].data = idleData;
                     barChart.data.datasets[2].data = activeData;
-                    barChart.options.scales.y.max = MAX_HOURS[currentPeriod] * getMaxMachinesInWorkshop() * Object.keys(workshopsData).length;
                     barChart.update();
                     
                     // Обновляем горизонтальную столбчатую диаграмму (данные по каждому цеху)
@@ -878,7 +918,6 @@
                     horizontalBarChart.data.datasets[0].data = offData;
                     horizontalBarChart.data.datasets[1].data = idleData;
                     horizontalBarChart.data.datasets[2].data = activeData;
-                    horizontalBarChart.options.scales.x.max = MAX_HOURS[currentPeriod] * getMaxMachinesInWorkshop() * Object.keys(workshopsData).length;
                     horizontalBarChart.update();
                     
                     // Обновляем заголовки
@@ -907,7 +946,6 @@
                     barChart.data.datasets[0].data = [totalOff];
                     barChart.data.datasets[1].data = [totalIdle];
                     barChart.data.datasets[2].data = [totalActive];
-                    barChart.options.scales.y.max = MAX_HOURS[currentPeriod] * Object.keys(workshopsData[selectedWorkshop]).length;
                     barChart.update();
                     
                     // Обновляем горизонтальную столбчатую диаграмму
@@ -915,7 +953,6 @@
                     horizontalBarChart.data.datasets[0].data = [totalOff];
                     horizontalBarChart.data.datasets[1].data = [totalIdle];
                     horizontalBarChart.data.datasets[2].data = [totalActive];
-                    horizontalBarChart.options.scales.x.max = MAX_HOURS[currentPeriod] * Object.keys(workshopsData[selectedWorkshop]).length;
                     horizontalBarChart.update();
                     
                     // Обновляем заголовки
@@ -948,24 +985,21 @@
                     machineStatusChart.data.datasets[0].data = offData;
                     machineStatusChart.data.datasets[1].data = idleData;
                     machineStatusChart.data.datasets[2].data = activeData;
-                    machineStatusChart.options.scales.x.max = MAX_HOURS[currentPeriod];
                     machineStatusChart.options.indexAxis = 'y';
                     document.getElementById('chartTitle').textContent = `Состояние станков цеха ${selectedWorkshop} (часы)`;
                 } else {
                     // Показываем только выбранный станок
-                    const machineNumber = parseInt(selectedMachine);
-                    const machine = machinesData[machineNumber];
-                    const machineName = machine ? `${machine.displayName} (ID: ${machineNumber})` : `Станок ${machineNumber}`;
+                    const machine = machinesData[selectedMachine];
+                    const machineName = machine ? `${machine.displayName} (ID: ${selectedMachine})` : `Станок ${selectedMachine}`;
                     
-                    if (workshopsData[selectedWorkshop] && workshopsData[selectedWorkshop][machineNumber]) {
-                        const hours = workshopsData[selectedWorkshop][machineNumber].hours;
-                        const status = workshopsData[selectedWorkshop][machineNumber].status;
+                    if (workshopsData[selectedWorkshop] && workshopsData[selectedWorkshop][selectedMachine]) {
+                        const hours = workshopsData[selectedWorkshop][selectedMachine].hours;
+                        const status = workshopsData[selectedWorkshop][selectedMachine].status;
                         
                         machineStatusChart.data.labels = [machineName];
                         machineStatusChart.data.datasets[0].data = [hours[STATUS_OFF]];
                         machineStatusChart.data.datasets[1].data = [hours[STATUS_IDLE]];
                         machineStatusChart.data.datasets[2].data = [hours[STATUS_ACTIVE]];
-                        machineStatusChart.options.scales.x.max = MAX_HOURS[currentPeriod];
                         machineStatusChart.options.indexAxis = 'y';
                         document.getElementById('chartTitle').textContent = `Состояние станка ${machineName} (часы)`;
                     }
@@ -973,16 +1007,6 @@
                 
                 machineStatusChart.update();
             }
-        }
-        
-        // Получение максимального количества станков в цехе
-        function getMaxMachinesInWorkshop() {
-            let max = 0;
-            for (const workshop in workshopsData) {
-                const count = Object.keys(workshopsData[workshop]).length;
-                if (count > max) max = count;
-            }
-            return max;
         }
         
         // Показать данные по цеху/цехам
@@ -1020,32 +1044,24 @@
         
         // Обработчик изменения фильтра станков
         DOM.machineFilter.addEventListener('change', function() {
-            const selectedMachine = this.value;
-            
-            if (selectedMachine === 'all') {
-                showIndividualData();
-            } else {
-                showIndividualData();
-            }
+            showIndividualData();
         });
         
         // Обработчики изменения дат
-        document.getElementById('startDate').addEventListener('change', function() {
-            updateWorkshopsData();
-            updateCharts();
+        DOM.startDate.addEventListener('change', function() {
+            loadAllMachineHistory();
         });
         
-        document.getElementById('endDate').addEventListener('change', function() {
-            updateWorkshopsData();
-            updateCharts();
+        DOM.endDate.addEventListener('change', function() {
+            loadAllMachineHistory();
         });
         
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
             // Устанавливаем текущую дату по умолчанию
             const today = new Date();
-            document.getElementById('startDate').valueAsDate = today;
-            document.getElementById('endDate').valueAsDate = today;
+            DOM.startDate.valueAsDate = today;
+            DOM.endDate.valueAsDate = today;
             
             // Если WebSocket не подключился сразу, пробуем загрузить данные через HTTP
             setTimeout(() => {
