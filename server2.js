@@ -1,5 +1,6 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
+const WebSocket = require('ws');
 const cors = require('cors');
 
 const app = express();
@@ -15,6 +16,9 @@ const dbConfig = {
   password: 'victoria123',
   database: 'cnc_monitoring'
 };
+
+// Создаем WebSocket сервер
+const wss = new WebSocket.Server({ port: 8080 });
 
 // Функция для получения данных станков
 async function getMachineData() {
@@ -70,8 +74,8 @@ async function getMachineData() {
         internalId: machine.machine_id,
         displayName: machine.cnc_name,
         status: {
-          MUSP: status.MUSP ? parseInt(status.MUSP.value) : null,
-          SystemState: status.SystemState ? parseInt(status.SystemState.value) : null
+          MUSP: status.MUSP ? status.MUSP.value : null,
+          SystemState: status.SystemState ? status.SystemState.value : null
         },
         lastUpdate: status.MUSP ? status.MUSP.timestamp : new Date().toISOString()
       };
@@ -136,7 +140,42 @@ app.get('/api/machines/:id/history', async (req, res) => {
   }
 });
 
+// WebSocket обработчик
+wss.on('connection', (ws) => {
+  console.log('Новый клиент подключен');
+  
+  // Отправляем данные при подключении
+  getMachineData().then(machines => {
+    ws.send(JSON.stringify({ 
+      type: 'INITIAL_DATA', 
+      data: machines 
+    }));
+  });
+
+  ws.on('error', (error) => {
+    console.error('WebSocket error:', error);
+  });
+});
+
+// Периодическое обновление данных
+setInterval(async () => {
+  try {
+    const machines = await getMachineData();
+    wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({ 
+          type: 'UPDATE', 
+          data: machines 
+        }));
+      }
+    });
+  } catch (error) {
+    console.error('Update error:', error);
+  }
+}, 10000); // Обновление каждые 10 секунд
+
 // Запуск HTTP сервера
 app.listen(PORT, () => {
   console.log(`HTTP сервер запущен на порту ${PORT}`);
+  console.log(`WebSocket сервер запущен на порту 8080`);
 });
