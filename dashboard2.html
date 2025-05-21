@@ -412,7 +412,7 @@
     </style>
 </head>
 <body>
-    <header>
+       <header>
         <h1>Дашборды мониторинга</h1>
         <button class="logout-button" onclick="location.href='login.html'">
             <i class="fas fa-sign-out-alt"></i> Выйти
@@ -440,6 +440,8 @@
                 <h3><i class="fas fa-industry"></i> Цех</h3>
                 <select id="workshopFilter">
                     <option value="all">Все цеха</option>
+                    <option value="1">ЦЕХ-1</option>
+                    <option value="2">ЦЕХ-2</option>
                 </select>
 
                 <h3><i class="fas fa-filter"></i> Фильтр по станкам</h3>
@@ -504,10 +506,6 @@
         // Состояние приложения
         const state = {
             machines: {},
-            workshops: {
-                1: "ЦЕХ-1",
-                2: "ЦЕХ-2"
-            },
             summary: {
                 total: 0,
                 working: 0,
@@ -520,7 +518,8 @@
                 machine: 'all',
                 status: 'all'
             },
-            refreshInterval: null
+            refreshInterval: null,
+            charts: {}
         };
 
         // Функция для показа уведомления
@@ -548,12 +547,10 @@
             document.getElementById('workshopFilter').value = state.filters.workshop;
             document.getElementById('machineFilter').value = state.filters.machine;
             
-            // Сбрасываем все кнопки статуса
             document.querySelectorAll('.filter-btn[data-status]').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // Активируем нужную кнопку статуса
             const statusBtn = document.querySelector(`.filter-btn[data-status="${state.filters.status}"]`);
             if (statusBtn) {
                 statusBtn.classList.add('active');
@@ -565,7 +562,6 @@
 
         // Функция для загрузки данных с сервера
         function fetchData() {
-            // Сохраняем текущие фильтры перед обновлением
             saveFilters();
             
             fetch('http://localhost:3000/api/machines')
@@ -575,8 +571,7 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        state.machines = data.machines;
-                        updateSummary();
+                        processMachineData(data.machines);
                         populateFilters();
                         restoreFilters();
                         renderMachines();
@@ -591,17 +586,55 @@
                 });
         }
 
+        // Обработка данных станков
+        function processMachineData(machinesData) {
+            state.machines = {};
+            
+            Object.entries(machinesData).forEach(([machineId, machineData]) => {
+                const status = determineMachineStatus(machineData.status);
+                
+                state.machines[machineId] = {
+                    internalId: machineData.internalId,
+                    displayName: machineData.displayName,
+                    status: status.status,
+                    statusText: status.statusText,
+                    currentPerformance: machineData.currentPerformance || 0,
+                    lastUpdate: machineData.lastUpdate
+                };
+            });
+            
+            updateSummary();
+        }
+
+        // Определение статуса станка
+        function determineMachineStatus(statusData) {
+            // MUSP=1 - Выключен (shutdown)
+            // SystemState=2 - Работает (working)
+            // SystemState=1 - Остановлен (stopped)
+            
+            if (statusData.MUSP === 1) {
+                return { status: 'shutdown', statusText: 'Выключен' };
+            }
+            
+            if (statusData.SystemState === 2) {
+                return { status: 'working', statusText: 'Работает' };
+            }
+            
+            if (statusData.SystemState === 1) {
+                return { status: 'stopped', statusText: 'Остановлен' };
+            }
+            
+            // Если данных нет, считаем станок выключенным
+            return { status: 'shutdown', statusText: 'Нет данных' };
+        }
+
         // Функция для запуска периодического обновления
         function startAutoRefresh() {
-            // Останавливаем предыдущий интервал
             if (state.refreshInterval) {
                 clearInterval(state.refreshInterval);
             }
             
-            // Устанавливаем новый интервал (5 секунд)
             state.refreshInterval = setInterval(fetchData, 5000);
-            
-            // Первая загрузка данных
             fetchData();
         }
 
@@ -610,35 +643,18 @@
             const workshopFilter = document.getElementById('workshopFilter');
             const machineFilter = document.getElementById('machineFilter');
             
-            // Сохраняем текущие значения
             const currentWorkshop = workshopFilter.value;
             const currentMachine = machineFilter.value;
             
-            // Очищаем фильтры
-            workshopFilter.innerHTML = '<option value="all">Все цеха</option>';
             machineFilter.innerHTML = '<option value="all">Все станки</option>';
             
-            // Заполняем фильтр цехов
-            Object.entries(state.workshops).forEach(([id, name]) => {
-                const option = document.createElement('option');
-                option.value = id;
-                option.textContent = name;
-                workshopFilter.appendChild(option);
-            });
-            
-            // Заполняем фильтр станков
-            const machines = Object.values(state.machines);
-            machines.forEach(machine => {
+            Object.values(state.machines).forEach(machine => {
                 const option = document.createElement('option');
                 option.value = machine.internalId;
                 option.textContent = `${machine.displayName} (ID: ${machine.internalId})`;
                 machineFilter.appendChild(option);
             });
 
-            // Восстанавливаем значения, если они были
-            if (currentWorkshop && workshopFilter.querySelector(`option[value="${currentWorkshop}"]`)) {
-                workshopFilter.value = currentWorkshop;
-            }
             if (currentMachine && machineFilter.querySelector(`option[value="${currentMachine}"]`)) {
                 machineFilter.value = currentMachine;
             }
@@ -669,7 +685,6 @@
                 card.style.display = (workshopMatch && machineMatch && statusMatch) ? 'block' : 'none';
             });
 
-            // Обновляем сводную информацию
             updateFilteredSummary();
         }
 
@@ -719,33 +734,13 @@
             return Math.round(totalLoad / workingMachines.length);
         }
 
-        // Функция обновления UI станков
-        function updateMachines() {
-            Object.values(state.machines).forEach(machine => {
-                const element = document.getElementById(`machine-${machine.internalId}`);
-                if (element) {
-                    element.querySelector('.machine-status').innerHTML = `
-                        <span class="status-indicator ${machine.status}"></span>
-                        ${machine.statusText}
-                    `;
-                    element.querySelector('.last-update').textContent = 
-                        `Обновлено: ${new Date().toLocaleTimeString()}`;
-                    
-                    element.className = `machine-card ${machine.status}`;
-                }
-            });
-        }
-
         // Полная отрисовка всех станков
         function renderMachines() {
             const container = document.getElementById('machineList');
-            
-            // Очищаем контейнер, кроме summary-card
             const summaryCard = document.getElementById('summaryInfo');
             container.innerHTML = '';
             container.appendChild(summaryCard);
 
-            // Сортируем станки по ID
             const sortedMachines = Object.values(state.machines).sort((a, b) => a.internalId - b.internalId);
             
             sortedMachines.forEach(machine => {
@@ -753,7 +748,6 @@
                 card.className = `machine-card ${machine.status}`;
                 card.id = `machine-${machine.internalId}`;
                 
-                // Определяем цех на основе ID
                 const workshopId = machine.internalId <= 16 ? 1 : 2;
                 
                 card.innerHTML = `
@@ -766,8 +760,8 @@
                     </div>
                     <div class="machine-details">
                         <div>ID: ${machine.internalId}</div>
-                        <div>Цех: ${state.workshops[workshopId]}</div>
-                        <div class="last-update">Обновлено: ${new Date().toLocaleTimeString()}</div>
+                        <div>Цех: ЦЕХ-${workshopId}</div>
+                        <div class="last-update">Обновлено: ${new Date(machine.lastUpdate).toLocaleTimeString()}</div>
                     </div>
                     <div class="chart-wrapper">
                         <div class="chart-title">Нагрузка: ${machine.currentPerformance || 0}%</div>
@@ -778,29 +772,51 @@
                 `;
                 
                 container.appendChild(card);
-                
-                // Инициализация графика
-                initMachineChart(machine.internalId, machine.currentPerformance || 0);
+                initMachineChart(machine.internalId, machine.currentPerformance || 0, machine.status);
             });
             
-            // Применяем фильтры
             applyFilters();
         }
 
         // Инициализация графика для станка
-        function initMachineChart(machineId, performance) {
+        function initMachineChart(machineId, performance, status) {
             const ctx = document.getElementById(`chart-${machineId}`).getContext('2d');
-            new Chart(ctx, {
+            
+            // Определяем цвет графика в зависимости от статуса
+            let chartColor;
+            switch(status) {
+                case 'working':
+                    chartColor = '#2ecc71'; // зеленый
+                    break;
+                case 'stopped':
+                    chartColor = '#e74c3c'; // красный
+                    break;
+                case 'shutdown':
+                    chartColor = '#95a5a6'; // серый
+                    break;
+                default:
+                    chartColor = '#3498db'; // синий по умолчанию
+            }
+            
+            // Если график уже существует, обновляем его
+            if (state.charts[machineId]) {
+                state.charts[machineId].data.datasets[0].data = generateChartData(performance);
+                state.charts[machineId].data.datasets[0].borderColor = chartColor;
+                state.charts[machineId].update();
+                return;
+            }
+            
+            // Создаем новый график
+            state.charts[machineId] = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: Array.from({length: 12}, (_, i) => `${i*5} мин`),
                     datasets: [{
                         label: 'Нагрузка',
-                        data: Array.from({length: 12}, (_, i) => 
-                            Math.min(100, Math.max(0, performance + (Math.random() * 20 - 10)))
-                        ),
-                        borderColor: '#3498db',
-                        tension: 0.1
+                        data: generateChartData(performance),
+                        borderColor: chartColor,
+                        tension: 0.1,
+                        fill: false
                     }]
                 },
                 options: {
@@ -811,21 +827,31 @@
                             min: 0,
                             max: 100
                         }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
                     }
                 }
             });
         }
 
+        // Генерация данных для графика
+        function generateChartData(baseValue) {
+            return Array.from({length: 12}, (_, i) => {
+                // Добавляем небольшие случайные колебания вокруг базового значения
+                return Math.min(100, Math.max(0, baseValue + (Math.random() * 10 - 5)));
+            });
+        }
+
         // Первоначальная загрузка
         window.addEventListener('DOMContentLoaded', () => {
-            // Запускаем автоматическое обновление
             startAutoRefresh();
 
-            // Обработчики для фильтров
             document.getElementById('workshopFilter').addEventListener('change', applyFilters);
             document.getElementById('machineFilter').addEventListener('change', applyFilters);
 
-            // Обработчики для кнопок фильтрации по статусу
             document.querySelectorAll('.filter-btn[data-status]').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.filter-btn[data-status]').forEach(b => 
@@ -835,7 +861,6 @@
                 });
             });
 
-            // Обработчики для кнопок сортировки
             document.querySelectorAll('.filter-btn[data-sort]').forEach(btn => {
                 btn.addEventListener('click', function() {
                     console.log('Сортировка по:', this.dataset.sort);

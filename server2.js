@@ -8,13 +8,15 @@ const PORT = 3000;
 
 // Middleware
 app.use(cors());
+app.use(express.json());
 
 // MySQL конфигурация
 const dbConfig = {
   host: '192.168.1.79',
   user: 'monitor',
   password: 'victoria123',
-  database: 'cnc_monitoring'
+  database: 'cnc_monitoring',
+  timezone: '+03:00' // Указываем временную зону сервера
 };
 
 // Создаем WebSocket сервер
@@ -74,8 +76,8 @@ async function getMachineData() {
         internalId: machine.machine_id,
         displayName: machine.cnc_name,
         status: {
-          MUSP: status.MUSP ? status.MUSP.value : null,
-          SystemState: status.SystemState ? status.SystemState.value : null
+          MUSP: status.MUSP ? parseInt(status.MUSP.value) : null,
+          SystemState: status.SystemState ? parseInt(status.SystemState.value) : null
         },
         lastUpdate: status.MUSP ? status.MUSP.timestamp : new Date().toISOString()
       };
@@ -92,6 +94,10 @@ async function getMachineHistoryData(machineId, startDate, endDate) {
   const connection = await mysql.createConnection(dbConfig);
   
   try {
+    // Преобразуем даты в локальный формат
+    const localStartDate = new Date(startDate);
+    const localEndDate = new Date(endDate);
+
     // Получаем исторические данные статусов
     const [historyData] = await connection.execute(`
       SELECT 
@@ -107,9 +113,31 @@ async function getMachineHistoryData(machineId, startDate, endDate) {
         AND timestamp BETWEEN ? AND ?
       ORDER BY 
         timestamp ASC
-    `, [machineId, startDate, endDate]);
+    `, [
+      machineId,
+      localStartDate.toISOString().slice(0, 19).replace('T', ' '),
+      localEndDate.toISOString().slice(0, 19).replace('T', ' ')
+    ]);
 
-    return historyData;
+    // Удаляем дубликаты
+    const uniqueData = [];
+    const seen = new Set();
+    
+    historyData.forEach(item => {
+      const key = `${item.timestamp}_${item.name}_${item.value}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueData.push({
+          ...item,
+          value: parseInt(item.value) // Преобразуем значение в число
+        });
+      }
+    });
+
+    return uniqueData;
+  } catch (error) {
+    console.error('Ошибка при запросе исторических данных:', error);
+    throw error;
   } finally {
     await connection.end();
   }
@@ -130,10 +158,51 @@ app.get('/api/machines', async (req, res) => {
 app.get('/api/machines/:id/history', async (req, res) => {
   try {
     const { id } = req.params;
-    const { startDate, endDate } = req.query;
+    let { startDate, endDate } = req.query;
+
+    // Валидация параметров
+    if (!startDate || !endDate) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Необходимо указать startDate и endDate' 
+      });
+    }
+
+    // Преобразуем даты
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (isNaN(start.getTime())) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Некорректный формат startDate' 
+      });
+    }
+
+    if (isNaN(end.getTime())) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Некорректный формат endDate' 
+      });
+    }
+
+    // Для фильтра "день" устанавливаем границы времени
+    if (req.query.period === 'day') {
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
+    }
+
+    const historyData = await getMachineHistoryData(id, start, end);
     
-    const historyData = await getMachineHistoryData(id, startDate, endDate);
-    res.json({ success: true, data: historyData });
+    res.json({ 
+      success: true, 
+      data: historyData,
+      query: {
+        machineId: id,
+        startDate: start.toISOString(),
+        endDate: end.toISOString()
+      }
+    });
   } catch (error) {
     console.error('Database error:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -161,11 +230,19 @@ wss.on('connection', (ws) => {
 setInterval(async () => {
   try {
     const machines = await getMachineData();
+    
+    // Логирование для отладки
+    console.log('Отправка обновления данных:', {
+      time: new Date().toISOString(),
+      machinesCount: Object.keys(machines).length
+    });
+    
     wss.clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify({ 
           type: 'UPDATE', 
-          data: machines 
+          data: machines,
+          timestamp: new Date().toISOString()
         }));
       }
     });
@@ -178,4 +255,12 @@ setInterval(async () => {
 app.listen(PORT, () => {
   console.log(`HTTP сервер запущен на порту ${PORT}`);
   console.log(`WebSocket сервер запущен на порту 8080`);
+  console.log(`Текущее время сервера: ${new Date()}`);
 });
+
+// Экспорт для тестирования
+module.exports = {
+  app,
+  getMachineData,
+  getMachineHistoryData
+};

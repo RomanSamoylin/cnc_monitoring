@@ -358,24 +358,35 @@
         // Подключение к WebSocket
         const ws = new WebSocket('ws://localhost:8080');
 
-        ws.onmessage = function(event) {
-            const message = JSON.parse(event.data);
-            
-            if (message.type === 'INITIAL_DATA') {
-                // Первоначальная загрузка данных
-                machinesData = message.data;
-                processMachineData();
-                updateWorkshopFilter();
-                updateMachineFilter();
-                createCharts();
-                setPeriod('day');
-                showWorkshopData();
-            } else if (message.type === 'UPDATE') {
-                // Обновление данных - только обновляем статусы
-                Object.assign(machinesData, message.data);
-                updateMachineStatuses();
-            }
-        };
+       let lastUpdateTime = 0;
+
+ws.onmessage = function(event) {
+    const message = JSON.parse(event.data);
+    const now = Date.now();
+    
+    // Защита от слишком частых обновлений
+    if (now - lastUpdateTime < 5000 && message.type === 'UPDATE') return;
+    
+    lastUpdateTime = now;
+
+    if (message.type === 'INITIAL_DATA') {
+        machinesData = message.data;
+        processMachineData();
+        updateWorkshopFilter();
+        updateMachineFilter();
+        createCharts();
+        setPeriod('day');
+        showWorkshopData();
+    } else if (message.type === 'UPDATE') {
+        Object.assign(machinesData, message.data);
+        updateMachineStatuses();
+        
+        // Пересчитываем часы только для изменившихся станков
+        Object.keys(message.data).forEach(machineId => {
+            loadMachineHistory(machineId);
+        });
+    }
+};
 
         // Обработка ошибок WebSocket
         ws.onerror = function(error) {
@@ -444,95 +455,119 @@
         }
 
         // Расчет часов работы станка на основе исторических данных
-        function calculateMachineHours(machineId, historyData) {
-            // Находим цех станка
-            const workshopId = parseInt(machineId) <= 16 ? 'workshop1' : 'workshop2';
-            
-            // Инициализируем счетчики
-            let offHours = 0;
-            let idleHours = 0;
-            let activeHours = 0;
-            
-            // Сортируем данные по времени
-            historyData.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            
-            // Группируем данные по временным меткам
-            const timestamps = {};
-            historyData.forEach(row => {
-                if (!timestamps[row.timestamp]) {
-                    timestamps[row.timestamp] = {};
-                }
-                timestamps[row.timestamp][row.name] = row.value;
-            });
-            
-            // Преобразуем в массив и сортируем
-            const sortedTimestamps = Object.entries(timestamps)
-                .map(([timestamp, values]) => ({ timestamp, ...values }))
-                .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            
-            // Обрабатываем каждый временной отрезок
-            for (let i = 0; i < sortedTimestamps.length - 1; i++) {
-                const current = sortedTimestamps[i];
-                const next = sortedTimestamps[i + 1];
-                
-                const currentTime = new Date(current.timestamp);
-                const nextTime = new Date(next.timestamp);
-                
-                // Продолжительность отрезка в часах
-                const durationHours = (nextTime - currentTime) / (1000 * 60 * 60);
-                
-                // Определяем статус на этом отрезке
-                const status = getStatusFromValues(current.MUSP, current.SystemState);
-                
-                // Добавляем к соответствующему счетчику
-                if (status === STATUS_OFF) offHours += durationHours;
-                else if (status === STATUS_IDLE) idleHours += durationHours;
-                else if (status === STATUS_ACTIVE) activeHours += durationHours;
-            }
-            
-            // Обновляем данные в workshopsData
-            if (workshopsData[workshopId] && workshopsData[workshopId][machineId]) {
-                workshopsData[workshopId][machineId].hours = {
-                    [STATUS_OFF]: offHours,
-                    [STATUS_IDLE]: idleHours,
-                    [STATUS_ACTIVE]: activeHours
-                };
-            }
-        }
+      function calculateMachineHours(machineId, historyData) {
+    const workshopId = parseInt(machineId) <= 16 ? 'workshop1' : 'workshop2';
+    let offHours = 0, idleHours = 0, activeHours = 0;
 
+    // 1. Фильтрация и сортировка данных
+    const filteredData = historyData
+        .filter(item => item.name === 'MUSP' || item.name === 'SystemState')
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    // 2. Группировка по временным меткам
+    const timeGroups = {};
+    filteredData.forEach(item => {
+        if (!timeGroups[item.timestamp]) {
+            timeGroups[item.timestamp] = {};
+        }
+        timeGroups[item.timestamp][item.name] = item.value;
+    });
+
+    // 3. Преобразование в массив сгруппированных данных
+    const groupedData = Object.entries(timeGroups)
+        .map(([timestamp, values]) => ({
+            timestamp,
+            MUSP: values.MUSP,
+            SystemState: values.SystemState
+        }))
+        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    // 4. Добавление текущего статуса, если данных нет
+    if (groupedData.length === 0 && machinesData[machineId]) {
+        groupedData.push({
+            timestamp: new Date().toISOString(),
+            MUSP: machinesData[machineId].status?.MUSP,
+            SystemState: machinesData[machineId].status?.SystemState
+        });
+    }
+
+    // 5. Расчёт продолжительности состояний
+    for (let i = 0; i < groupedData.length - 1; i++) {
+        const current = groupedData[i];
+        const next = groupedData[i + 1];
+        
+        const startTime = new Date(current.timestamp);
+        const endTime = new Date(next.timestamp);
+        const durationHours = (endTime - startTime) / (1000 * 60 * 60);
+
+        const status = getStatusFromValues(current.MUSP, current.SystemState);
+        
+        if (status === STATUS_OFF) offHours += durationHours;
+        else if (status === STATUS_IDLE) idleHours += durationHours;
+        else if (status === STATUS_ACTIVE) activeHours += durationHours;
+    }
+
+    // 6. Обновление данных
+    if (workshopsData[workshopId]?.[machineId]) {
+        workshopsData[workshopId][machineId].hours = {
+            [STATUS_OFF]: offHours,
+            [STATUS_IDLE]: idleHours,
+            [STATUS_ACTIVE]: activeHours
+        };
+    }
+}
         // Определение статуса на основе значений MUSP и SystemState
         function getStatusFromValues(muspValue, systemStateValue) {
-            if (muspValue == 1) return STATUS_OFF;
-            if (systemStateValue == 2) return STATUS_ACTIVE;
-            if (systemStateValue == 3) return STATUS_IDLE;
-            return STATUS_OFF;
-        }
-
-        // Обновление только статусов станков
-        function updateMachineStatuses() {
-            for (const workshop in workshopsData) {
-                for (const machineId in workshopsData[workshop]) {
-                    const machine = machinesData[machineId];
-                    if (machine) {
-                        workshopsData[workshop][machineId].status = getMachineStatus(machine);
-                    }
-                }
-            }
-            updateCharts();
-        }
+    // MUSP=1 - Выключен (приоритетный статус)
+    if (muspValue === 1) return STATUS_OFF;
+    
+    // MUSP=0 и SystemState=2 - Работает
+    if (muspValue === 0 && systemStateValue === 2) return STATUS_ACTIVE;
+    
+    // MUSP=0 и SystemState=3 - Остановлен
+    if (muspValue === 0 && systemStateValue === 3) return STATUS_IDLE;
+    
+    // По умолчанию считаем выключенным
+    return STATUS_OFF;
+}
 
         // Определение статуса станка на основе данных с сервера
-        function getMachineStatus(machineData) {
-            if (machineData.status?.MUSP == 1) {
-                return STATUS_OFF;
-            } else if (machineData.status?.SystemState == 2) {
-                return STATUS_ACTIVE;
-            } else if (machineData.status?.SystemState == 3) {
-                return STATUS_IDLE;
+      function getMachineStatus(machineData) {
+    // MUSP=1 - Выключен
+    if (machineData.status?.MUSP === 1) {
+        return STATUS_OFF;
+    }
+    // MUSP=0 и SystemState=2 - Работает
+    if (machineData.status?.MUSP === 0 && machineData.status?.SystemState === 2) {
+        return STATUS_ACTIVE;
+    }
+    // MUSP=0 и SystemState=3 - Остановлен
+    if (machineData.status?.MUSP === 0 && machineData.status?.SystemState === 3) {
+        return STATUS_IDLE;
+    }
+    // По умолчанию считаем выключенным
+    return STATUS_OFF;
+}
+function updateMachineStatuses() {
+    for (const workshop in workshopsData) {
+        for (const machineId in workshopsData[workshop]) {
+            const machine = machinesData[machineId];
+            if (machine) {
+                // Обновляем статус
+                workshopsData[workshop][machineId].status = getMachineStatus(machine);
+                
+                // Если станок работает, добавляем время работы
+                if (workshopsData[workshop][machineId].status === STATUS_ACTIVE) {
+                    const lastUpdate = new Date(machine.lastUpdate || new Date());
+                    const hoursSinceUpdate = (new Date() - lastUpdate) / (1000 * 60 * 60);
+                    
+                    workshopsData[workshop][machineId].hours[STATUS_ACTIVE] += hoursSinceUpdate;
+                }
             }
-            return STATUS_OFF; // По умолчанию считаем выключенным
         }
-
+    }
+    updateCharts();
+}
         // Обновление фильтра цехов
         function updateWorkshopFilter() {
             DOM.workshopFilter.innerHTML = '<option value="all">Все цеха</option>';
