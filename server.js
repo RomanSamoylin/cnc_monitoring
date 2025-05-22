@@ -249,7 +249,7 @@ setInterval(async () => {
   } catch (error) {
     console.error('Update error:', error);
   }
-}, 20000); // Обновление каждые 10 секунд
+}, 20000); // Обновление каждые 20 секунд
 
 // Запуск HTTP сервера
 app.listen(PORT, () => {
