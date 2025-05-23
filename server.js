@@ -16,7 +16,7 @@ const dbConfig = {
   user: 'monitor',
   password: 'victoria123',
   database: 'cnc_monitoring',
-  timezone: '+03:00' // Указываем временную зону сервера
+  timezone: '+03:00'
 };
 
 // Создаем WebSocket сервер
@@ -30,56 +30,68 @@ async function getMachineData() {
     // Получаем список всех станков
     const [machines] = await connection.execute('SELECT machine_id, cnc_name FROM cnc_id_mapping');
     
-    // Получаем последние статусы станков
-    const [statusParams] = await connection.execute(`
+    // Получаем последние статусы станков (event_type = 7 - Состояние системы)
+    const [systemStates] = await connection.execute(`
       SELECT 
         machine_id,
-        name,
         value,
         timestamp
       FROM 
         bit8_data
       WHERE 
-        name IN ('MUSP', 'SystemState')
-        AND (machine_id, name, timestamp) IN (
+        event_type = 7
+        AND (machine_id, timestamp) IN (
           SELECT 
             machine_id, 
-            name, 
             MAX(timestamp) as max_timestamp
           FROM 
             bit8_data
           WHERE 
-            name IN ('MUSP', 'SystemState')
+            event_type = 7
           GROUP BY 
-            machine_id, name
+            machine_id
         )
     `);
 
-    // Группируем статусы по machine_id
-    const statusByMachine = {};
-    statusParams.forEach(row => {
-      if (!statusByMachine[row.machine_id]) {
-        statusByMachine[row.machine_id] = {};
-      }
-      statusByMachine[row.machine_id][row.name] = {
-        value: row.value,
-        timestamp: row.timestamp
-      };
-    });
+    // Получаем последние статусы MUSP (event_type = 21 - MUSP)
+    const [muspStates] = await connection.execute(`
+      SELECT 
+        machine_id,
+        value,
+        timestamp
+      FROM 
+        bit8_data
+      WHERE 
+        event_type = 21
+        AND (machine_id, timestamp) IN (
+          SELECT 
+            machine_id, 
+            MAX(timestamp) as max_timestamp
+          FROM 
+            bit8_data
+          WHERE 
+            event_type = 21
+          GROUP BY 
+            machine_id
+        )
+    `);
 
     // Создаем объект с данными станков
     const machinesData = {};
     machines.forEach(machine => {
-      const status = statusByMachine[machine.machine_id] || {};
+      const systemState = systemStates.find(s => s.machine_id === machine.machine_id);
+      const muspState = muspStates.find(s => s.machine_id === machine.machine_id);
       
       machinesData[machine.machine_id] = {
         internalId: machine.machine_id,
         displayName: machine.cnc_name,
         status: {
-          MUSP: status.MUSP ? parseInt(status.MUSP.value) : null,
-          SystemState: status.SystemState ? parseInt(status.SystemState.value) : null
+          SystemState: systemState ? parseInt(systemState.value) : null,
+          MUSP: muspState ? parseInt(muspState.value) : null
         },
-        lastUpdate: status.MUSP ? status.MUSP.timestamp : new Date().toISOString()
+        lastUpdate: systemState ? systemState.timestamp : 
+                   muspState ? muspState.timestamp : 
+                   new Date().toISOString()
       };
     });
 
@@ -94,22 +106,21 @@ async function getMachineHistoryData(machineId, startDate, endDate) {
   const connection = await mysql.createConnection(dbConfig);
   
   try {
-    // Преобразуем даты в локальный формат
     const localStartDate = new Date(startDate);
     const localEndDate = new Date(endDate);
 
-    // Получаем исторические данные статусов
+    // Получаем исторические данные статусов (event_type = 7 и 21)
     const [historyData] = await connection.execute(`
       SELECT 
         machine_id,
-        name,
+        event_type,
         value,
         timestamp
       FROM 
         bit8_data
       WHERE 
         machine_id = ?
-        AND name IN ('MUSP', 'SystemState')
+        AND event_type IN (7, 21)
         AND timestamp BETWEEN ? AND ?
       ORDER BY 
         timestamp ASC
@@ -124,12 +135,13 @@ async function getMachineHistoryData(machineId, startDate, endDate) {
     const seen = new Set();
     
     historyData.forEach(item => {
-      const key = `${item.timestamp}_${item.name}_${item.value}`;
+      const key = `${item.timestamp}_${item.event_type}_${item.value}`;
       if (!seen.has(key)) {
         seen.add(key);
         uniqueData.push({
           ...item,
-          value: parseInt(item.value) // Преобразуем значение в число
+          value: parseInt(item.value),
+          eventType: parseInt(item.event_type)
         });
       }
     });
@@ -160,7 +172,6 @@ app.get('/api/machines/:id/history', async (req, res) => {
     const { id } = req.params;
     let { startDate, endDate } = req.query;
 
-    // Валидация параметров
     if (!startDate || !endDate) {
       return res.status(400).json({ 
         success: false, 
@@ -168,7 +179,6 @@ app.get('/api/machines/:id/history', async (req, res) => {
       });
     }
 
-    // Преобразуем даты
     const start = new Date(startDate);
     const end = new Date(endDate);
 
@@ -186,7 +196,6 @@ app.get('/api/machines/:id/history', async (req, res) => {
       });
     }
 
-    // Для фильтра "день" устанавливаем границы времени
     if (req.query.period === 'day') {
       start.setHours(0, 0, 0, 0);
       end.setHours(23, 59, 59, 999);
@@ -213,7 +222,6 @@ app.get('/api/machines/:id/history', async (req, res) => {
 wss.on('connection', (ws) => {
   console.log('Новый клиент подключен');
   
-  // Отправляем данные при подключении
   getMachineData().then(machines => {
     ws.send(JSON.stringify({ 
       type: 'INITIAL_DATA', 
@@ -231,7 +239,6 @@ setInterval(async () => {
   try {
     const machines = await getMachineData();
     
-    // Логирование для отладки
     console.log('Отправка обновления данных:', {
       time: new Date().toISOString(),
       machinesCount: Object.keys(machines).length
@@ -249,7 +256,7 @@ setInterval(async () => {
   } catch (error) {
     console.error('Update error:', error);
   }
-}, 20000); // Обновление каждые 20 секунд
+}, 20000);
 
 // Запуск HTTP сервера
 app.listen(PORT, () => {
@@ -258,7 +265,6 @@ app.listen(PORT, () => {
   console.log(`Текущее время сервера: ${new Date()}`);
 });
 
-// Экспорт для тестирования
 module.exports = {
   app,
   getMachineData,

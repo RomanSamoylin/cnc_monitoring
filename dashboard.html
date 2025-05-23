@@ -588,45 +588,76 @@
 
         // Обработка данных станков
         function processMachineData(machinesData) {
-            state.machines = {};
-            
-            Object.entries(machinesData).forEach(([machineId, machineData]) => {
-                const status = determineMachineStatus(machineData.status);
-                
-                state.machines[machineId] = {
-                    internalId: machineData.internalId,
-                    displayName: machineData.displayName,
-                    status: status.status,
-                    statusText: status.statusText,
-                    currentPerformance: machineData.currentPerformance || 0,
-                    lastUpdate: machineData.lastUpdate
-                };
-            });
-            
-            updateSummary();
-        }
+    // Сохраняем новые данные
+    state.machines = {};
+    
+    Object.entries(machinesData).forEach(([machineId, machineData]) => {
+        const status = determineMachineStatus(machineData.status);
+        
+        state.machines[machineId] = {
+            internalId: machineData.internalId,
+            displayName: machineData.displayName,
+            status: status.status,
+            statusText: status.statusText,
+            currentPerformance: machineData.currentPerformance || 0,
+            lastUpdate: machineData.lastUpdate
+        };
+    });
+    
+    // Обновляем сводку
+    updateSummary();
+    
+    // !!! Доработка: обновляем фильтры
+    populateFilters();
+    
+    // Перерисовываем станки
+    renderMachines();
+}
 
-        // Определение статуса станка
-        function determineMachineStatus(statusData) {
-            // MUSP=1 - Выключен (shutdown)
-            // SystemState=2 - Работает (working)
-            // SystemState=1 - Остановлен (stopped)
-            
-            if (statusData.MUSP === 1) {
-                return { status: 'shutdown', statusText: 'Выключен' };
-            }
-            
-            if (statusData.SystemState === 2) {
-                return { status: 'working', statusText: 'Работает' };
-            }
-            
-            if (statusData.SystemState === 1) {
-                return { status: 'stopped', statusText: 'Остановлен' };
-            }
-            
-            // Если данных нет, считаем станок выключенным
-            return { status: 'shutdown', statusText: 'Нет данных' };
-        }
+      // Определение статуса станка
+function determineMachineStatus(statusData) {
+    // event_type = 7 - Состояние системы:
+    // value:
+    // 0 - Выключено
+    // 1 - Остановлено
+    // 3 - Остановлено
+    // 2 - Работает
+    // 4 - Работает
+    
+    // event_type = 21 - MUSP:
+    // value:
+    // 0 - Включено
+    // 1 - Выключено
+    
+    // Приоритет статусов:
+    // 1. Если MUSP = 1 (Выключено) - станок выключен
+    // 2. Иначе смотрим SystemState
+    
+    if (statusData.MUSP === 1) {
+        return { status: 'shutdown', statusText: 'Выключено (MUSP)' };
+    }
+    
+    if (!statusData.SystemState && statusData.SystemState !== 0) {
+        return { status: 'shutdown', statusText: 'Нет данных' };
+    }
+    
+    const systemState = statusData.SystemState;
+    
+    if (systemState === 0) {
+        return { status: 'shutdown', statusText: 'Выключено' };
+    }
+    
+    if (systemState === 1 || systemState === 3) {
+        return { status: 'stopped', statusText: 'Остановлено' };
+    }
+    
+    if (systemState === 2 || systemState === 4) {
+        return { status: 'working', statusText: 'Работает' };
+    }
+    
+    // Для неизвестных значений
+    return { status: 'shutdown', statusText: 'Неизвестный статус' };
+}
 
         // Функция для запуска периодического обновления
         function startAutoRefresh() {
