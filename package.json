@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
+  "start": "node server.js",
+  "start-analytics": "node server2.js",
+  "start-all": "concurrently \"npm run start\" \"npm run start-analytics\""
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
