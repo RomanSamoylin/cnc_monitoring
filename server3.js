@@ -13,7 +13,7 @@ app.use(express.json());
 // MySQL конфигурация
 const dbConfig = {
   host: '192.168.1.79',
-  user: 'monitorl',
+  user: 'monitor',
   password: 'victoria123',
   database: 'cnc_monitoring',
   timezone: '+03:00'
