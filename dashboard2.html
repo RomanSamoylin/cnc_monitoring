@@ -409,6 +409,30 @@
             text-align: center;
             font-weight: bold;
         }
+        /* Добавляем новые стили для параметров станка */
+        .machine-params {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .param-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background-color: rgba(0,0,0,0.03);
+            border-radius: 4px;
+        }
+
+        .param-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .param-value {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -463,12 +487,7 @@
                     </button>
                 </div>
 
-                <h3>Сортировка</h3>
-                <div class="filter-group">
-                    <button class="filter-btn" data-sort="name">По имени</button>
-                    <button class="filter-btn" data-sort="status">По статусу</button>
-                    <button class="filter-btn" data-sort="performance">По производительности</button>
-                </div>
+                
             </div>
         </div>
         
@@ -491,7 +510,7 @@
                     <span class="summary-value" id="shutdownMachines">0</span>
                 </div>
                 <div class="summary-item">
-                    <span class="summary-label">Средняя загрузка</span>
+                    <span class="summary-label">Средняя нагрузка</span>
                     <span class="summary-value" id="avgLoad">0%</span>
                 </div>
             </div>

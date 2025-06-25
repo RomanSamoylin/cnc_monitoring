@@ -13,7 +13,7 @@ app.use(express.json());
 // MySQL конфигурация
 const dbConfig = {
   host: '192.168.1.79',
-  user: 'monitor',
+  user: 'monitorl',
   password: 'victoria123',
   database: 'cnc_monitoring',
   timezone: '+03:00'
@@ -32,66 +32,102 @@ async function getMachineData() {
     
     // Получаем последние статусы станков (event_type = 7 - Состояние системы)
     const [systemStates] = await connection.execute(`
-      SELECT 
-        machine_id,
-        value,
-        timestamp
-      FROM 
-        bit8_data
-      WHERE 
-        event_type = 7
-        AND (machine_id, timestamp) IN (
-          SELECT 
-            machine_id, 
-            MAX(timestamp) as max_timestamp
-          FROM 
-            bit8_data
-          WHERE 
-            event_type = 7
-          GROUP BY 
-            machine_id
-        )
+      SELECT machine_id, value, timestamp
+      FROM bit8_data
+      WHERE event_type = 7
+      AND (machine_id, timestamp) IN (
+        SELECT machine_id, MAX(timestamp)
+        FROM bit8_data
+        WHERE event_type = 7
+        GROUP BY machine_id
+      )
     `);
 
     // Получаем последние статусы MUSP (event_type = 21 - MUSP)
     const [muspStates] = await connection.execute(`
-      SELECT 
-        machine_id,
-        value,
-        timestamp
-      FROM 
-        bit8_data
-      WHERE 
-        event_type = 21
-        AND (machine_id, timestamp) IN (
-          SELECT 
-            machine_id, 
-            MAX(timestamp) as max_timestamp
-          FROM 
-            bit8_data
-          WHERE 
-            event_type = 21
-          GROUP BY 
-            machine_id
+      SELECT machine_id, value, timestamp
+      FROM bit8_data
+      WHERE event_type = 21
+      AND (machine_id, timestamp) IN (
+        SELECT machine_id, MAX(timestamp)
+        FROM bit8_data
+        WHERE event_type = 21
+        GROUP BY machine_id
+      )
+    `);
+
+    // Получаем параметры станков из float_data с новыми event_type
+    const [floatParams] = await connection.execute(`
+      SELECT machine_id, event_type, value, timestamp
+      FROM float_data
+      WHERE (machine_id, event_type, timestamp) IN (
+        SELECT machine_id, event_type, MAX(timestamp)
+        FROM float_data
+        WHERE event_type IN (
+          5,  -- Подача
+          6,  -- Скорость шпинделя
+          10, -- Переключатель JOG
+          11, -- Переключатель F
+          12, -- Переключатель S
+          40  -- Мощность шпинделя
         )
+        GROUP BY machine_id, event_type
+      )
+      ORDER BY machine_id, event_type
     `);
 
     // Создаем объект с данными станков
     const machinesData = {};
+    
     machines.forEach(machine => {
       const systemState = systemStates.find(s => s.machine_id === machine.machine_id);
       const muspState = muspStates.find(s => s.machine_id === machine.machine_id);
       
+      // Инициализируем параметры
+      const params = {
+        feedRate: null,       // 5
+        spindleSpeed: null,   // 6
+        jogSwitch: null,     // 10
+        fSwitch: null,       // 11
+        sSwitch: null,       // 12
+        spindlePower: null    // 40
+      };
+
+      // Заполняем параметры из float_data
+      floatParams
+        .filter(p => p.machine_id === machine.machine_id)
+        .forEach(param => {
+          const value = parseFloat(param.value);
+          switch(param.event_type) {
+            case 5: params.feedRate = isNaN(value) ? null : value; break;
+            case 6: params.spindleSpeed = isNaN(value) ? null : value; break;
+            case 10: params.jogSwitch = isNaN(value) ? null : value; break;
+            case 11: params.fSwitch = isNaN(value) ? null : value; break;
+            case 12: params.sSwitch = isNaN(value) ? null : value; break;
+            case 40: params.spindlePower = isNaN(value) ? null : value; break;
+          }
+        });
+
+      // Определяем статус станка
+      const status = determineMachineStatus({
+        SystemState: systemState ? parseInt(systemState.value) : null,
+        MUSP: muspState ? parseInt(muspState.value) : null
+      });
+
+      // Рассчитываем текущую производительность (на основе мощности шпинделя)
+      const currentPerformance = params.spindlePower !== null ? 
+        Math.min(100, Math.max(0, Math.round(params.spindlePower))) : 0;
+
       machinesData[machine.machine_id] = {
         internalId: machine.machine_id,
         displayName: machine.cnc_name,
-        status: {
-          SystemState: systemState ? parseInt(systemState.value) : null,
-          MUSP: muspState ? parseInt(muspState.value) : null
-        },
+        status: status.status,
+        statusText: status.statusText,
+        currentPerformance: currentPerformance,
         lastUpdate: systemState ? systemState.timestamp : 
                    muspState ? muspState.timestamp : 
-                   new Date().toISOString()
+                   new Date().toISOString(),
+        params: params
       };
     });
 
@@ -99,6 +135,33 @@ async function getMachineData() {
   } finally {
     await connection.end();
   }
+}
+
+// Функция определения статуса станка
+function determineMachineStatus(statusData) {
+  if (statusData.MUSP === 1) {
+    return { status: 'shutdown', statusText: 'Выключено (MUSP)' };
+  }
+  
+  if (!statusData.SystemState && statusData.SystemState !== 0) {
+    return { status: 'shutdown', statusText: 'Нет данных' };
+  }
+  
+  const systemState = statusData.SystemState;
+  
+  if (systemState === 0) {
+    return { status: 'shutdown', statusText: 'Выключено' };
+  }
+  
+  if (systemState === 1 || systemState === 3) {
+    return { status: 'stopped', statusText: 'Остановлено' };
+  }
+  
+  if (systemState === 2 || systemState === 4) {
+    return { status: 'working', statusText: 'Работает' };
+  }
+  
+  return { status: 'shutdown', statusText: 'Неизвестный статус' };
 }
 
 // Функция для получения исторических данных по станкам
@@ -111,19 +174,12 @@ async function getMachineHistoryData(machineId, startDate, endDate) {
 
     // Получаем исторические данные статусов (event_type = 7 и 21)
     const [historyData] = await connection.execute(`
-      SELECT 
-        machine_id,
-        event_type,
-        value,
-        timestamp
-      FROM 
-        bit8_data
-      WHERE 
-        machine_id = ?
-        AND event_type IN (7, 21)
-        AND timestamp BETWEEN ? AND ?
-      ORDER BY 
-        timestamp ASC
+      SELECT event_type, value, timestamp
+      FROM bit8_data
+      WHERE machine_id = ?
+      AND event_type IN (7, 21)
+      AND timestamp BETWEEN ? AND ?
+      ORDER BY timestamp ASC
     `, [
       machineId,
       localStartDate.toISOString().slice(0, 19).replace('T', ' '),
@@ -155,6 +211,20 @@ async function getMachineHistoryData(machineId, startDate, endDate) {
   }
 }
 
+// Endpoint для получения списка станков
+app.get('/api/machines', async (req, res) => {
+  try {
+    const machines = await getMachineData();
+    res.json({
+      success: true,
+      machines: machines
+    });
+  } catch (error) {
+    console.error('Error fetching machines list:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Новый endpoint для получения сводных данных по цехам
 app.get('/api/workshops/summary', async (req, res) => {
   try {
@@ -172,18 +242,11 @@ app.get('/api/workshops/summary', async (req, res) => {
     try {
       // Получаем данные по всем станкам за период
       const [historyData] = await connection.execute(`
-        SELECT 
-          machine_id,
-          event_type,
-          value,
-          timestamp
-        FROM 
-          bit8_data
-        WHERE 
-          event_type IN (7, 21)
-          AND timestamp BETWEEN ? AND ?
-        ORDER BY 
-          machine_id, timestamp ASC
+        SELECT machine_id, event_type, value, timestamp
+        FROM bit8_data
+        WHERE event_type IN (7, 21)
+        AND timestamp BETWEEN ? AND ?
+        ORDER BY machine_id, timestamp ASC
       `, [
         new Date(startDate).toISOString().slice(0, 19).replace('T', ' '),
         new Date(endDate).toISOString().slice(0, 19).replace('T', ' ')
@@ -298,18 +361,12 @@ app.get('/api/machines/:id/history/detailed', async (req, res) => {
     try {
       // Получаем исторические данные для станка
       const [historyData] = await connection.execute(`
-        SELECT 
-          event_type,
-          value,
-          timestamp
-        FROM 
-          bit8_data
-        WHERE 
-          machine_id = ?
-          AND event_type IN (7, 21)
-          AND timestamp BETWEEN ? AND ?
-        ORDER BY 
-          timestamp ASC
+        SELECT event_type, value, timestamp
+        FROM bit8_data
+        WHERE machine_id = ?
+        AND event_type IN (7, 21)
+        AND timestamp BETWEEN ? AND ?
+        ORDER BY timestamp ASC
       `, [
         id,
         new Date(startDate).toISOString().slice(0, 19).replace('T', ' '),
@@ -369,92 +426,6 @@ app.get('/api/machines/:id/history/detailed', async (req, res) => {
   }
 });
 
-// Endpoint для получения списка станков
-app.get('/api/machines', async (req, res) => {
-  try {
-    const connection = await mysql.createConnection(dbConfig);
-    
-    try {
-      // Получаем список всех станков
-      const [machines] = await connection.execute('SELECT machine_id, cnc_name FROM cnc_id_mapping');
-      
-      // Получаем последние статусы станков
-      const [systemStates] = await connection.execute(`
-        SELECT 
-          machine_id,
-          value,
-          timestamp
-        FROM 
-          bit8_data
-        WHERE 
-          event_type = 7
-          AND (machine_id, timestamp) IN (
-            SELECT 
-              machine_id, 
-              MAX(timestamp) as max_timestamp
-            FROM 
-              bit8_data
-            WHERE 
-              event_type = 7
-            GROUP BY 
-              machine_id
-          )
-      `);
-
-      // Получаем последние статусы MUSP
-      const [muspStates] = await connection.execute(`
-        SELECT 
-          machine_id,
-          value,
-          timestamp
-        FROM 
-          bit8_data
-        WHERE 
-          event_type = 21
-          AND (machine_id, timestamp) IN (
-            SELECT 
-              machine_id, 
-              MAX(timestamp) as max_timestamp
-            FROM 
-              bit8_data
-            WHERE 
-              event_type = 21
-            GROUP BY 
-              machine_id
-          )
-      `);
-
-      // Создаем объект с данными станков
-      const machinesData = {};
-      machines.forEach(machine => {
-        const systemState = systemStates.find(s => s.machine_id === machine.machine_id);
-        const muspState = muspStates.find(s => s.machine_id === machine.machine_id);
-        
-        machinesData[machine.machine_id] = {
-          internalId: machine.machine_id,
-          displayName: machine.cnc_name,
-          status: {
-            SystemState: systemState ? parseInt(systemState.value) : null,
-            MUSP: muspState ? parseInt(muspState.value) : null
-          },
-          lastUpdate: systemState ? systemState.timestamp : 
-                     muspState ? muspState.timestamp : 
-                     new Date().toISOString()
-        };
-      });
-
-      res.json({
-        success: true,
-        machines: machinesData
-      });
-    } finally {
-      await connection.end();
-    }
-  } catch (error) {
-    console.error('Error fetching machines list:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
 // WebSocket обработчик
 wss.on('connection', (ws) => {
   console.log('Новый клиент подключен');
@@ -475,7 +446,7 @@ wss.on('connection', (ws) => {
 setInterval(async () => {
   try {
     const machines = await getMachineData();
-    
+    console.log('Параметры из БД:', floatParams);
     console.log('Отправка обновления данных:', {
       time: new Date().toISOString(),
       machinesCount: Object.keys(machines).length

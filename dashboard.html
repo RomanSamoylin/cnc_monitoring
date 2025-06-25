@@ -409,10 +409,35 @@
             text-align: center;
             font-weight: bold;
         }
+
+        /* Стили для параметров станка */
+        .machine-params {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .param-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background-color: rgba(0,0,0,0.03);
+            border-radius: 4px;
+        }
+
+        .param-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .param-value {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-       <header>
+    <header>
         <h1>Дашборды мониторинга</h1>
         <button class="logout-button" onclick="location.href='login.html'">
             <i class="fas fa-sign-out-alt"></i> Выйти
@@ -462,13 +487,6 @@
                         <i class="fas fa-circle" style="color: var(--shutdown-color);"></i> Выключены
                     </button>
                 </div>
-
-                <h3>Сортировка</h3>
-                <div class="filter-group">
-                    <button class="filter-btn" data-sort="name">По имени</button>
-                    <button class="filter-btn" data-sort="status">По статусу</button>
-                    <button class="filter-btn" data-sort="performance">По производительности</button>
-                </div>
             </div>
         </div>
         
@@ -491,7 +509,7 @@
                     <span class="summary-value" id="shutdownMachines">0</span>
                 </div>
                 <div class="summary-item">
-                    <span class="summary-label">Средняя загрузка</span>
+                    <span class="summary-label">Средняя нагрузка</span>
                     <span class="summary-value" id="avgLoad">0%</span>
                 </div>
             </div>
@@ -588,76 +606,53 @@
 
         // Обработка данных станков
         function processMachineData(machinesData) {
-    // Сохраняем новые данные
-    state.machines = {};
-    
-    Object.entries(machinesData).forEach(([machineId, machineData]) => {
-        const status = determineMachineStatus(machineData.status);
-        
-        state.machines[machineId] = {
-            internalId: machineData.internalId,
-            displayName: machineData.displayName,
-            status: status.status,
-            statusText: status.statusText,
-            currentPerformance: machineData.currentPerformance || 0,
-            lastUpdate: machineData.lastUpdate
-        };
-    });
-    
-    // Обновляем сводку
-    updateSummary();
-    
-    // !!! Доработка: обновляем фильтры
-    populateFilters();
-    
-    // Перерисовываем станки
-    renderMachines();
-}
+            state.machines = {};
+            
+            Object.entries(machinesData).forEach(([machineId, machineData]) => {
+                const status = determineMachineStatus(machineData.status);
+                
+                state.machines[machineId] = {
+                    internalId: machineData.internalId,
+                    displayName: machineData.displayName,
+                    status: status.status,
+                    statusText: status.statusText,
+                    currentPerformance: machineData.currentPerformance || 0,
+                    lastUpdate: machineData.lastUpdate,
+                    params: machineData.params || {}
+                };
+            });
+            
+            updateSummary();
+            populateFilters();
+            renderMachines();
+        }
 
-      // Определение статуса станка
-function determineMachineStatus(statusData) {
-    // event_type = 7 - Состояние системы:
-    // value:
-    // 0 - Выключено
-    // 1 - Остановлено
-    // 3 - Остановлено
-    // 2 - Работает
-    // 4 - Работает
-    
-    // event_type = 21 - MUSP:
-    // value:
-    // 0 - Включено
-    // 1 - Выключено
-    
-    // Приоритет статусов:
-    // 1. Если MUSP = 1 (Выключено) - станок выключен
-    // 2. Иначе смотрим SystemState
-    
-    if (statusData.MUSP === 1) {
-        return { status: 'shutdown', statusText: 'Выключено (MUSP)' };
-    }
-    
-    if (!statusData.SystemState && statusData.SystemState !== 0) {
-        return { status: 'shutdown', statusText: 'Нет данных' };
-    }
-    
-    const systemState = statusData.SystemState;
-    
-    if (systemState === 0) {
-        return { status: 'shutdown', statusText: 'Выключено' };
-    }
-    
-    if (systemState === 1 || systemState === 3) {
-        return { status: 'stopped', statusText: 'Остановлено' };
-    }
-    
-    if (systemState === 2 || systemState === 4) {
-        return { status: 'working', statusText: 'Работает' };
-    }
-    
-    // Для неизвестных значений
-    return { status: 'shutdown', statusText: 'Неизвестный статус' };
-}
+        // Определение статуса станка
+        function determineMachineStatus(statusData) {
+            if (statusData.MUSP === 1) {
+                return { status: 'shutdown', statusText: 'Выключено (MUSP)' };
+            }
+            
+            if (!statusData.SystemState && statusData.SystemState !== 0) {
+                return { status: 'shutdown', statusText: 'Нет данных' };
+            }
+            
+            const systemState = statusData.SystemState;
+            
+            if (systemState === 0) {
+                return { status: 'shutdown', statusText: 'Выключено' };
+            }
+            
+            if (systemState === 1 || systemState === 3) {
+                return { status: 'stopped', statusText: 'Остановлено' };
+            }
+            
+            if (systemState === 2 || systemState === 4) {
+                return { status: 'working', statusText: 'Работает' };
+            }
+            
+            return { status: 'shutdown', statusText: 'Неизвестный статус' };
+        }
 
         // Функция для запуска периодического обновления
         function startAutoRefresh() {
@@ -781,6 +776,13 @@ function determineMachineStatus(statusData) {
                 
                 const workshopId = machine.internalId <= 16 ? 1 : 2;
                 
+                // Функция для форматирования параметров
+                const formatParam = (value) => {
+                    if (value === null || value === undefined) return '—';
+                    if (Number.isInteger(value)) return value.toString();
+                    return value.toFixed(2);
+                };
+
                 card.innerHTML = `
                     <div class="machine-header">
                         <div class="machine-name">${machine.displayName}</div>
@@ -793,6 +795,32 @@ function determineMachineStatus(statusData) {
                         <div>ID: ${machine.internalId}</div>
                         <div>Цех: ЦЕХ-${workshopId}</div>
                         <div class="last-update">Обновлено: ${new Date(machine.lastUpdate).toLocaleTimeString()}</div>
+                    </div>
+                    <div class="machine-params">
+                        <div class="param-item">
+                            <span class="param-label">Подача:</span>
+                            <span class="param-value">${formatParam(machine.params.feedRate)}</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Скорость шпинделя:</span>
+                            <span class="param-value">${formatParam(machine.params.spindleSpeed)}</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">JOG:</span>
+                            <span class="param-value">${formatParam(machine.params.jogSwitch)}</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Переключатель F:</span>
+                            <span class="param-value">${formatParam(machine.params.fSwitch)}</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Переключатель S:</span>
+                            <span class="param-value">${formatParam(machine.params.sSwitch)}</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Мощность шпинделя:</span>
+                            <span class="param-value">${formatParam(machine.params.spindlePower)}</span>
+                        </div>
                     </div>
                     <div class="chart-wrapper">
                         <div class="chart-title">Нагрузка: ${machine.currentPerformance || 0}%</div>
@@ -813,23 +841,21 @@ function determineMachineStatus(statusData) {
         function initMachineChart(machineId, performance, status) {
             const ctx = document.getElementById(`chart-${machineId}`).getContext('2d');
             
-            // Определяем цвет графика в зависимости от статуса
             let chartColor;
             switch(status) {
                 case 'working':
-                    chartColor = '#2ecc71'; // зеленый
+                    chartColor = '#2ecc71';
                     break;
                 case 'stopped':
-                    chartColor = '#e74c3c'; // красный
+                    chartColor = '#e74c3c';
                     break;
                 case 'shutdown':
-                    chartColor = '#95a5a6'; // серый
+                    chartColor = '#95a5a6';
                     break;
                 default:
-                    chartColor = '#3498db'; // синий по умолчанию
+                    chartColor = '#3498db';
             }
             
-            // Если график уже существует, обновляем его
             if (state.charts[machineId]) {
                 state.charts[machineId].data.datasets[0].data = generateChartData(performance);
                 state.charts[machineId].data.datasets[0].borderColor = chartColor;
@@ -837,7 +863,6 @@ function determineMachineStatus(statusData) {
                 return;
             }
             
-            // Создаем новый график
             state.charts[machineId] = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -871,7 +896,6 @@ function determineMachineStatus(statusData) {
         // Генерация данных для графика
         function generateChartData(baseValue) {
             return Array.from({length: 12}, (_, i) => {
-                // Добавляем небольшие случайные колебания вокруг базового значения
                 return Math.min(100, Math.max(0, baseValue + (Math.random() * 10 - 5)));
             });
         }
