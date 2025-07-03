@@ -409,7 +409,8 @@
             text-align: center;
             font-weight: bold;
         }
-        /* Добавляем новые стили для параметров станка */
+
+        /* Стили для параметров станка */
         .machine-params {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -436,7 +437,7 @@
     </style>
 </head>
 <body>
-       <header>
+    <header>
         <h1>Дашборды мониторинга</h1>
         <button class="logout-button" onclick="location.href='login.html'">
             <i class="fas fa-sign-out-alt"></i> Выйти
@@ -486,8 +487,6 @@
                         <i class="fas fa-circle" style="color: var(--shutdown-color);"></i> Выключены
                     </button>
                 </div>
-
-                
             </div>
         </div>
         
@@ -513,7 +512,14 @@
                     <span class="summary-label">Средняя нагрузка</span>
                     <span class="summary-value" id="avgLoad">0%</span>
                 </div>
+                <div class="summary-item">
+                    <span class="summary-label">Статус соединения</span>
+                    <span class="summary-value" id="connectionStatus">
+                        <i class="fas fa-circle-notch fa-spin"></i> Подключение...
+                    </span>
+                </div>
             </div>
+            <!-- Здесь будут добавляться карточки станков -->
         </div>
     </div>
 
@@ -522,6 +528,15 @@
     </div>
 
     <script>
+        // Конфигурация приложения
+        const config = {
+            apiUrl: window.location.origin.replace(/:\d+$/, ':3000'),
+            wsUrl: `ws://${window.location.hostname || 'localhost'}:8080`,
+            refreshInterval: 20000,
+            reconnectDelay: 5000,
+            maxRetries: 3
+        };
+
         // Состояние приложения
         const state = {
             machines: {},
@@ -537,9 +552,158 @@
                 machine: 'all',
                 status: 'all'
             },
-            refreshInterval: null,
-            charts: {}
+            ws: null,
+            retryCount: 0,
+            charts: {},
+            lastUpdate: null,
+            isConnected: false,
+            pollingInterval: null
         };
+
+        // Инициализация WebSocket
+        function initWebSocket() {
+            // Проверка поддержки WebSocket
+            if (!('WebSocket' in window)) {
+                console.error('Браузер не поддерживает WebSocket');
+                showNotification('Ваш браузер не поддерживает WebSocket', true);
+                startPolling();
+                return;
+            }
+
+            // Проверка валидности URL
+            if (!config.wsUrl || !config.wsUrl.startsWith('ws://')) {
+                console.error('Неверный URL WebSocket:', config.wsUrl);
+                showNotification('Ошибка конфигурации соединения', true);
+                return;
+            }
+
+            console.log('Попытка подключения к WebSocket:', config.wsUrl);
+            updateConnectionStatus('connecting');
+            
+            try {
+                state.ws = new WebSocket(config.wsUrl);
+
+                state.ws.onopen = () => {
+                    console.log('WebSocket подключен');
+                    state.isConnected = true;
+                    state.retryCount = 0;
+                    updateConnectionStatus('connected');
+                    showNotification('Соединение с сервером установлено');
+                    
+                    // Остановка polling, если он был активен
+                    if (state.pollingInterval) {
+                        clearInterval(state.pollingInterval);
+                        state.pollingInterval = null;
+                    }
+                };
+
+                state.ws.onmessage = (event) => {
+                    try {
+                        const message = JSON.parse(event.data);
+                        
+                        if (message.type === 'PONG') {
+                            console.log('Получен ответ от сервера');
+                            return;
+                        }
+                        
+                        if (message.type === 'INITIAL_DATA' || message.type === 'UPDATE') {
+                            processMachineData(message.data);
+                            updateLastUpdateTime(message.timestamp || new Date().toISOString());
+                        }
+                    } catch (e) {
+                        console.error('Ошибка обработки сообщения:', e);
+                    }
+                };
+
+                state.ws.onclose = (event) => {
+                    console.log(`WebSocket закрыт. Код: ${event.code}, Причина: ${event.reason}`);
+                    state.isConnected = false;
+                    updateConnectionStatus('disconnected');
+                    
+                    if (state.retryCount < config.maxRetries) {
+                        state.retryCount++;
+                        const delay = config.reconnectDelay * state.retryCount;
+                        console.log(`Попытка переподключения ${state.retryCount}/${config.maxRetries} через ${delay}мс`);
+                        showNotification(`Переподключение (${state.retryCount}/${config.maxRetries})...`, true);
+                        setTimeout(initWebSocket, delay);
+                    } else {
+                        console.log('Достигнуто максимальное количество попыток переподключения');
+                        showNotification('Не удалось подключиться к серверу', true);
+                        startPolling();
+                    }
+                };
+
+                state.ws.onerror = (error) => {
+                    console.error('WebSocket ошибка:', error);
+                    updateConnectionStatus('error');
+                    state.ws.close();
+                };
+
+            } catch (e) {
+                console.error('Ошибка создания WebSocket:', e);
+                showNotification('Ошибка подключения', true);
+                startPolling();
+            }
+        }
+
+        // Резервный polling механизм
+        function startPolling() {
+            console.log('Активация HTTP polling');
+            updateConnectionStatus('polling');
+            
+            // Очищаем предыдущий интервал, если был
+            if (state.pollingInterval) {
+                clearInterval(state.pollingInterval);
+            }
+            
+            // Немедленный запрос
+            fetchData();
+            
+            // Устанавливаем интервал
+            state.pollingInterval = setInterval(fetchData, config.refreshInterval);
+        }
+
+        // Обновление статуса соединения
+        function updateConnectionStatus(status) {
+            const statusElement = document.getElementById('connectionStatus');
+            let icon, text, color;
+            
+            switch(status) {
+                case 'connected':
+                    icon = 'fa-check-circle';
+                    text = 'Подключено';
+                    color = 'var(--working-color)';
+                    break;
+                case 'connecting':
+                    icon = 'fa-circle-notch fa-spin';
+                    text = 'Подключение...';
+                    color = 'var(--warning-color)';
+                    break;
+                case 'disconnected':
+                    icon = 'fa-times-circle';
+                    text = 'Отключено';
+                    color = 'var(--stopped-color)';
+                    break;
+                case 'error':
+                    icon = 'fa-exclamation-circle';
+                    text = 'Ошибка';
+                    color = 'var(--stopped-color)';
+                    break;
+                case 'polling':
+                    icon = 'fa-sync-alt fa-spin';
+                    text = 'Polling режим';
+                    color = 'var(--warning-color)';
+                    break;
+                default:
+                    icon = 'fa-question-circle';
+                    text = 'Неизвестно';
+                    color = 'var(--shutdown-color)';
+            }
+            
+            statusElement.innerHTML = `
+                <i class="fas ${icon}" style="color: ${color};"></i> ${text}
+            `;
+        }
 
         // Функция для показа уведомления
         function showNotification(message, isError = false) {
@@ -552,7 +716,68 @@
             }, 3000);
         }
 
-        // Функция для сохранения текущих фильтров
+        // Обновление времени последнего обновления
+        function updateLastUpdateTime(timestamp) {
+            state.lastUpdate = new Date(timestamp);
+            // Можно добавить отображение времени в интерфейсе
+        }
+
+        // Загрузка данных через HTTP (резервный метод)
+        async function fetchData() {
+            try {
+                const response = await fetch(`${config.apiUrl}/api/machines`);
+                if (!response.ok) throw new Error('Ошибка сети');
+                
+                const data = await response.json();
+                if (data.success) {
+                    processMachineData(data.machines);
+                    updateLastUpdateTime(new Date().toISOString());
+                    if (!data.fromCache) {
+                        showNotification('Данные успешно обновлены');
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка при загрузке данных:', error);
+                showNotification('Ошибка при обновлении данных', true);
+            }
+        }
+
+        // Обработка данных станков
+        function processMachineData(machinesData) {
+            state.machines = machinesData;
+            updateSummary();
+            populateFilters();
+            renderMachines();
+        }
+
+        // Определение статуса станка
+        function determineMachineStatus(statusData) {
+            if (statusData.MUSP === 1) {
+                return { status: 'shutdown', statusText: 'Выключено (MUSP)' };
+            }
+            
+            if (!statusData.SystemState && statusData.SystemState !== 0) {
+                return { status: 'shutdown', statusText: 'Нет данных' };
+            }
+            
+            const systemState = statusData.SystemState;
+            
+            if (systemState === 0) {
+                return { status: 'shutdown', statusText: 'Выключено' };
+            }
+            
+            if (systemState === 1 || systemState === 3) {
+                return { status: 'stopped', statusText: 'Остановлено' };
+            }
+            
+            if (systemState === 2 || systemState === 4) {
+                return { status: 'working', statusText: 'Работает' };
+            }
+            
+            return { status: 'shutdown', statusText: 'Неизвестный статус' };
+        }
+
+        // Сохранение/восстановление фильтров
         function saveFilters() {
             state.filters = {
                 workshop: document.getElementById('workshopFilter').value,
@@ -561,7 +786,6 @@
             };
         }
 
-        // Функция для восстановления фильтров
         function restoreFilters() {
             document.getElementById('workshopFilter').value = state.filters.workshop;
             document.getElementById('machineFilter').value = state.filters.machine;
@@ -579,116 +803,7 @@
             }
         }
 
-        // Функция для загрузки данных с сервера
-        function fetchData() {
-            saveFilters();
-            
-            fetch('http://localhost:3000/api/machines')
-                .then(response => {
-                    if (!response.ok) throw new Error('Ошибка сети');
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        processMachineData(data.machines);
-                        populateFilters();
-                        restoreFilters();
-                        renderMachines();
-                        showNotification('Данные успешно обновлены');
-                    } else {
-                        throw new Error('Ошибка в данных');
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка при загрузке данных:', error);
-                    showNotification('Ошибка при обновлении данных', true);
-                });
-        }
-
-        // Обработка данных станков
-        function processMachineData(machinesData) {
-    // Сохраняем новые данные
-    state.machines = {};
-    
-    Object.entries(machinesData).forEach(([machineId, machineData]) => {
-        const status = determineMachineStatus(machineData.status);
-        
-        state.machines[machineId] = {
-            internalId: machineData.internalId,
-            displayName: machineData.displayName,
-            status: status.status,
-            statusText: status.statusText,
-            currentPerformance: machineData.currentPerformance || 0,
-            lastUpdate: machineData.lastUpdate
-        };
-    });
-    
-    // Обновляем сводку
-    updateSummary();
-    
-    // !!! Доработка: обновляем фильтры
-    populateFilters();
-    
-    // Перерисовываем станки
-    renderMachines();
-}
-
-      // Определение статуса станка
-function determineMachineStatus(statusData) {
-    // event_type = 7 - Состояние системы:
-    // value:
-    // 0 - Выключено
-    // 1 - Остановлено
-    // 3 - Остановлено
-    // 2 - Работает
-    // 4 - Работает
-    
-    // event_type = 21 - MUSP:
-    // value:
-    // 0 - Включено
-    // 1 - Выключено
-    
-    // Приоритет статусов:
-    // 1. Если MUSP = 1 (Выключено) - станок выключен
-    // 2. Иначе смотрим SystemState
-    
-    if (statusData.MUSP === 1) {
-        return { status: 'shutdown', statusText: 'Выключено (MUSP)' };
-    }
-    
-    if (!statusData.SystemState && statusData.SystemState !== 0) {
-        return { status: 'shutdown', statusText: 'Нет данных' };
-    }
-    
-    const systemState = statusData.SystemState;
-    
-    if (systemState === 0) {
-        return { status: 'shutdown', statusText: 'Выключено' };
-    }
-    
-    if (systemState === 1 || systemState === 3) {
-        return { status: 'stopped', statusText: 'Остановлено' };
-    }
-    
-    if (systemState === 2 || systemState === 4) {
-        return { status: 'working', statusText: 'Работает' };
-    }
-    
-    // Для неизвестных значений
-    return { status: 'shutdown', statusText: 'Неизвестный статус' };
-}
-
-        // Функция для запуска периодического обновления
-        function startAutoRefresh() {
-            if (state.refreshInterval) {
-                clearInterval(state.refreshInterval);
-            }
-            
-            state.refreshInterval = setInterval(fetchData, 20000);
-            fetchData();
-        }
-
-        // Функция для заполнения фильтров
+        // Заполнение фильтров
         function populateFilters() {
             const workshopFilter = document.getElementById('workshopFilter');
             const machineFilter = document.getElementById('machineFilter');
@@ -710,13 +825,13 @@ function determineMachineStatus(statusData) {
             }
         }
 
-        // Функция применения фильтров
+        // Применение фильтров
         function applyFilters() {
             saveFilters();
             updateMachinesDisplay();
         }
 
-        // Функция обновления отображения карточек
+        // Обновление отображения станков
         function updateMachinesDisplay() {
             const cards = document.querySelectorAll('.machine-card');
             if (cards.length === 0) return;
@@ -738,7 +853,19 @@ function determineMachineStatus(statusData) {
             updateFilteredSummary();
         }
 
-        // Обновление сводной информации с учетом фильтров
+        // Обновление сводной информации
+        function updateSummary() {
+            const machines = Object.values(state.machines);
+            
+            state.summary = {
+                total: machines.length,
+                working: machines.filter(m => m.status === 'working').length,
+                stopped: machines.filter(m => m.status === 'stopped').length,
+                shutdown: machines.filter(m => m.status === 'shutdown').length,
+                avgLoad: calculateAverageLoad(machines)
+            };
+        }
+
         function updateFilteredSummary() {
             const filteredMachines = Object.values(state.machines).filter(machine => {
                 const workshopId = machine.internalId <= 16 ? '1' : '2';
@@ -759,19 +886,6 @@ function determineMachineStatus(statusData) {
             document.getElementById('avgLoad').textContent = `${avgLoad}%`;
         }
 
-        // Обновление сводной статистики
-        function updateSummary() {
-            const machines = Object.values(state.machines);
-            
-            state.summary = {
-                total: machines.length,
-                working: machines.filter(m => m.status === 'working').length,
-                stopped: machines.filter(m => m.status === 'stopped').length,
-                shutdown: machines.filter(m => m.status === 'shutdown').length,
-                avgLoad: calculateAverageLoad(machines)
-            };
-        }
-
         // Расчет средней загрузки
         function calculateAverageLoad(machines) {
             const workingMachines = machines.filter(m => m.status === 'working');
@@ -784,7 +898,7 @@ function determineMachineStatus(statusData) {
             return Math.round(totalLoad / workingMachines.length);
         }
 
-        // Полная отрисовка всех станков
+        // Отрисовка станков
         function renderMachines() {
             const container = document.getElementById('machineList');
             const summaryCard = document.getElementById('summaryInfo');
@@ -800,6 +914,12 @@ function determineMachineStatus(statusData) {
                 
                 const workshopId = machine.internalId <= 16 ? 1 : 2;
                 
+                const formatParam = (value) => {
+                    if (value === null || value === undefined) return '—';
+                    if (Number.isInteger(value)) return value.toString();
+                    return value.toFixed(2);
+                };
+
                 card.innerHTML = `
                     <div class="machine-header">
                         <div class="machine-name">${machine.displayName}</div>
@@ -812,6 +932,32 @@ function determineMachineStatus(statusData) {
                         <div>ID: ${machine.internalId}</div>
                         <div>Цех: ЦЕХ-${workshopId}</div>
                         <div class="last-update">Обновлено: ${new Date(machine.lastUpdate).toLocaleTimeString()}</div>
+                    </div>
+                    <div class="machine-params">
+                        <div class="param-item">
+                            <span class="param-label">Подача:</span>
+                            <span class="param-value">${formatParam(machine.params.feedRate)}</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Скорость шпинделя:</span>
+                            <span class="param-value">${formatParam(machine.params.spindleSpeed)}</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">JOG:</span>
+                            <span class="param-value">${formatParam(machine.params.jogSwitch)}</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Переключатель F:</span>
+                            <span class="param-value">${formatParam(machine.params.fSwitch)}</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Переключатель S:</span>
+                            <span class="param-value">${formatParam(machine.params.sSwitch)}</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-label">Мощность шпинделя:</span>
+                            <span class="param-value">${formatParam(machine.params.spindlePower)}</span>
+                        </div>
                     </div>
                     <div class="chart-wrapper">
                         <div class="chart-title">Нагрузка: ${machine.currentPerformance || 0}%</div>
@@ -828,27 +974,18 @@ function determineMachineStatus(statusData) {
             applyFilters();
         }
 
-        // Инициализация графика для станка
+        // Инициализация графиков
         function initMachineChart(machineId, performance, status) {
             const ctx = document.getElementById(`chart-${machineId}`).getContext('2d');
             
-            // Определяем цвет графика в зависимости от статуса
             let chartColor;
             switch(status) {
-                case 'working':
-                    chartColor = '#2ecc71'; // зеленый
-                    break;
-                case 'stopped':
-                    chartColor = '#e74c3c'; // красный
-                    break;
-                case 'shutdown':
-                    chartColor = '#95a5a6'; // серый
-                    break;
-                default:
-                    chartColor = '#3498db'; // синий по умолчанию
+                case 'working': chartColor = '#2ecc71'; break;
+                case 'stopped': chartColor = '#e74c3c'; break;
+                case 'shutdown': chartColor = '#95a5a6'; break;
+                default: chartColor = '#3498db';
             }
             
-            // Если график уже существует, обновляем его
             if (state.charts[machineId]) {
                 state.charts[machineId].data.datasets[0].data = generateChartData(performance);
                 state.charts[machineId].data.datasets[0].borderColor = chartColor;
@@ -856,7 +993,6 @@ function determineMachineStatus(statusData) {
                 return;
             }
             
-            // Создаем новый график
             state.charts[machineId] = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -873,16 +1009,9 @@ function determineMachineStatus(statusData) {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: {
-                            min: 0,
-                            max: 100
-                        }
+                        y: { min: 0, max: 100 }
                     },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         }
@@ -890,15 +1019,14 @@ function determineMachineStatus(statusData) {
         // Генерация данных для графика
         function generateChartData(baseValue) {
             return Array.from({length: 12}, (_, i) => {
-                // Добавляем небольшие случайные колебания вокруг базового значения
                 return Math.min(100, Math.max(0, baseValue + (Math.random() * 10 - 5)));
             });
         }
 
-        // Первоначальная загрузка
+        // Инициализация при загрузке
         window.addEventListener('DOMContentLoaded', () => {
-            startAutoRefresh();
-
+            initWebSocket();
+            
             document.getElementById('workshopFilter').addEventListener('change', applyFilters);
             document.getElementById('machineFilter').addEventListener('change', applyFilters);
 
@@ -908,12 +1036,6 @@ function determineMachineStatus(statusData) {
                         b.classList.remove('active'));
                     this.classList.add('active');
                     applyFilters();
-                });
-            });
-
-            document.querySelectorAll('.filter-btn[data-sort]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    console.log('Сортировка по:', this.dataset.sort);
                 });
             });
         });

@@ -1,0 +1,42 @@
+2025-07-03 10:10:22.813: HTTP server started on port 3000
+2025-07-03 10:10:22.815: WebSocket server started on port 8080
+2025-07-03 10:10:22.815: Server time: Thu Jul 03 2025 10:10:22 GMT+0300 (Москва, стандартное время)
+2025-07-03 10:10:22.849: Starting database update...
+2025-07-03 10:11:41.230: New WebSocket client connected
+2025-07-03 10:11:59.456: New WebSocket client connected
+2025-07-03 10:12:09.412: WebSocket client disconnected
+2025-07-03 10:12:09.444: New WebSocket client connected
+2025-07-03 10:12:35.423: New WebSocket client connected
+2025-07-03 10:12:37.490: WebSocket client disconnected
+2025-07-03 10:13:11.980: New WebSocket client connected
+2025-07-03 10:21:48.741: WebSocket client disconnected
+2025-07-03 10:21:48.883: WebSocket client disconnected
+2025-07-03 10:36:23.688: Database update completed in 1560838ms
+2025-07-03 10:36:23.691: Initial data loaded successfully
+2025-07-03 10:36:43.693: Starting database update...
+2025-07-03 10:40:46.379: New WebSocket client connected
+2025-07-03 11:02:54.434: Database update completed in 1570741ms
+2025-07-03 11:03:14.450: Starting database update...
+2025-07-03 11:28:27.003: Database update completed in 1512553ms
+2025-07-03 11:28:47.007: Starting database update...
+2025-07-03 11:40:25.822: HTTP server started on port 3000
+2025-07-03 11:40:25.824: WebSocket server started on port 8080
+2025-07-03 11:40:25.824: Server time: Thu Jul 03 2025 11:40:25 GMT+0300 (Москва, стандартное время)
+2025-07-03 11:40:25.860: Starting database update...
+2025-07-03 11:40:26.535: New WebSocket client connected
+2025-07-03 11:40:28.139: New WebSocket client connected
+2025-07-03 11:53:48.267: WebSocket client disconnected
+2025-07-03 11:53:48.330: New WebSocket client connected
+2025-07-03 12:02:12.954: WebSocket client disconnected
+2025-07-03 12:02:13.017: New WebSocket client connected
+2025-07-03 12:12:51.048: Database update completed in 1945188ms
+2025-07-03 12:12:51.049: Initial data loaded successfully
+2025-07-03 12:13:11.054: Starting database update...
+2025-07-03 12:27:06.281: WebSocket client disconnected
+2025-07-03 12:27:06.340: New WebSocket client connected
+2025-07-03 12:30:47.907: WebSocket client disconnected
+2025-07-03 12:30:47.941: New WebSocket client connected
+2025-07-03 12:30:54.521: WebSocket client disconnected
+2025-07-03 12:30:54.551: New WebSocket client connected
+2025-07-03 12:32:12.442: WebSocket client disconnected
+2025-07-03 12:32:12.475: New WebSocket client connected

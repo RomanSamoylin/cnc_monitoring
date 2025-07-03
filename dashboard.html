@@ -512,7 +512,14 @@
                     <span class="summary-label">Средняя нагрузка</span>
                     <span class="summary-value" id="avgLoad">0%</span>
                 </div>
+                <div class="summary-item">
+                    <span class="summary-label">Статус соединения</span>
+                    <span class="summary-value" id="connectionStatus">
+                        <i class="fas fa-circle-notch fa-spin"></i> Подключение...
+                    </span>
+                </div>
             </div>
+            <!-- Здесь будут добавляться карточки станков -->
         </div>
     </div>
 
@@ -521,6 +528,15 @@
     </div>
 
     <script>
+        // Конфигурация приложения
+        const config = {
+            apiUrl: window.location.origin.replace(/:\d+$/, ':3000'),
+            wsUrl: `ws://${window.location.hostname || 'localhost'}:8080`,
+            refreshInterval: 20000,
+            reconnectDelay: 5000,
+            maxRetries: 3
+        };
+
         // Состояние приложения
         const state = {
             machines: {},
@@ -536,9 +552,160 @@
                 machine: 'all',
                 status: 'all'
             },
-            refreshInterval: null,
-            charts: {}
+            ws: null,
+            retryCount: 0,
+            charts: {},
+            lastUpdate: null,
+            isConnected: false,
+            pollingInterval: null
         };
+
+        // Инициализация WebSocket
+        function initWebSocket() {
+            // Проверка поддержки WebSocket
+            if (!('WebSocket' in window)) {
+                console.error('Браузер не поддерживает WebSocket');
+                showNotification('Ваш браузер не поддерживает WebSocket', true);
+                startPolling();
+                return;
+            }
+
+            // Проверка валидности URL
+            if (!config.wsUrl || !config.wsUrl.startsWith('ws://')) {
+                console.error('Неверный URL WebSocket:', config.wsUrl);
+                showNotification('Ошибка конфигурации соединения', true);
+                return;
+            }
+
+            console.log('Попытка подключения к WebSocket:', config.wsUrl);
+            updateConnectionStatus('connecting');
+            
+            try {
+                state.ws = new WebSocket(config.wsUrl);
+
+                state.ws.onopen = () => {
+                    console.log('WebSocket подключен');
+                    state.isConnected = true;
+                    state.retryCount = 0;
+                    updateConnectionStatus('connected');
+                    showNotification('Соединение с сервером установлено');
+                    
+                    // Остановка polling, если он был активен
+                    if (state.pollingInterval) {
+                        clearInterval(state.pollingInterval);
+                        state.pollingInterval = null;
+                    }
+                };
+
+                state.ws.onmessage = (event) => {
+    try {
+        const message = JSON.parse(event.data);
+        console.log('Message received at:', new Date().toISOString(), 'Type:', message.type);
+        
+        if (message.type === 'PONG') {
+            console.log('Получен ответ от сервера');
+            return;
+        }
+        
+        if (message.type === 'INITIAL_DATA' || message.type === 'UPDATE') {
+            console.log('Data timestamp:', message.timestamp);
+            processMachineData(message.data);
+            updateLastUpdateTime(message.timestamp || new Date().toISOString());
+        }
+    } catch (e) {
+        console.error('Ошибка обработки сообщения:', e);
+    }
+};
+
+                state.ws.onclose = (event) => {
+                    console.log(`WebSocket закрыт. Код: ${event.code}, Причина: ${event.reason}`);
+                    state.isConnected = false;
+                    updateConnectionStatus('disconnected');
+                    
+                    if (state.retryCount < config.maxRetries) {
+                        state.retryCount++;
+                        const delay = config.reconnectDelay * state.retryCount;
+                        console.log(`Попытка переподключения ${state.retryCount}/${config.maxRetries} через ${delay}мс`);
+                        showNotification(`Переподключение (${state.retryCount}/${config.maxRetries})...`, true);
+                        setTimeout(initWebSocket, delay);
+                    } else {
+                        console.log('Достигнуто максимальное количество попыток переподключения');
+                        showNotification('Не удалось подключиться к серверу', true);
+                        startPolling();
+                    }
+                };
+
+                state.ws.onerror = (error) => {
+                    console.error('WebSocket ошибка:', error);
+                    updateConnectionStatus('error');
+                    state.ws.close();
+                };
+
+            } catch (e) {
+                console.error('Ошибка создания WebSocket:', e);
+                showNotification('Ошибка подключения', true);
+                startPolling();
+            }
+        }
+
+        // Резервный polling механизм
+        function startPolling() {
+            console.log('Активация HTTP polling');
+            updateConnectionStatus('polling');
+            
+            // Очищаем предыдущий интервал, если был
+            if (state.pollingInterval) {
+                clearInterval(state.pollingInterval);
+            }
+            
+            // Немедленный запрос
+            fetchData();
+            
+            // Устанавливаем интервал
+            state.pollingInterval = setInterval(fetchData, config.refreshInterval);
+        }
+
+        // Обновление статуса соединения
+        function updateConnectionStatus(status) {
+            const statusElement = document.getElementById('connectionStatus');
+            let icon, text, color;
+            
+            switch(status) {
+                case 'connected':
+                    icon = 'fa-check-circle';
+                    text = 'Подключено';
+                    color = 'var(--working-color)';
+                    break;
+                case 'connecting':
+                    icon = 'fa-circle-notch fa-spin';
+                    text = 'Подключение...';
+                    color = 'var(--warning-color)';
+                    break;
+                case 'disconnected':
+                    icon = 'fa-times-circle';
+                    text = 'Отключено';
+                    color = 'var(--stopped-color)';
+                    break;
+                case 'error':
+                    icon = 'fa-exclamation-circle';
+                    text = 'Ошибка';
+                    color = 'var(--stopped-color)';
+                    break;
+                case 'polling':
+                    icon = 'fa-sync-alt fa-spin';
+                    text = 'Polling режим';
+                    color = 'var(--warning-color)';
+                    break;
+                default:
+                    icon = 'fa-question-circle';
+                    text = 'Неизвестно';
+                    color = 'var(--shutdown-color)';
+            }
+            
+            statusElement.innerHTML = `
+                <i class="fas ${icon}" style="color: ${color};"></i> ${text}
+            `;
+        }
 
         // Функция для показа уведомления
         function showNotification(message, isError = false) {
@@ -551,77 +718,35 @@
             }, 3000);
         }
 
-        // Функция для сохранения текущих фильтров
-        function saveFilters() {
-            state.filters = {
-                workshop: document.getElementById('workshopFilter').value,
-                machine: document.getElementById('machineFilter').value,
-                status: document.querySelector('.filter-btn[data-status].active')?.dataset.status || 'all'
-            };
+        // Обновление времени последнего обновления
+        function updateLastUpdateTime(timestamp) {
+            state.lastUpdate = new Date(timestamp);
+            // Можно добавить отображение времени в интерфейсе
         }
 
-        // Функция для восстановления фильтров
-        function restoreFilters() {
-            document.getElementById('workshopFilter').value = state.filters.workshop;
-            document.getElementById('machineFilter').value = state.filters.machine;
-            
-            document.querySelectorAll('.filter-btn[data-status]').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            const statusBtn = document.querySelector(`.filter-btn[data-status="${state.filters.status}"]`);
-            if (statusBtn) {
-                statusBtn.classList.add('active');
-            } else {
-                document.querySelector('.filter-btn[data-status="all"]').classList.add('active');
-                state.filters.status = 'all';
-            }
-        }
-
-        // Функция для загрузки данных с сервера
-        function fetchData() {
-            saveFilters();
-            
-            fetch('http://localhost:3000/api/machines')
-                .then(response => {
-                    if (!response.ok) throw new Error('Ошибка сети');
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        processMachineData(data.machines);
-                        populateFilters();
-                        restoreFilters();
-                        renderMachines();
+        // Загрузка данных через HTTP (резервный метод)
+        async function fetchData() {
+            try {
+                const response = await fetch(`${config.apiUrl}/api/machines`);
+                if (!response.ok) throw new Error('Ошибка сети');
+                
+                const data = await response.json();
+                if (data.success) {
+                    processMachineData(data.machines);
+                    updateLastUpdateTime(new Date().toISOString());
+                    if (!data.fromCache) {
                         showNotification('Данные успешно обновлены');
-                    } else {
-                        throw new Error('Ошибка в данных');
                     }
-                })
-                .catch(error => {
-                    console.error('Ошибка при загрузке данных:', error);
-                    showNotification('Ошибка при обновлении данных', true);
-                });
+                }
+            } catch (error) {
+                console.error('Ошибка при загрузке данных:', error);
+                showNotification('Ошибка при обновлении данных', true);
+            }
         }
 
         // Обработка данных станков
         function processMachineData(machinesData) {
-            state.machines = {};
-            
-            Object.entries(machinesData).forEach(([machineId, machineData]) => {
-                const status = determineMachineStatus(machineData.status);
-                
-                state.machines[machineId] = {
-                    internalId: machineData.internalId,
-                    displayName: machineData.displayName,
-                    status: status.status,
-                    statusText: status.statusText,
-                    currentPerformance: machineData.currentPerformance || 0,
-                    lastUpdate: machineData.lastUpdate,
-                    params: machineData.params || {}
-                };
-            });
-            
+            state.machines = machinesData;
             updateSummary();
             populateFilters();
             renderMachines();
@@ -654,17 +779,33 @@
             return { status: 'shutdown', statusText: 'Неизвестный статус' };
         }
 
-        // Функция для запуска периодического обновления
-        function startAutoRefresh() {
-            if (state.refreshInterval) {
-                clearInterval(state.refreshInterval);
-            }
-            
-            state.refreshInterval = setInterval(fetchData, 20000);
-            fetchData();
+        // Сохранение/восстановление фильтров
+        function saveFilters() {
+            state.filters = {
+                workshop: document.getElementById('workshopFilter').value,
+                machine: document.getElementById('machineFilter').value,
+                status: document.querySelector('.filter-btn[data-status].active')?.dataset.status || 'all'
+            };
         }
 
-        // Функция для заполнения фильтров
+        function restoreFilters() {
+            document.getElementById('workshopFilter').value = state.filters.workshop;
+            document.getElementById('machineFilter').value = state.filters.machine;
+            
+            document.querySelectorAll('.filter-btn[data-status]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const statusBtn = document.querySelector(`.filter-btn[data-status="${state.filters.status}"]`);
+            if (statusBtn) {
+                statusBtn.classList.add('active');
+            } else {
+                document.querySelector('.filter-btn[data-status="all"]').classList.add('active');
+                state.filters.status = 'all';
+            }
+        }
+
+        // Заполнение фильтров
         function populateFilters() {
             const workshopFilter = document.getElementById('workshopFilter');
             const machineFilter = document.getElementById('machineFilter');
@@ -686,13 +827,13 @@
             }
         }
 
-        // Функция применения фильтров
+        // Применение фильтров
         function applyFilters() {
             saveFilters();
             updateMachinesDisplay();
         }
 
-        // Функция обновления отображения карточек
+        // Обновление отображения станков
         function updateMachinesDisplay() {
             const cards = document.querySelectorAll('.machine-card');
             if (cards.length === 0) return;
@@ -714,7 +855,19 @@
             updateFilteredSummary();
         }
 
-        // Обновление сводной информации с учетом фильтров
+        // Обновление сводной информации
+        function updateSummary() {
+            const machines = Object.values(state.machines);
+            
+            state.summary = {
+                total: machines.length,
+                working: machines.filter(m => m.status === 'working').length,
+                stopped: machines.filter(m => m.status === 'stopped').length,
+                shutdown: machines.filter(m => m.status === 'shutdown').length,
+                avgLoad: calculateAverageLoad(machines)
+            };
+        }
+
         function updateFilteredSummary() {
             const filteredMachines = Object.values(state.machines).filter(machine => {
                 const workshopId = machine.internalId <= 16 ? '1' : '2';
@@ -735,19 +888,6 @@
             document.getElementById('avgLoad').textContent = `${avgLoad}%`;
         }
 
-        // Обновление сводной статистики
-        function updateSummary() {
-            const machines = Object.values(state.machines);
-            
-            state.summary = {
-                total: machines.length,
-                working: machines.filter(m => m.status === 'working').length,
-                stopped: machines.filter(m => m.status === 'stopped').length,
-                shutdown: machines.filter(m => m.status === 'shutdown').length,
-                avgLoad: calculateAverageLoad(machines)
-            };
-        }
-
         // Расчет средней загрузки
         function calculateAverageLoad(machines) {
             const workingMachines = machines.filter(m => m.status === 'working');
@@ -760,7 +900,7 @@
             return Math.round(totalLoad / workingMachines.length);
         }
 
-        // Полная отрисовка всех станков
+        // Отрисовка станков
         function renderMachines() {
             const container = document.getElementById('machineList');
             const summaryCard = document.getElementById('summaryInfo');
@@ -776,7 +916,6 @@
                 
                 const workshopId = machine.internalId <= 16 ? 1 : 2;
                 
-                // Функция для форматирования параметров
                 const formatParam = (value) => {
                     if (value === null || value === undefined) return '—';
                     if (Number.isInteger(value)) return value.toString();
@@ -837,23 +976,16 @@
             applyFilters();
         }
 
-        // Инициализация графика для станка
+        // Инициализация графиков
         function initMachineChart(machineId, performance, status) {
             const ctx = document.getElementById(`chart-${machineId}`).getContext('2d');
             
             let chartColor;
             switch(status) {
-                case 'working':
-                    chartColor = '#2ecc71';
-                    break;
-                case 'stopped':
-                    chartColor = '#e74c3c';
-                    break;
-                case 'shutdown':
-                    chartColor = '#95a5a6';
-                    break;
-                default:
-                    chartColor = '#3498db';
+                case 'working': chartColor = '#2ecc71'; break;
+                case 'stopped': chartColor = '#e74c3c'; break;
+                case 'shutdown': chartColor = '#95a5a6'; break;
+                default: chartColor = '#3498db';
             }
             
             if (state.charts[machineId]) {
@@ -879,16 +1011,9 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: {
-                            min: 0,
-                            max: 100
-                        }
+                        y: { min: 0, max: 100 }
                     },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         }
@@ -900,10 +1025,10 @@
             });
         }
 
-        // Первоначальная загрузка
+        // Инициализация при загрузке
         window.addEventListener('DOMContentLoaded', () => {
-            startAutoRefresh();
-
+            initWebSocket();
+            
             document.getElementById('workshopFilter').addEventListener('change', applyFilters);
             document.getElementById('machineFilter').addEventListener('change', applyFilters);
 
@@ -913,12 +1038,6 @@
                         b.classList.remove('active'));
                     this.classList.add('active');
                     applyFilters();
-                });
-            });
-
-            document.querySelectorAll('.filter-btn[data-sort]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    console.log('Сортировка по:', this.dataset.sort);
                 });
             });
         });
