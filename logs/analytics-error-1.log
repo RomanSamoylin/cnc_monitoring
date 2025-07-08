@@ -1,0 +1,150 @@
+Error fetching machines list: Error: connect ETIMEDOUT
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:306:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sqlState: undefined
+}
+Error fetching workshop summary: Error: connect ETIMEDOUT
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:45:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sqlState: undefined
+}
+Error fetching workshop summary: Error: connect ETIMEDOUT
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:45:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sqlState: undefined
+}
+Error fetching workshop summary: Error: connect ETIMEDOUT
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:45:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sqlState: undefined
+}
+Error fetching workshop summary: Error: connect ETIMEDOUT
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:45:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sqlState: undefined
+}
+Error fetching machines list: Error: connect ETIMEDOUT
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:306:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sqlState: undefined
+}
+Error fetching workshop summary: Error: connect ETIMEDOUT
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:45:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sqlState: undefined
+}
+Error fetching machines list: Error: connect ETIMEDOUT
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:306:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sqlState: undefined
+}
+Error fetching workshop summary: Error: connect ETIMEDOUT
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:45:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sqlState: undefined
+}
+Error fetching workshop summary: Error: connect ETIMEDOUT
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:45:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ETIMEDOUT',
+  errno: undefined,
+  sqlState: undefined
+}

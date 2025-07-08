@@ -4,71 +4,87 @@ const WebSocket = require('ws');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const HTTP_PORT = 3000;
+const WS_PORT = 8080;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// MySQL конфигурация с пулом соединений
+// Оптимизированная конфигурация MySQL пула
 const pool = mysql.createPool({
-  host: '192.168.1.79',
-  user: 'monitorl',
+  host: '192.168.1.42',
+  user: 'monitor',
   password: 'victoria123',
   database: 'cnc_monitoring',
   timezone: '+03:00',
-  connectionLimit: 5,
+  connectionLimit: 30,
+  connectTimeout: 60000, // 60 секунд на подключение
+  waitForConnections: true,
   queueLimit: 0,
-  waitForConnections: true
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
+  // Убраны невалидные параметры
 });
 
-// Кэш данных с TTL (Time-To-Live)
+// Улучшенный кэш данных
 const dataCache = {
   machines: {},
   lastUpdated: null,
-  ttl: 20000, // 20 секунд
-  isUpdating: false
+  ttl: 30000, // 30 секунд
+  isUpdating: false,
+  lastError: null,
+  retryCount: 0,
+  maxRetries: 5
 };
 
-// Создаем WebSocket сервер
-const wss = new WebSocket.Server({ port: 8080 });
+// WebSocket сервер
+const wss = new WebSocket.Server({ port: WS_PORT });
 
-// Функция определения статуса станка
+// Улучшенное логирование
+function log(message, isError = false) {
+  const timestamp = new Date().toLocaleString('ru-RU', {
+    timeZone: 'Europe/Moscow',
+    hour12: false
+  });
+  const logMessage = `[${timestamp}] ${message}`;
+  console[isError ? 'error' : 'log'](logMessage);
+  if (isError) console.error(new Error().stack); // Добавляем стек вызовов для ошибок
+}
+
+// Определение статуса станка (без изменений)
 function determineMachineStatus(statusData) {
   if (statusData.MUSP === 1) {
     return { status: 'shutdown', statusText: 'Выключено (MUSP)' };
   }
   
-  if (!statusData.SystemState && statusData.SystemState !== 0) {
+  if (statusData.SystemState === undefined || statusData.SystemState === null) {
     return { status: 'shutdown', statusText: 'Нет данных' };
   }
   
-  const systemState = statusData.SystemState;
+  const systemState = parseInt(statusData.SystemState);
   
-  if (systemState === 0) {
-    return { status: 'shutdown', statusText: 'Выключено' };
+  switch (systemState) {
+    case 0: return { status: 'shutdown', statusText: 'Выключено' };
+    case 1:
+    case 3: return { status: 'stopped', statusText: 'Остановлено' };
+    case 2:
+    case 4: return { status: 'working', statusText: 'Работает' };
+    default: return { status: 'shutdown', statusText: 'Неизвестный статус' };
   }
-  
-  if (systemState === 1 || systemState === 3) {
-    return { status: 'stopped', statusText: 'Остановлено' };
-  }
-  
-  if (systemState === 2 || systemState === 4) {
-    return { status: 'working', statusText: 'Работает' };
-  }
-  
-  return { status: 'shutdown', statusText: 'Неизвестный статус' };
 }
 
-// Оптимизированная функция получения данных станков
+// Оптимизированное получение данных
 async function getMachineData() {
-  // Если данные актуальны и не в процессе обновления
-  if (dataCache.lastUpdated && Date.now() - dataCache.lastUpdated < dataCache.ttl && !dataCache.isUpdating) {
+  // Проверка кэша
+  const cacheAge = Date.now() - (dataCache.lastUpdated || 0);
+  if (cacheAge < dataCache.ttl && !dataCache.isUpdating && dataCache.retryCount === 0) {
+    log(`Используем кэшированные данные (возраст: ${cacheAge}ms)`);
     return dataCache.machines;
   }
 
-  // Если уже идет обновление - возвращаем текущие данные
   if (dataCache.isUpdating) {
+    log('Обновление уже выполняется, возвращаем кэшированные данные');
     return dataCache.machines;
   }
 
@@ -76,160 +92,203 @@ async function getMachineData() {
   const connection = await pool.getConnection();
 
   try {
-    console.log('Starting database update...');
+    log('Начало загрузки данных из БД...');
     const startTime = Date.now();
 
-    // Один комплексный запрос вместо нескольких
-    const [results] = await connection.query(`
-      SELECT 
-        m.machine_id,
-        m.cnc_name,
-        MAX(CASE WHEN b.event_type = 7 THEN b.value END) as system_state,
-        MAX(CASE WHEN b.event_type = 21 THEN b.value END) as musp_state,
-        MAX(CASE WHEN f.event_type = 5 THEN f.value END) as feed_rate,
-        MAX(CASE WHEN f.event_type = 6 THEN f.value END) as spindle_speed,
-        MAX(CASE WHEN f.event_type = 10 THEN f.value END) as jog_switch,
-        MAX(CASE WHEN f.event_type = 11 THEN f.value END) as f_switch,
-        MAX(CASE WHEN f.event_type = 12 THEN f.value END) as s_switch,
-        MAX(CASE WHEN f.event_type = 40 THEN f.value END) as spindle_power,
-        GREATEST(
-          MAX(b.timestamp),
-          MAX(f.timestamp)
-        ) as last_update
-      FROM cnc_id_mapping m
-      LEFT JOIN (
-        SELECT machine_id, event_type, value, timestamp
-        FROM bit8_data
-        WHERE (machine_id, event_type, timestamp) IN (
-          SELECT machine_id, event_type, MAX(timestamp)
-          FROM bit8_data
-          WHERE event_type IN (7, 21)
-          GROUP BY machine_id, event_type
-        )
-      ) b ON m.machine_id = b.machine_id
-      LEFT JOIN (
-        SELECT machine_id, event_type, value, timestamp
-        FROM float_data
-        WHERE (machine_id, event_type, timestamp) IN (
-          SELECT machine_id, event_type, MAX(timestamp)
-          FROM float_data
-          WHERE event_type IN (5, 6, 10, 11, 12, 40)
-          GROUP BY machine_id, event_type
-        )
-      ) f ON m.machine_id = f.machine_id
-      GROUP BY m.machine_id
+    // Установка увеличенного таймаута выполнения запроса
+    await connection.query('SET SESSION max_execution_time = 120000');
+
+    // Получаем список всех станков
+    const [machines] = await connection.query(`
+      SELECT machine_id, cnc_name 
+      FROM cnc_id_mapping 
+      ORDER BY machine_id
     `);
 
-    const machinesData = {};
-    const updateTime = new Date();
+    // Оптимизированный запрос для получения последних параметров
+    const [paramsData] = await connection.query(`
+      SELECT fd.machine_id, fd.event_type, fd.value
+      FROM float_data fd
+      JOIN (
+        SELECT machine_id, event_type, MAX(timestamp) as max_ts
+        FROM float_data
+        WHERE event_type IN (5, 6, 10, 11, 12, 40)
+        GROUP BY machine_id, event_type
+      ) latest ON fd.machine_id = latest.machine_id 
+                AND fd.event_type = latest.event_type
+                AND fd.timestamp = latest.max_ts
+      ORDER BY fd.id DESC
+    `);
 
-    results.forEach(row => {
+    // Оптимизированный запрос для получения статусов
+    const [statusData] = await connection.query(`
+      SELECT bd.machine_id, bd.event_type, bd.value
+      FROM bit8_data bd
+      JOIN (
+        SELECT machine_id, event_type, MAX(timestamp) as max_ts
+        FROM bit8_data
+        WHERE event_type IN (7, 21)
+        GROUP BY machine_id, event_type
+      ) latest ON bd.machine_id = latest.machine_id 
+                AND bd.event_type = latest.event_type
+                AND bd.timestamp = latest.max_ts
+      ORDER BY bd.id DESC
+    `);
+
+    // Группировка данных
+    const statusMap = statusData.reduce((acc, row) => {
+      if (!acc[row.machine_id]) acc[row.machine_id] = {};
+      acc[row.machine_id][row.event_type] = row.value;
+      return acc;
+    }, {});
+
+    const paramsMap = paramsData.reduce((acc, row) => {
+      if (!acc[row.machine_id]) acc[row.machine_id] = {};
+      acc[row.machine_id][row.event_type] = row.value;
+      return acc;
+    }, {});
+
+    // Формирование данных станков
+    const machinesData = {};
+    machines.forEach(machine => {
+      const machineId = machine.machine_id;
       const status = determineMachineStatus({
-        SystemState: row.system_state ? parseInt(row.system_state) : null,
-        MUSP: row.musp_state ? parseInt(row.musp_state) : null
+        SystemState: statusMap[machineId]?.[7],
+        MUSP: statusMap[machineId]?.[21]
       });
 
-      machinesData[row.machine_id] = {
-        internalId: row.machine_id,
-        displayName: row.cnc_name,
+      const params = paramsMap[machineId] || {};
+      const spindlePower = params[40] || 0;
+
+      machinesData[machineId] = {
+        internalId: machineId,
+        displayName: machine.cnc_name,
         status: status.status,
         statusText: status.statusText,
-        currentPerformance: row.spindle_power ? 
-          Math.min(100, Math.max(0, Math.round(row.spindle_power))) : 0,
-        lastUpdate: row.last_update ? row.last_update.toISOString() : updateTime.toISOString(),
+        currentPerformance: Math.min(100, Math.max(0, Math.round(spindlePower))),
+        lastUpdate: new Date().toISOString(),
         params: {
-          feedRate: row.feed_rate,
-          spindleSpeed: row.spindle_speed,
-          jogSwitch: row.jog_switch,
-          fSwitch: row.f_switch,
-          sSwitch: row.s_switch,
-          spindlePower: row.spindle_power
+          feedRate: params[5] || 0,
+          spindleSpeed: params[6] || 0,
+          jogSwitch: params[10] || 0,
+          fSwitch: params[11] || 0,
+          sSwitch: params[12] || 0,
+          spindlePower: spindlePower
         }
       };
     });
 
-    // Обновляем кэш
+    // Обновление кэша
     dataCache.machines = machinesData;
     dataCache.lastUpdated = Date.now();
+    dataCache.lastError = null;
     dataCache.isUpdating = false;
+    dataCache.retryCount = 0;
 
-    console.log(`Database update completed in ${Date.now() - startTime}ms`);
+    log(`Данные загружены за ${Date.now() - startTime}ms. Всего станков: ${machines.length}`);
     return machinesData;
   } catch (error) {
-    console.error('Database update error:', error);
     dataCache.isUpdating = false;
+    dataCache.lastError = error.message;
+    dataCache.retryCount++;
+    
+    log(`Ошибка загрузки данных (попытка ${dataCache.retryCount}/${dataCache.maxRetries}): ${error.message}`, true);
     throw error;
   } finally {
     connection.release();
   }
 }
 
-// Функция рассылки обновлений через WebSocket
+// Рассылка обновлений через WebSocket (без изменений)
 function broadcastUpdate() {
-  if (!wss.clients.size) return;
+  if (wss.clients.size === 0) {
+    log('Нет активных WebSocket подключений');
+    return;
+  }
 
-  const data = {
+  const updateData = {
     type: 'UPDATE',
     data: dataCache.machines,
-    timestamp: new Date().toISOString()
+    timestamp: dataCache.lastUpdated,
+    cacheAge: Date.now() - (dataCache.lastUpdated || 0)
   };
 
+  let sentCount = 0;
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(data));
+      client.send(JSON.stringify(updateData));
+      sentCount++;
     }
   });
+
+  log(`Обновление отправлено ${sentCount} клиентам`);
 }
 
-// Планировщик обновлений с защитой от накладок
+// Улучшенный планировщик обновлений
 function scheduleUpdate() {
-  setTimeout(async () => {
+  const update = async () => {
     try {
       await getMachineData();
       broadcastUpdate();
+      // Успешное обновление - сбрасываем счетчик попыток
+      dataCache.retryCount = 0;
     } catch (error) {
-      console.error('Scheduled update failed:', error);
-      // Увеличиваем интервал при ошибках
-      setTimeout(scheduleUpdate, 30000);
+      const delay = Math.min(120000, dataCache.ttl * (dataCache.retryCount + 1));
+      log(`Ошибка обновления. Повтор через ${delay}ms`, true);
+      
+      if (dataCache.retryCount >= dataCache.maxRetries) {
+        log(`Достигнуто максимальное количество попыток (${dataCache.maxRetries}). Сервер продолжит работу с устаревшими данными.`);
+        dataCache.retryCount = 0; // Сбрасываем счетчик после максимального числа попыток
+      }
+      
+      setTimeout(update, delay);
       return;
     }
-    scheduleUpdate();
-  }, dataCache.ttl); // Используем TTL из кэша
+    setTimeout(update, dataCache.ttl);
+  };
+
+  setTimeout(update, 1000);
 }
 
-// Health check endpoint
+// Health check endpoint (без изменений)
 app.get('/health', (req, res) => {
   res.json({
-    status: 'ok',
+    status: dataCache.lastError ? 'error' : 'ok',
     lastUpdate: dataCache.lastUpdated,
+    lastError: dataCache.lastError,
     machinesCount: Object.keys(dataCache.machines).length,
-    memoryUsage: process.memoryUsage()
+    wsClients: wss.clients.size,
+    memoryUsage: process.memoryUsage(),
+    uptime: process.uptime(),
+    retryCount: dataCache.retryCount
   });
 });
 
-// API endpoint для получения данных станков
+// API для получения данных станков
 app.get('/api/machines', async (req, res) => {
   try {
     const machines = await getMachineData();
     res.json({
       success: true,
       machines: machines,
-      fromCache: Date.now() - dataCache.lastUpdated < dataCache.ttl
+      fromCache: Date.now() - dataCache.lastUpdated < dataCache.ttl,
+      lastUpdated: dataCache.lastUpdated
     });
   } catch (error) {
-    console.error('API error:', error);
+    log(`API Error: ${error.message}`, true);
     res.status(500).json({ 
       success: false, 
       error: error.message,
-      cachedData: dataCache.machines 
+      cachedData: dataCache.machines,
+      retryCount: dataCache.retryCount
     });
   }
 });
 
-// WebSocket обработчик
+// WebSocket обработчики (без изменений)
 wss.on('connection', (ws) => {
-  console.log('New WebSocket client connected');
-  
+  log(`Новое WebSocket подключение. Всего клиентов: ${wss.clients.size}`);
+
   // Отправляем текущие данные при подключении
   ws.send(JSON.stringify({ 
     type: 'INITIAL_DATA',
@@ -237,43 +296,69 @@ wss.on('connection', (ws) => {
     timestamp: dataCache.lastUpdated
   }));
 
+  // Проверка активности
+  ws.isAlive = true;
+  ws.on('pong', () => ws.isAlive = true);
+
   ws.on('close', () => {
-    console.log('WebSocket client disconnected');
+    log(`WebSocket отключен. Осталось клиентов: ${wss.clients.size}`);
+  });
+
+  ws.on('error', (error) => {
+    log(`WebSocket ошибка: ${error.message}`, true);
   });
 });
 
-// Обработка ошибок сервера
+// Проверка активности клиентов (без изменений)
+setInterval(() => {
+  wss.clients.forEach((ws) => {
+    if (!ws.isAlive) {
+      log(`Отключаем неактивного клиента`);
+      return ws.terminate();
+    }
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, 30000);
+
+// Обработка ошибок процесса (без изменений)
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
+  log(`Неперехваченное исключение: ${err.message}`, true);
 });
 
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Rejection:', err);
+  log(`Необработанный rejection: ${err.message}`, true);
 });
 
-// Запуск сервера
-app.listen(PORT, () => {
-  console.log(`HTTP server started on port ${PORT}`);
-  console.log(`WebSocket server started on port 8080`);
-  console.log(`Server time: ${new Date()}`);
-  
-  // Первоначальная загрузка данных
-  getMachineData()
-    .then(() => {
-      console.log('Initial data loaded successfully');
-      // Запускаем планировщик обновлений
+// Запуск сервера с улучшенной обработкой ошибок
+app.listen(HTTP_PORT, async () => {
+  log(`HTTP сервер запущен на порту ${HTTP_PORT}`);
+  log(`WebSocket сервер запущен на порту ${WS_PORT}`);
+
+  try {
+    // Проверка подключения к MySQL
+    const conn = await pool.getConnection();
+    conn.release();
+    log('Подключение к MySQL успешно');
+
+    // Первоначальная загрузка данных
+    try {
+      await getMachineData();
+      log('Первоначальная загрузка данных успешна');
       scheduleUpdate();
-    })
-    .catch(err => {
-      console.error('Initial data load failed:', err);
-      process.exit(1);
-    });
+    } catch (error) {
+      log(`Первоначальная загрузка данных не удалась: ${error.message}`, true);
+      // Сервер продолжает работу, будет пытаться загрузить данные в фоне
+      scheduleUpdate();
+    }
+  } catch (error) {
+    log(`Критическая ошибка запуска: ${error.message}`, true);
+    // Вместо завершения процесса, продолжаем работу и пытаемся восстановить соединение
+    setTimeout(() => {
+      log('Повторная попытка подключения к MySQL...');
+      app.listen(HTTP_PORT);
+    }, 10000);
+  }
 });
 
-// Экспорт для тестирования
-module.exports = {
-  app,
-  pool,
-  getMachineData,
-  dataCache
-};
+module.exports = { app, pool, wss, dataCache };

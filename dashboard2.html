@@ -508,10 +508,7 @@
                     <span class="summary-label">Выключены</span>
                     <span class="summary-value" id="shutdownMachines">0</span>
                 </div>
-                <div class="summary-item">
-                    <span class="summary-label">Средняя нагрузка</span>
-                    <span class="summary-value" id="avgLoad">0%</span>
-                </div>
+               
                 <div class="summary-item">
                     <span class="summary-label">Статус соединения</span>
                     <span class="summary-value" id="connectionStatus">
@@ -544,8 +541,7 @@
                 total: 0,
                 working: 0,
                 stopped: 0,
-                shutdown: 0,
-                avgLoad: 0
+                shutdown: 0
             },
             filters: {
                 workshop: 'all',
@@ -554,7 +550,6 @@
             },
             ws: null,
             retryCount: 0,
-            charts: {},
             lastUpdate: null,
             isConnected: false,
             pollingInterval: null
@@ -600,6 +595,7 @@
                 state.ws.onmessage = (event) => {
                     try {
                         const message = JSON.parse(event.data);
+                        console.log('Message received at:', new Date().toISOString(), 'Type:', message.type);
                         
                         if (message.type === 'PONG') {
                             console.log('Получен ответ от сервера');
@@ -607,6 +603,7 @@
                         }
                         
                         if (message.type === 'INITIAL_DATA' || message.type === 'UPDATE') {
+                            console.log('Data timestamp:', message.timestamp);
                             processMachineData(message.data);
                             updateLastUpdateTime(message.timestamp || new Date().toISOString());
                         }
@@ -719,7 +716,6 @@
         // Обновление времени последнего обновления
         function updateLastUpdateTime(timestamp) {
             state.lastUpdate = new Date(timestamp);
-            // Можно добавить отображение времени в интерфейсе
         }
 
         // Загрузка данных через HTTP (резервный метод)
@@ -861,8 +857,7 @@
                 total: machines.length,
                 working: machines.filter(m => m.status === 'working').length,
                 stopped: machines.filter(m => m.status === 'stopped').length,
-                shutdown: machines.filter(m => m.status === 'shutdown').length,
-                avgLoad: calculateAverageLoad(machines)
+                shutdown: machines.filter(m => m.status === 'shutdown').length
             };
         }
 
@@ -881,21 +876,6 @@
             document.getElementById('workingMachines').textContent = filteredMachines.filter(m => m.status === 'working').length;
             document.getElementById('stoppedMachines').textContent = filteredMachines.filter(m => m.status === 'stopped').length;
             document.getElementById('shutdownMachines').textContent = filteredMachines.filter(m => m.status === 'shutdown').length;
-            
-            const avgLoad = calculateAverageLoad(filteredMachines);
-            document.getElementById('avgLoad').textContent = `${avgLoad}%`;
-        }
-
-        // Расчет средней загрузки
-        function calculateAverageLoad(machines) {
-            const workingMachines = machines.filter(m => m.status === 'working');
-            if (workingMachines.length === 0) return 0;
-            
-            const totalLoad = workingMachines.reduce((sum, machine) => {
-                return sum + (machine.currentPerformance || 0);
-            }, 0);
-            
-            return Math.round(totalLoad / workingMachines.length);
         }
 
         // Отрисовка станков
@@ -959,68 +939,12 @@
                             <span class="param-value">${formatParam(machine.params.spindlePower)}</span>
                         </div>
                     </div>
-                    <div class="chart-wrapper">
-                        <div class="chart-title">Нагрузка: ${machine.currentPerformance || 0}%</div>
-                        <div class="chart-container">
-                            <canvas id="chart-${machine.internalId}"></canvas>
-                        </div>
-                    </div>
                 `;
                 
                 container.appendChild(card);
-                initMachineChart(machine.internalId, machine.currentPerformance || 0, machine.status);
             });
             
             applyFilters();
-        }
-
-        // Инициализация графиков
-        function initMachineChart(machineId, performance, status) {
-            const ctx = document.getElementById(`chart-${machineId}`).getContext('2d');
-            
-            let chartColor;
-            switch(status) {
-                case 'working': chartColor = '#2ecc71'; break;
-                case 'stopped': chartColor = '#e74c3c'; break;
-                case 'shutdown': chartColor = '#95a5a6'; break;
-                default: chartColor = '#3498db';
-            }
-            
-            if (state.charts[machineId]) {
-                state.charts[machineId].data.datasets[0].data = generateChartData(performance);
-                state.charts[machineId].data.datasets[0].borderColor = chartColor;
-                state.charts[machineId].update();
-                return;
-            }
-            
-            state.charts[machineId] = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: Array.from({length: 12}, (_, i) => `${i*5} мин`),
-                    datasets: [{
-                        label: 'Нагрузка',
-                        data: generateChartData(performance),
-                        borderColor: chartColor,
-                        tension: 0.1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { min: 0, max: 100 }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        // Генерация данных для графика
-        function generateChartData(baseValue) {
-            return Array.from({length: 12}, (_, i) => {
-                return Math.min(100, Math.max(0, baseValue + (Math.random() * 10 - 5)));
-            });
         }
 
         // Инициализация при загрузке
