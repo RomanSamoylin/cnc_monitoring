@@ -8,7 +8,6 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles2.css">
-    
 </head>
 <body>
     <header>
@@ -45,7 +44,6 @@
             <h3><i class="fas fa-filter"></i> Фильтр по станкам</h3>
             <select id="machineFilter">
                 <option value="all">Все станки</option>
-                <!-- Опции будут добавляться динамически -->
             </select>
             
             <h3><i class="fas fa-calendar-alt"></i> Период</h3>
@@ -456,7 +454,6 @@
                     showNotification(`Ошибка: ${error.message}`, 'error');
                 })
                 .finally(() => {
-                    // Убираем индикатор загрузки
                     DOM.notification.removeChild(loadingIndicator);
                 });
         }
@@ -515,7 +512,6 @@
                     console.error('Ошибка загрузки детальных данных станка:', error);
                 })
                 .finally(() => {
-                    // Убираем индикатор загрузки
                     DOM.notification.removeChild(loadingIndicator);
                 });
         }
@@ -543,9 +539,9 @@
             horizontalBarChart.update();
             
             // Обновляем заголовки
-            document.getElementById('pieChartTitle').textContent = 'Состояние станков всех цехов (круговая диаграмма)';
-            document.getElementById('barChartTitle').textContent = 'Состояние станков всех цехов (вертикальные столбцы)';
-            document.getElementById('horizontalBarChartTitle').textContent = 'Состояние станков всех цехов (горизонтальные столбцы)';
+            document.getElementById('pieChartTitle').textContent = `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
+            document.getElementById('barChartTitle').textContent = `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
+            document.getElementById('horizontalBarChartTitle').textContent = `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
         }
         
         // Обновление графика станка
@@ -582,14 +578,15 @@
             const statusData = [];
             
             data.forEach(event => {
-                labels.push(new Date(event.timestamp).toLocaleTimeString());
+                const date = new Date(event.timestamp);
+                labels.push(date.toLocaleTimeString());
                 
                 // Преобразуем статус в числовое значение для графика
                 let statusValue;
                 if (event.status === 'off') statusValue = STATUS_OFF;
                 else if (event.status === 'idle') statusValue = STATUS_IDLE;
                 else if (event.status === 'active') statusValue = STATUS_ACTIVE;
-                else statusValue = STATUS_OFF; // по умолчанию
+                else statusValue = STATUS_OFF;
                 
                 statusData.push(statusValue);
             });
