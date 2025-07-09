@@ -647,77 +647,84 @@
             }
         }
         
-        // Генерация PDF отчета (с гарантированной поддержкой кириллицы)
+        // Генерация PDF отчета с поддержкой кириллицы
         async function generatePDF(reportData) {
             const { jsPDF } = window.jspdf;
             
-            // Создаем временный div с содержимым отчета
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
-            tempDiv.style.width = '794px'; // A4 width in pixels (210mm)
-            tempDiv.style.padding = '20px';
-            tempDiv.style.fontFamily = 'Arial, sans-serif';
-            tempDiv.style.backgroundColor = 'white';
-            
-            tempDiv.innerHTML = `
-                <div style="max-width:100%;">
-                    <h1 style="text-align:center; color:#2c3e50; margin-bottom:30px;">Отчет OEE</h1>
-                    
-                    <div style="margin-bottom:20px;">
-                        <p style="margin:5px 0;"><strong>Период:</strong> ${reportData.startDate} - ${reportData.endDate}</p>
-                        <p style="margin:5px 0;"><strong>Станок:</strong> ${reportData.machine}</p>
-                        <p style="margin:5px 0;"><strong>Дата генерации:</strong> ${reportData.dateGenerated}</p>
-                    </div>
-                    
-                    <table border="1" cellpadding="8" style="width:100%; border-collapse:collapse; margin-bottom:30px;">
-                        <tr style="background-color:#e67e22; color:white;">
-                            <th style="text-align:left; padding:10px;">Показатель</th>
-                            <th style="text-align:left; padding:10px;">Значение</th>
-                        </tr>
-                        <tr><td>Готовность</td><td>${reportData.availability}</td></tr>
-                        <tr><td>Производительность</td><td>${reportData.performance}</td></tr>
-                        <tr><td>Качество</td><td>${reportData.quality}</td></tr>
-                        <tr><td>Общий OEE</td><td>${reportData.oee}</td></tr>
-                        <tr><td>Время работы</td><td>${reportData.operatingTime}</td></tr>
-                        <tr><td>Запланированное время</td><td>${reportData.plannedTime}</td></tr>
-                        <tr><td>Произведено деталей</td><td>${reportData.producedParts}</td></tr>
-                        <tr><td>План по деталям</td><td>${reportData.plannedParts}</td></tr>
-                        <tr><td>Всего единиц</td><td>${reportData.totalUnits}</td></tr>
-                        <tr><td>Дефектные единицы</td><td>${reportData.defectiveUnits}</td></tr>
-                    </table>
-                </div>
-            `;
-            
-            document.body.appendChild(tempDiv);
-            
-            // Конвертируем HTML в изображение
-            const canvas = await html2canvas(tempDiv, {
-                scale: 2,
-                logging: false,
-                useCORS: true,
-                allowTaint: true
-            });
-            
-            document.body.removeChild(tempDiv);
-            
-            // Создаем PDF
+            // Создаем новый PDF документ
             const doc = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
                 format: 'a4'
             });
+
+            // Добавляем шрифт с поддержкой кириллицы
+            doc.addFont('https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5WZLCzYlKw.ttf', 'Roboto', 'normal');
+            doc.setFont('Roboto');
             
-            // Добавляем изображение с отчетом
-            const imgData = canvas.toDataURL('image/png');
-            const imgWidth = 210; // A4 width in mm
-            const pageHeight = 297; // A4 height in mm
-            const imgHeight = canvas.height * imgWidth / canvas.width;
+            // Заголовок отчета
+            doc.setFontSize(20);
+            doc.setTextColor(44, 62, 80);
+            doc.text('Отчет OEE', 105, 20, { align: 'center' });
             
-            doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            // Информация о периоде и станке
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            
+            doc.text(`Период: ${reportData.startDate} - ${reportData.endDate}`, 15, 35);
+            doc.text(`Станок: ${reportData.machine}`, 15, 40);
+            doc.text(`Дата генерации: ${reportData.dateGenerated}`, 15, 45);
+            
+            // Таблица с показателями
+            doc.setFontSize(14);
+            doc.setTextColor(230, 126, 34);
+            doc.text('Показатели OEE', 15, 60);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            
+            // Заголовок таблицы
+            doc.setFillColor(230, 126, 34);
+            doc.setTextColor(255, 255, 255);
+            doc.rect(15, 65, 180, 10, 'F');
+            doc.text('Показатель', 20, 70);
+            doc.text('Значение', 120, 70);
+            
+            // Строки таблицы
+            const rows = [
+                ['Готовность', reportData.availability],
+                ['Производительность', reportData.performance],
+                ['Качество', reportData.quality],
+                ['Общий OEE', reportData.oee],
+                ['Время работы', reportData.operatingTime],
+                ['Запланированное время', reportData.plannedTime],
+                ['Произведено деталей', reportData.producedParts],
+                ['План по деталям', reportData.plannedParts],
+                ['Всего единиц', reportData.totalUnits],
+                ['Дефектные единицы', reportData.defectiveUnits]
+            ];
+            
+            doc.setTextColor(0, 0, 0);
+            
+            let y = 75;
+            rows.forEach((row, i) => {
+                if (i % 2 === 0) {
+                    doc.setFillColor(240, 240, 240);
+                    doc.rect(15, y, 180, 8, 'F');
+                }
+                
+                doc.text(row[0], 20, y + 5);
+                doc.text(row[1], 120, y + 5);
+                y += 8;
+            });
             
             // Добавляем график на новую страницу
             if (oeeChart) {
+                doc.addPage();
+                doc.setFontSize(20);
+                doc.setTextColor(44, 62, 80);
+                doc.text('График показателей OEE', 105, 20, { align: 'center' });
+                
                 const chartCanvas = document.getElementById('oeeChart');
                 const chartImg = await html2canvas(chartCanvas, {
                     scale: 2,
@@ -726,13 +733,11 @@
                     allowTaint: true
                 });
                 
-                doc.addPage();
                 const chartImgData = chartImg.toDataURL('image/png');
-                const chartImgWidth = 180; // mm
+                const chartImgWidth = 180;
                 const chartImgHeight = chartImg.height * chartImgWidth / chartImg.width;
                 
-                doc.addImage(chartImgData, 'PNG', 15, 20, chartImgWidth, chartImgHeight);
-                doc.text(15, 15, "График показателей OEE");
+                doc.addImage(chartImgData, 'PNG', 15, 30, chartImgWidth, chartImgHeight);
             }
             
             // Сохраняем PDF
@@ -744,14 +749,12 @@
         function generateCSV(reportData) {
             const csvRows = [];
             
-            // Заголовок
             csvRows.push('Отчет OEE');
             csvRows.push(`Период;${reportData.startDate} - ${reportData.endDate}`);
             csvRows.push(`Станок;${reportData.machine}`);
             csvRows.push(`Дата генерации;${reportData.dateGenerated}`);
             csvRows.push('');
             
-            // Данные
             csvRows.push('Показатель;Значение');
             csvRows.push(`Готовность;${reportData.availability}`);
             csvRows.push(`Производительность;${reportData.performance}`);
@@ -764,11 +767,9 @@
             csvRows.push(`Всего единиц;${reportData.totalUnits}`);
             csvRows.push(`Дефектные единицы;${reportData.defectiveUnits}`);
             
-            // Создаем CSV с BOM для корректного отображения кириллицы
             const BOM = "\uFEFF";
             const csvContent = BOM + csvRows.join('\r\n');
             
-            // Создаем Blob и скачиваем
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -783,7 +784,6 @@
         function generateXLSX(reportData) {
             const wb = XLSX.utils.book_new();
             
-            // Данные для листа
             const wsData = [
                 ["Отчет OEE"],
                 ["Период", `${reportData.startDate} - ${reportData.endDate}`],
@@ -805,16 +805,13 @@
             
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             
-            // Настраиваем ширину столбцов
             ws['!cols'] = [
-                { wch: 25 }, // Ширина первого столбца
-                { wch: 20 }  // Ширина второго столбца
+                { wch: 25 },
+                { wch: 20 }
             ];
             
-            // Добавляем лист в книгу
             XLSX.utils.book_append_sheet(wb, ws, "OEE Отчет");
             
-            // Сохраняем файл
             XLSX.writeFile(wb, `OEE_Отчет_${reportData.startDate}_${reportData.endDate}.xlsx`);
             showNotification("Excel отчет успешно создан!");
         }
@@ -829,6 +826,13 @@
                 notification.classList.remove('show');
             }, 3000);
         }
+
+        // Установить текущую дату по умолчанию
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDate').value = today;
+            document.getElementById('endDate').value = today;
+        });
     </script>
 </body>
 </html>
