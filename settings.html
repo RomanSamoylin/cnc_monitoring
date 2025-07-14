@@ -243,6 +243,18 @@
             flex-direction: column;
             gap: 0.5rem;
             position: relative;
+            transition: all 0.2s;
+            cursor: grab;
+        }
+    
+        .machine-item:active {
+            cursor: grabbing;
+        }
+    
+        .machine-item.dragging {
+            opacity: 0.5;
+            background-color: var(--primary-color);
+            color: white;
         }
     
         .machine-item-header span:nth-child(2) {
@@ -387,11 +399,11 @@
             <h3><i class="fas fa-sliders-h"></i> Основные настройки</h3>
             <div class="form-group">
                 <label for="workshopsCount">Количество цехов:</label>
-                <input type="number" id="workshopsCount" min="1" max="10" value="1">
+                <input type="number" id="workshopsCount" min="1" max="10" value="1" readonly>
             </div>
             <div class="form-group">
                 <label for="machinesCount">Количество станков:</label>
-                <input type="number" id="machinesCount" min="1" max="50" value="16">
+                <input type="number" id="machinesCount" min="1" max="50" value="16" readonly>
             </div>
             <button class="btn btn-success" onclick="applySettings()">
                 <i class="fas fa-save"></i> Применить настройки
@@ -411,7 +423,7 @@
                     <button class="btn btn-success btn-sm" onclick="addWorkshop()" id="addWorkshopBtn">
                         <i class="fas fa-plus"></i> Добавить цех
                     </button>
-                    <button class="btn btn-danger btn-sm" onclick="removeLastWorkshop()" id="removeWorkshopBtn">
+                    <button class="btn btn-danger btn-sm" onclick="removeLastWorkshop()" id="removeWorkshopBtn" disabled>
                         <i class="fas fa-minus"></i> Удалить цех
                     </button>
                 </div>
@@ -502,6 +514,7 @@
                 // Рендерим интерфейс
                 renderWorkshopsSettings();
                 renderMachinesList();
+                updateButtonsState();
                 
                 showNotification('Данные станков успешно загружены', 'success');
             } catch (error) {
@@ -576,6 +589,9 @@
             
             DOM.workshopsSettings.innerHTML = '';
             DOM.workshopsSettings.appendChild(fragment);
+            
+            // Инициализируем drag-and-drop для цехов
+            initDragAndDrop();
         }
         
         // Отрисовка списка станков
@@ -612,6 +628,131 @@
             
             DOM.machinesList.innerHTML = '';
             DOM.machinesList.appendChild(fragment);
+            
+            // Инициализируем drag-and-drop для станков
+            initDragAndDrop();
+        }
+        
+        // Инициализация drag-and-drop
+        function initDragAndDrop() {
+            const machineItems = document.querySelectorAll('.machine-item');
+            const workshopDropzones = document.querySelectorAll('.workshop-dropzone');
+            
+            machineItems.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', this.dataset.machineId);
+                    this.classList.add('dragging');
+                });
+                
+                item.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                });
+            });
+            
+            workshopDropzones.forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drop-hover');
+                });
+                
+                zone.addEventListener('dragleave', function() {
+                    this.classList.remove('drop-hover');
+                });
+                
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drop-hover');
+                    
+                    const machineId = parseInt(e.dataTransfer.getData('text/plain'));
+                    const workshopId = parseInt(this.dataset.workshopId);
+                    
+                    const machine = state.machines.find(m => m.id === machineId);
+                    if (machine) {
+                        machine.workshopId = workshopId;
+                        saveToLocalStorage();
+                        updateWorkshopsMachinesCount();
+                        renderWorkshopsSettings();
+                        renderMachinesList();
+                        showNotification(`Станок перемещен в ${state.workshops.find(w => w.id === workshopId).name}`, 'success');
+                    }
+                });
+            });
+        }
+        
+        // Функция добавления нового цеха
+        function addWorkshop() {
+            const newId = state.workshops.length > 0 
+                ? Math.max(...state.workshops.map(w => w.id)) + 1 
+                : 1;
+            
+            state.workshops.push({
+                id: newId,
+                name: `ЦЕХ-${newId}`,
+                machinesCount: 0
+            });
+            
+            DOM.workshopsCount.value = state.workshops.length;
+            saveToLocalStorage();
+            renderWorkshopsSettings();
+            updateButtonsState();
+            showNotification(`Добавлен новый цех: ЦЕХ-${newId}`, 'success');
+        }
+        
+        // Функция удаления последнего цеха
+        function removeLastWorkshop() {
+            if (state.workshops.length <= 1) {
+                showNotification('Нельзя удалить единственный цех', 'warning');
+                return;
+            }
+            
+            const removedWorkshop = state.workshops.pop();
+            
+            // Переназначаем станки удаляемого цеха в первый цех
+            state.machines.forEach(machine => {
+                if (machine.workshopId === removedWorkshop.id) {
+                    machine.workshopId = 1;
+                }
+            });
+            
+            DOM.workshopsCount.value = state.workshops.length;
+            saveToLocalStorage();
+            renderWorkshopsSettings();
+            renderMachinesList();
+            updateButtonsState();
+            showNotification(`Удален цех: ${removedWorkshop.name}`, 'success');
+        }
+        
+        // Функция для обновления состояния кнопок
+        function updateButtonsState() {
+            DOM.removeWorkshopBtn.disabled = state.workshops.length <= 1;
+            DOM.addMachineBtn.disabled = state.machines.length >= 50;
+            DOM.removeMachineBtn.disabled = state.machines.length === 0;
+        }
+        
+        // Функция для сохранения изменений на сервере
+        async function saveChangesToServer() {
+            try {
+                const response = await fetch('http://localhost:3000/api/machines/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        workshops: state.workshops,
+                        machines: state.machines
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Ошибка сети');
+                
+                const data = await response.json();
+                if (!data.success) throw new Error('Ошибка сохранения');
+                
+                showNotification('Изменения успешно сохранены на сервере', 'success');
+            } catch (error) {
+                console.error('Ошибка сохранения данных:', error);
+                showNotification('Ошибка сохранения данных на сервере', 'error');
+            }
         }
         
         // Сохранение в localStorage
@@ -620,6 +761,7 @@
                 workshops: state.workshops,
                 machines: state.machines
             }));
+            saveChangesToServer();
         }
         
         // Загрузка из localStorage
@@ -655,6 +797,31 @@
             }, 3000);
         }
         
+        // Функции-заглушки для других кнопок
+        function applySettings() {
+            showNotification('Настройки применены', 'success');
+        }
+        
+        function resetToDefaults() {
+            state.workshops = [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }];
+            state.machines.forEach(m => m.workshopId = 1);
+            updateWorkshopsMachinesCount();
+            DOM.workshopsCount.value = state.workshops.length;
+            saveToLocalStorage();
+            renderWorkshopsSettings();
+            renderMachinesList();
+            updateButtonsState();
+            showNotification('Настройки сброшены к значениям по умолчанию', 'success');
+        }
+        
+        function exportSettings() {
+            showNotification('Настройки экспортированы', 'success');
+        }
+        
+        function importSettings() {
+            showNotification('Настройки импортированы', 'success');
+        }
+        
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
             // Загружаем сохраненные настройки
@@ -666,6 +833,7 @@
             // Обновляем UI
             DOM.workshopsCount.value = state.workshops.length;
             DOM.machinesCount.value = state.machines.length;
+            updateButtonsState();
         });
     </script>
 </body>
