@@ -130,6 +130,12 @@
         // Функция для загрузки данных станков с сервера
         async function fetchMachineData() {
             try {
+                // Сохраняем текущее распределение станков по цехам
+                const currentDistribution = {};
+                state.machines.forEach(machine => {
+                    currentDistribution[machine.id] = machine.workshopId;
+                });
+
                 const response = await fetch('http://localhost:3000/api/machines');
                 if (!response.ok) throw new Error('Ошибка сети');
                 
@@ -140,7 +146,8 @@
                 state.machines = Object.values(data.machines).map(machine => ({
                     id: machine.internalId,
                     name: machine.displayName,
-                    workshopId: 1 // По умолчанию все станки в первом цехе
+                    // Восстанавливаем распределение из сохраненного состояния или используем цех 1 по умолчанию
+                    workshopId: currentDistribution[machine.internalId] || 1
                 }));
                 
                 // Обновляем счетчик станков
@@ -423,6 +430,14 @@
                     const parsed = JSON.parse(savedSettings);
                     if (parsed.workshops) state.workshops = parsed.workshops;
                     if (parsed.machines) state.machines = parsed.machines;
+                    
+                    // Обновляем интерфейс после загрузки
+                    DOM.workshopsCount.value = state.workshops.length;
+                    DOM.machinesCount.value = state.machines.length;
+                    updateWorkshopsMachinesCount();
+                    renderWorkshopsSettings();
+                    renderMachinesList();
+                    updateButtonsState();
                 } catch (e) {
                     console.error('Ошибка загрузки настроек:', e);
                 }
@@ -475,16 +490,11 @@
         
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
-            // Загружаем сохраненные настройки
+            // 1. Загружаем сохраненные настройки из localStorage
             loadFromLocalStorage();
             
-            // Загружаем данные станков с сервера
+            // 2. Затем загружаем данные станков с сервера
             fetchMachineData();
-            
-            // Обновляем UI
-            DOM.workshopsCount.value = state.workshops.length;
-            DOM.machinesCount.value = state.machines.length;
-            updateButtonsState();
         });
     </script>
 </body>
