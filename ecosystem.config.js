@@ -15,7 +15,7 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 3000,
-        MYSQL_HOST: "192.168.1.79",
+        MYSQL_HOST: "192.168.1.30",
         MYSQL_USER: "monitorl",
         MYSQL_PASSWORD: "victoria123",
         MYSQL_DATABASE: "cnc_monitoring",

@@ -1453,3 +1453,151 @@ Error: bind EADDRINUSE null:3000
     at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:326:3)
     at process.emit (node:events:530:35)
     at process._fatalException (node:internal/process/execution:154:25)
+2025-07-16 08:34:19.786: [16.07.2025, 08:34:19] Критическая ошибка запуска: connect EHOSTUNREACH 192.168.1.42:3306
+2025-07-16 08:34:19.786: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at Server.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:355:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error: bind EADDRINUSE null:3000
+    at listenOnPrimaryHandle (node:net:2020:18)
+    at shared (node:internal/cluster/child:157:3)
+    at Worker.<anonymous> (node:internal/cluster/child:110:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:530:35)
+    at emit (node:internal/child_process:949:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+2025-07-16 08:34:29.799: [16.07.2025, 08:34:29] Неперехваченное исключение: bind EADDRINUSE null:3000
+2025-07-16 08:34:29.800: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:326:3)
+    at process.emit (node:events:530:35)
+    at process._fatalException (node:internal/process/execution:154:25)
+2025-07-16 16:29:27.590: [16.07.2025, 16:29:27] Ошибка обновления. Повтор через 30000ms
+2025-07-16 16:29:27.591: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:237:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-07-17 08:29:54.467: [17.07.2025, 08:29:54] Критическая ошибка запуска: connect ETIMEDOUT 192.168.1.42:3306
+2025-07-17 08:29:54.468: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at Server.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:355:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error: bind EADDRINUSE null:3000
+    at listenOnPrimaryHandle (node:net:2020:18)
+    at shared (node:internal/cluster/child:157:3)
+    at Worker.<anonymous> (node:internal/cluster/child:110:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:530:35)
+    at emit (node:internal/child_process:949:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+2025-07-17 08:30:04.479: [17.07.2025, 08:30:04] Неперехваченное исключение: bind EADDRINUSE null:3000
+2025-07-17 08:30:04.480: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:326:3)
+    at process.emit (node:events:530:35)
+    at process._fatalException (node:internal/process/execution:154:25)
+2025-07-17 12:56:27.165: [17.07.2025, 12:56:27] Ошибка обновления. Повтор через 30000ms
+2025-07-17 12:56:27.165: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:237:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-07-17 16:18:04.459: [17.07.2025, 16:18:04] Ошибка обновления. Повтор через 30000ms
+2025-07-17 16:18:04.460: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:237:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-07-18 08:37:49.339: [18.07.2025, 08:37:49] Критическая ошибка запуска: connect ETIMEDOUT 192.168.1.42:3306
+2025-07-18 08:37:49.339: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at Server.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:355:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error: bind EADDRINUSE null:3000
+    at listenOnPrimaryHandle (node:net:2020:18)
+    at shared (node:internal/cluster/child:157:3)
+    at Worker.<anonymous> (node:internal/cluster/child:110:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:530:35)
+    at emit (node:internal/child_process:949:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+2025-07-18 08:37:59.351: [18.07.2025, 08:37:59] Неперехваченное исключение: bind EADDRINUSE null:3000
+2025-07-18 08:37:59.351: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:326:3)
+    at process.emit (node:events:530:35)
+    at process._fatalException (node:internal/process/execution:154:25)
+2025-07-21 11:27:20.258: [21.07.2025, 11:27:20] Критическая ошибка запуска: connect ECONNREFUSED 192.168.1.42:3306
+2025-07-21 11:27:20.259: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at Server.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:355:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error: bind EADDRINUSE null:3000
+    at listenOnPrimaryHandle (node:net:2020:18)
+    at shared (node:internal/cluster/child:157:3)
+    at Worker.<anonymous> (node:internal/cluster/child:110:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:530:35)
+    at emit (node:internal/child_process:949:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+2025-07-21 11:27:30.274: [21.07.2025, 11:27:30] Неперехваченное исключение: bind EADDRINUSE null:3000
+2025-07-21 11:27:30.275: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:326:3)
+    at process.emit (node:events:530:35)
+    at process._fatalException (node:internal/process/execution:154:25)
+2025-07-21 11:46:42.556: [21.07.2025, 11:46:42] Критическая ошибка запуска: connect ECONNREFUSED 192.168.1.42:3306
+2025-07-21 11:46:42.557: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at Server.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:355:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error: bind EADDRINUSE null:3000
+    at listenOnPrimaryHandle (node:net:2020:18)
+    at shared (node:internal/cluster/child:157:3)
+    at Worker.<anonymous> (node:internal/cluster/child:110:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:530:35)
+    at emit (node:internal/child_process:949:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+2025-07-21 11:46:52.568: [21.07.2025, 11:46:52] Неперехваченное исключение: bind EADDRINUSE null:3000
+2025-07-21 11:46:52.569: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:326:3)
+    at process.emit (node:events:530:35)
+    at process._fatalException (node:internal/process/execution:154:25)
+2025-07-21 11:50:06.290: [21.07.2025, 11:50:06] Критическая ошибка запуска: connect ECONNREFUSED 192.168.1.42:3306
+2025-07-21 11:50:06.290: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at Server.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:355:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error: bind EADDRINUSE null:3000
+    at listenOnPrimaryHandle (node:net:2020:18)
+    at shared (node:internal/cluster/child:157:3)
+    at Worker.<anonymous> (node:internal/cluster/child:110:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:530:35)
+    at emit (node:internal/child_process:949:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+2025-07-21 11:50:16.297: [21.07.2025, 11:50:16] Неперехваченное исключение: bind EADDRINUSE null:3000
+2025-07-21 11:50:16.298: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:326:3)
+    at process.emit (node:events:530:35)
+    at process._fatalException (node:internal/process/execution:154:25)
+2025-07-21 12:54:32.595: [21.07.2025, 12:54:32] Критическая ошибка запуска: connect ECONNREFUSED 192.168.1.42:3306
+2025-07-21 12:54:32.596: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at Server.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:355:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error: bind EADDRINUSE null:3000
+    at listenOnPrimaryHandle (node:net:2020:18)
+    at shared (node:internal/cluster/child:157:3)
+    at Worker.<anonymous> (node:internal/cluster/child:110:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:530:35)
+    at emit (node:internal/child_process:949:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+2025-07-21 12:54:42.611: [21.07.2025, 12:54:42] Неперехваченное исключение: bind EADDRINUSE null:3000
+2025-07-21 12:54:42.611: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:52:30)
+    at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:326:3)
+    at process.emit (node:events:530:35)
+    at process._fatalException (node:internal/process/execution:154:25)

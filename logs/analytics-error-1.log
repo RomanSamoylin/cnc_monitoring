@@ -148,3 +148,194 @@ Error fetching workshop summary: Error: connect ETIMEDOUT
   errno: undefined,
   sqlState: undefined
 }
+Ошибка загрузки настроек: Error: Can't add new command when connection is in closed state
+    at PromiseConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:147:43
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:48:3 {
+  code: undefined,
+  errno: undefined,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Ошибка загрузки настроек: Error: Can't add new command when connection is in closed state
+    at PromiseConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:147:43
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:48:3 {
+  code: undefined,
+  errno: undefined,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Ошибка загрузки настроек: Error: Can't add new command when connection is in closed state
+    at PromiseConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:147:43
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:48:3 {
+  code: undefined,
+  errno: undefined,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Ошибка загрузки настроек: Error: Can't add new command when connection is in closed state
+    at PromiseConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:147:43
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:48:3 {
+  code: undefined,
+  errno: undefined,
+  sql: undefined,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Error fetching machines list: ReferenceError: getAllMachines is not defined
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:403:25
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error fetching workshop summary: ReferenceError: calculateMachineStatusTime is not defined
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:233:26
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error fetching machines list: ReferenceError: getAllMachines is not defined
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:403:25
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error fetching workshop summary: ReferenceError: calculateMachineStatusTime is not defined
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:233:26
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error fetching machines list: ReferenceError: getAllMachines is not defined
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:403:25
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error fetching workshop summary: ReferenceError: calculateMachineStatusTime is not defined
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:233:26
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error fetching workshop summary: Error: connect ECONNREFUSED 192.168.1.42:3306
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:105:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sqlState: undefined
+}
+Error fetching machines list: Error: connect ECONNREFUSED 192.168.1.42:3306
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:270:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sqlState: undefined
+}
+Error fetching workshop summary: Error: connect ECONNREFUSED 192.168.1.42:3306
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:105:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sqlState: undefined
+}
+Error fetching machines list: Error: connect ECONNREFUSED 192.168.1.42:3306
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:270:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sqlState: undefined
+}
+Error fetching workshop summary: Error: connect ECONNREFUSED 192.168.1.42:3306
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:105:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sqlState: undefined
+}
+Error fetching workshop summary: Error: connect ECONNREFUSED 192.168.1.42:3306
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:105:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sqlState: undefined
+}
+Error fetching workshop summary: Error: connect ECONNREFUSED 192.168.1.42:3306
+    at Object.createConnectionPromise [as createConnection] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\promise.js:19:31)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:105:36
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:284:15
+    at Function.process_params (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\express\lib\router\index.js:280:10)
+    at jsonParser (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\body-parser\lib\types\json.js:113:7) {
+  code: 'ECONNREFUSED',
+  errno: -4078,
+  sqlState: undefined
+}

@@ -13,7 +13,7 @@ app.use(express.json());
 
 // Оптимизированная конфигурация MySQL пула
 const pool = mysql.createPool({
-  host: '192.168.1.42',
+  host: '192.168.1.30',
   user: 'monitor',
   password: 'victoria123',
   database: 'cnc_monitoring',

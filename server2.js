@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 const dbConfig = {
-  host: '192.168.1.42',
+  host: '192.168.1.30',
   user: 'monitor',
   password: 'victoria123',
   database: 'cnc_monitoring',
