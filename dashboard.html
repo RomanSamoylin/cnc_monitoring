@@ -8,6 +8,73 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --working-color: #28a745;
+            --stopped-color: #979691;
+            --shutdown-color: #dc3545;
+            --text-color: #333;
+        }
+
+        .machine-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .machine-chart-container {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.03);
+            border-radius: 8px;
+        }
+        
+        .chart-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .chart-half {
+            flex: 1 1 50%;
+            min-width: 300px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        
+        .machine-chart {
+            width: 100% !important;
+            height: 250px !important;
+            margin-bottom: 15px;
+        }
+        
+        .chart-title {
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+            color: var(--text-color);
+            font-size: 16px;
+        }
+        
+        .time-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .time-stat {
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 4px;
+            background-color: rgba(0, 0, 0, 0.05);
+            margin: 5px;
+            font-size: 13px;
+        }
+        
+        .time-stat.working { color: var(--working-color); }
+        .time-stat.stopped { color: var(--stopped-color); }
+        .time-stat.shutdown { color: var(--shutdown-color); }
+    </style>
 </head>
 <body>
     <header>
@@ -125,12 +192,12 @@
             retryCount: 0,
             lastUpdate: null,
             isConnected: false,
-            pollingInterval: null
+            pollingInterval: null,
+            charts: {} // Для хранения экземпляров графиков
         };
 
         // Инициализация WebSocket
         function initWebSocket() {
-            // Проверка поддержки WebSocket
             if (!('WebSocket' in window)) {
                 console.error('Браузер не поддерживает WebSocket');
                 showNotification('Ваш браузер не поддерживает WebSocket', true);
@@ -138,7 +205,6 @@
                 return;
             }
 
-            // Проверка валидности URL
             if (!config.wsUrl || !config.wsUrl.startsWith('ws://')) {
                 console.error('Неверный URL WebSocket:', config.wsUrl);
                 showNotification('Ошибка конфигурации соединения', true);
@@ -158,7 +224,6 @@
                     updateConnectionStatus('connected');
                     showNotification('Соединение с сервером установлено');
                     
-                    // Остановка polling, если он был активен
                     if (state.pollingInterval) {
                         clearInterval(state.pollingInterval);
                         state.pollingInterval = null;
@@ -221,15 +286,12 @@
             console.log('Активация HTTP polling');
             updateConnectionStatus('polling');
             
-            // Очищаем предыдущий интервал, если был
             if (state.pollingInterval) {
                 clearInterval(state.pollingInterval);
             }
             
-            // Немедленный запрос
             fetchData();
             
-            // Устанавливаем интервал
             state.pollingInterval = setInterval(fetchData, config.refreshInterval);
         }
 
@@ -344,6 +406,102 @@
             }
             
             return { status: 'shutdown', statusText: 'Неизвестный статус' };
+        }
+
+        // Создание круговой диаграммы работы станка
+        function createWorkingTimeChart(canvasId, workingTimeData) {
+            // Удаляем старый график, если он существует
+            if (state.charts[canvasId]) {
+                state.charts[canvasId].destroy();
+            }
+            
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            state.charts[canvasId] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Работает', 'Остановлен', 'Выключен'],
+                    datasets: [{
+                        data: [
+                            workingTimeData.workingMinutes,
+                            workingTimeData.stoppedMinutes,
+                            workingTimeData.shutdownMinutes
+                        ],
+                        backgroundColor: [
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(220, 53, 69, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(220, 53, 69, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw} мин`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // Создание графика работы по часам
+        function createDailyChart(canvasId, chartData) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const chartKey = `${canvasId}-daily`;
+            
+            // Удаляем старый график, если он существует
+            if (state.charts[chartKey]) {
+                state.charts[chartKey].destroy();
+            }
+            
+            state.charts[chartKey] = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Минуты'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw} мин`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         // Сохранение/восстановление фильтров
@@ -512,9 +670,41 @@
                             <span class="param-value">${formatParam(machine.params.spindlePower)}</span>
                         </div>
                     </div>
+                    <div class="machine-chart-container">
+                        <div class="chart-title">Статистика работы за сегодня</div>
+                        <div class="chart-row">
+                            <div class="chart-half">
+                                <canvas id="chart-${machine.internalId}" class="machine-chart"></canvas>
+                            </div>
+                            <div class="chart-half">
+                                <canvas id="daily-chart-${machine.internalId}" class="machine-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="time-stats">
+                            <div class="time-stat working">
+                                <i class="fas fa-circle"></i> Работает: ${machine.workingTime?.workingMinutes || 0} мин
+                            </div>
+                            <div class="time-stat stopped">
+                                <i class="fas fa-circle"></i> Остановлен: ${machine.workingTime?.stoppedMinutes || 0} мин
+                            </div>
+                            <div class="time-stat shutdown">
+                                <i class="fas fa-circle"></i> Выключен: ${machine.workingTime?.shutdownMinutes || 0} мин
+                            </div>
+                        </div>
+                    </div>
                 `;
                 
                 container.appendChild(card);
+                
+                // Создаем графики после добавления карточки в DOM
+                setTimeout(() => {
+                    if (machine.workingTime) {
+                        createWorkingTimeChart(`chart-${machine.internalId}`, machine.workingTime);
+                        if (machine.workingTime.chartData) {
+                            createDailyChart(`daily-chart-${machine.internalId}`, machine.workingTime.chartData);
+                        }
+                    }
+                }, 0);
             });
             
             applyFilters();

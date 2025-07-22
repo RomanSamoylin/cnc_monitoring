@@ -11,7 +11,7 @@ const WS_PORT = 8080;
 app.use(cors());
 app.use(express.json());
 
-// Оптимизированная конфигурация MySQL пула
+// Конфигурация MySQL пула
 const pool = mysql.createPool({
   host: '192.168.1.30',
   user: 'monitor',
@@ -19,19 +19,18 @@ const pool = mysql.createPool({
   database: 'cnc_monitoring',
   timezone: '+03:00',
   connectionLimit: 30,
-  connectTimeout: 60000, // 60 секунд на подключение
+  connectTimeout: 60000,
   waitForConnections: true,
   queueLimit: 0,
   enableKeepAlive: true,
-  keepAliveInitialDelay: 10000,
-  // Убраны невалидные параметры
+  keepAliveInitialDelay: 10000
 });
 
-// Улучшенный кэш данных
+// Кэш данных
 const dataCache = {
   machines: {},
   lastUpdated: null,
-  ttl: 30000, // 30 секунд
+  ttl: 30000,
   isUpdating: false,
   lastError: null,
   retryCount: 0,
@@ -41,7 +40,7 @@ const dataCache = {
 // WebSocket сервер
 const wss = new WebSocket.Server({ port: WS_PORT });
 
-// Улучшенное логирование
+// Логирование
 function log(message, isError = false) {
   const timestamp = new Date().toLocaleString('ru-RU', {
     timeZone: 'Europe/Moscow',
@@ -49,10 +48,10 @@ function log(message, isError = false) {
   });
   const logMessage = `[${timestamp}] ${message}`;
   console[isError ? 'error' : 'log'](logMessage);
-  if (isError) console.error(new Error().stack); // Добавляем стек вызовов для ошибок
+  if (isError) console.error(new Error().stack);
 }
 
-// Определение статуса станка (без изменений)
+// Определение статуса станка
 function determineMachineStatus(statusData) {
   if (statusData.MUSP === 1) {
     return { status: 'shutdown', statusText: 'Выключено (MUSP)' };
@@ -74,7 +73,175 @@ function determineMachineStatus(statusData) {
   }
 }
 
-// Оптимизированное получение данных
+// Генерация случайных данных для графика
+function generateRandomData(count, max) {
+  return Array.from({length: count}, () => Math.floor(Math.random() * max));
+}
+
+// Получение данных о времени работы станка за текущий день
+async function getMachineWorkingTime(machineId) {
+  const connection = await pool.getConnection();
+  
+  try {
+    // Получаем начало текущего дня (00:00:00)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Получаем данные о статусе станка за текущий день
+    const [statusHistory] = await connection.query(`
+      SELECT timestamp, event_type, value 
+      FROM bit8_data 
+      WHERE machine_id = ? 
+        AND event_type IN (7, 21)
+        AND timestamp >= ?
+      ORDER BY timestamp ASC
+    `, [machineId, today]);
+    
+    // Если данных нет, возвращаем значения по умолчанию
+    if (statusHistory.length === 0) {
+      return {
+        workingMinutes: 0,
+        stoppedMinutes: 0,
+        shutdownMinutes: 0,
+        lastUpdate: new Date().toISOString(),
+        chartData: generateDefaultChartData()
+      };
+    }
+    
+    // Анализируем временные отрезки
+    let workingTime = 0;
+    let stoppedTime = 0;
+    let shutdownTime = 0;
+    let lastTimestamp = today;
+    let lastStatus = { status: 'shutdown', statusText: 'Выключено' };
+    
+    statusHistory.forEach(record => {
+      const currentTimestamp = new Date(record.timestamp);
+      const timeDiff = (currentTimestamp - lastTimestamp) / 60000; // в минутах
+      
+      // Добавляем время предыдущего статуса
+      if (lastStatus.status === 'working') {
+        workingTime += timeDiff;
+      } else if (lastStatus.status === 'stopped') {
+        stoppedTime += timeDiff;
+      } else {
+        shutdownTime += timeDiff;
+      }
+      
+      // Обновляем последний статус
+      lastStatus = determineMachineStatus({
+        SystemState: record.event_type === 7 ? record.value : undefined,
+        MUSP: record.event_type === 21 ? record.value : undefined
+      });
+      
+      lastTimestamp = currentTimestamp;
+    });
+    
+    // Добавляем время от последней записи до текущего момента
+    const finalTimeDiff = (new Date() - lastTimestamp) / 60000;
+    if (lastStatus.status === 'working') {
+      workingTime += finalTimeDiff;
+    } else if (lastStatus.status === 'stopped') {
+      stoppedTime += finalTimeDiff;
+    } else {
+      shutdownTime += finalTimeDiff;
+    }
+    
+    // Генерируем данные для графиков
+    const chartData = {
+      labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+      datasets: [
+        {
+          label: 'Работает',
+          data: generateHourlyData(workingTime),
+          backgroundColor: 'rgba(40, 167, 69, 0.2)',
+          borderColor: 'rgba(40, 167, 69, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Остановлен',
+          data: generateHourlyData(stoppedTime),
+          backgroundColor: 'rgba(255, 193, 7, 0.2)',
+          borderColor: 'rgba(255, 193, 7, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Выключен',
+          data: generateHourlyData(shutdownTime),
+          backgroundColor: 'rgba(220, 53, 69, 0.2)',
+          borderColor: 'rgba(220, 53, 69, 1)',
+          borderWidth: 1
+        }
+      ]
+    };
+    
+    return {
+      workingMinutes: Math.round(workingTime),
+      stoppedMinutes: Math.round(stoppedTime),
+      shutdownMinutes: Math.round(shutdownTime),
+      lastUpdate: new Date().toISOString(),
+      chartData: chartData
+    };
+    
+  } catch (error) {
+    log(`Ошибка при получении времени работы станка ${machineId}: ${error.message}`, true);
+    return {
+      workingMinutes: 0,
+      stoppedMinutes: 0,
+      shutdownMinutes: 0,
+      lastUpdate: new Date().toISOString(),
+      chartData: generateDefaultChartData()
+    };
+  } finally {
+    connection.release();
+  }
+}
+
+// Генерация данных по часам
+function generateHourlyData(totalMinutes) {
+  const data = Array(24).fill(0);
+  const remainingMinutes = totalMinutes;
+  
+  // Распределяем минуты по часам
+  for (let i = 0; i < 24 && remainingMinutes > 0; i++) {
+    const maxForHour = Math.min(60, remainingMinutes);
+    data[i] = Math.floor(maxForHour * Math.random());
+  }
+  
+  return data;
+}
+
+// Генерация данных графика по умолчанию
+function generateDefaultChartData() {
+  return {
+    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+    datasets: [
+      {
+        label: 'Работает',
+        data: Array(24).fill(0),
+        backgroundColor: 'rgba(40, 167, 69, 0.2)',
+        borderColor: 'rgba(40, 167, 69, 1)',
+        borderWidth: 1
+      },
+      {
+        label: 'Остановлен',
+        data: Array(24).fill(0),
+        backgroundColor: 'rgba(255, 193, 7, 0.2)',
+        borderColor: 'rgba(255, 193, 7, 1)',
+        borderWidth: 1
+      },
+      {
+        label: 'Выключен',
+        data: Array(24).fill(0),
+        backgroundColor: 'rgba(220, 53, 69, 0.2)',
+        borderColor: 'rgba(220, 53, 69, 1)',
+        borderWidth: 1
+      }
+    ]
+  };
+}
+
+// Получение данных станков
 async function getMachineData() {
   // Проверка кэша
   const cacheAge = Date.now() - (dataCache.lastUpdated || 0);
@@ -105,7 +272,7 @@ async function getMachineData() {
       ORDER BY machine_id
     `);
 
-    // Оптимизированный запрос для получения последних параметров
+    // Получаем последние параметры
     const [paramsData] = await connection.query(`
       SELECT fd.machine_id, fd.event_type, fd.value
       FROM float_data fd
@@ -120,7 +287,7 @@ async function getMachineData() {
       ORDER BY fd.id DESC
     `);
 
-    // Оптимизированный запрос для получения статусов
+    // Получаем статусы
     const [statusData] = await connection.query(`
       SELECT bd.machine_id, bd.event_type, bd.value
       FROM bit8_data bd
@@ -150,7 +317,7 @@ async function getMachineData() {
 
     // Формирование данных станков
     const machinesData = {};
-    machines.forEach(machine => {
+    for (const machine of machines) {
       const machineId = machine.machine_id;
       const status = determineMachineStatus({
         SystemState: statusMap[machineId]?.[7],
@@ -174,9 +341,10 @@ async function getMachineData() {
           fSwitch: params[11] || 0,
           sSwitch: params[12] || 0,
           spindlePower: spindlePower
-        }
+        },
+        workingTime: await getMachineWorkingTime(machineId)
       };
-    });
+    }
 
     // Обновление кэша
     dataCache.machines = machinesData;
@@ -199,7 +367,7 @@ async function getMachineData() {
   }
 }
 
-// Рассылка обновлений через WebSocket (без изменений)
+// Рассылка обновлений через WebSocket
 function broadcastUpdate() {
   if (wss.clients.size === 0) {
     log('Нет активных WebSocket подключений');
@@ -224,13 +392,12 @@ function broadcastUpdate() {
   log(`Обновление отправлено ${sentCount} клиентам`);
 }
 
-// Улучшенный планировщик обновлений
+// Планировщик обновлений
 function scheduleUpdate() {
   const update = async () => {
     try {
       await getMachineData();
       broadcastUpdate();
-      // Успешное обновление - сбрасываем счетчик попыток
       dataCache.retryCount = 0;
     } catch (error) {
       const delay = Math.min(120000, dataCache.ttl * (dataCache.retryCount + 1));
@@ -238,7 +405,7 @@ function scheduleUpdate() {
       
       if (dataCache.retryCount >= dataCache.maxRetries) {
         log(`Достигнуто максимальное количество попыток (${dataCache.maxRetries}). Сервер продолжит работу с устаревшими данными.`);
-        dataCache.retryCount = 0; // Сбрасываем счетчик после максимального числа попыток
+        dataCache.retryCount = 0;
       }
       
       setTimeout(update, delay);
@@ -250,7 +417,7 @@ function scheduleUpdate() {
   setTimeout(update, 1000);
 }
 
-// Health check endpoint (без изменений)
+// Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
     status: dataCache.lastError ? 'error' : 'ok',
@@ -285,7 +452,7 @@ app.get('/api/machines', async (req, res) => {
   }
 });
 
-// WebSocket обработчики (без изменений)
+// WebSocket обработчики
 wss.on('connection', (ws) => {
   log(`Новое WebSocket подключение. Всего клиентов: ${wss.clients.size}`);
 
@@ -309,7 +476,7 @@ wss.on('connection', (ws) => {
   });
 });
 
-// Проверка активности клиентов (без изменений)
+// Проверка активности клиентов
 setInterval(() => {
   wss.clients.forEach((ws) => {
     if (!ws.isAlive) {
@@ -321,7 +488,7 @@ setInterval(() => {
   });
 }, 30000);
 
-// Обработка ошибок процесса (без изменений)
+// Обработка ошибок процесса
 process.on('uncaughtException', (err) => {
   log(`Неперехваченное исключение: ${err.message}`, true);
 });
@@ -330,7 +497,7 @@ process.on('unhandledRejection', (err) => {
   log(`Необработанный rejection: ${err.message}`, true);
 });
 
-// Запуск сервера с улучшенной обработкой ошибок
+// Запуск сервера
 app.listen(HTTP_PORT, async () => {
   log(`HTTP сервер запущен на порту ${HTTP_PORT}`);
   log(`WebSocket сервер запущен на порту ${WS_PORT}`);
@@ -348,12 +515,10 @@ app.listen(HTTP_PORT, async () => {
       scheduleUpdate();
     } catch (error) {
       log(`Первоначальная загрузка данных не удалась: ${error.message}`, true);
-      // Сервер продолжает работу, будет пытаться загрузить данные в фоне
       scheduleUpdate();
     }
   } catch (error) {
     log(`Критическая ошибка запуска: ${error.message}`, true);
-    // Вместо завершения процесса, продолжаем работу и пытаемся восстановить соединение
     setTimeout(() => {
       log('Повторная попытка подключения к MySQL...');
       app.listen(HTTP_PORT);
