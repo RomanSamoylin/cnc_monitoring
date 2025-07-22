@@ -148,32 +148,32 @@ async function getMachineWorkingTime(machineId) {
     }
     
     // Генерируем данные для графиков
-    const chartData = {
-      labels: Array.from({length: 24}, (_, i) => `${i}:00`),
-      datasets: [
+    chartData: {
+    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+    datasets [
         {
-          label: 'Работает',
-          data: generateHourlyData(workingTime),
-          backgroundColor: 'rgba(40, 167, 69, 0.2)',
-          borderColor: 'rgba(40, 167, 69, 1)',
-          borderWidth: 1
+            label: 'Работает',
+            data: generateHourlyData(workingTime),
+            backgroundColor: 'rgba(46, 204, 113, 0.2)', // Зеленый
+            borderColor: 'rgba(46, 204, 113, 1)',
+            borderWidth: 1
         },
         {
-          label: 'Остановлен',
-          data: generateHourlyData(stoppedTime),
-          backgroundColor: 'rgba(255, 193, 7, 0.2)',
-          borderColor: 'rgba(255, 193, 7, 1)',
-          borderWidth: 1
+            label: 'Остановлен',
+            data: generateHourlyData(stoppedTime),
+            backgroundColor: 'rgba(231, 76, 60, 0.2)', // Красный
+            borderColor: 'rgba(231, 76, 60, 1)',
+            borderWidth: 1
         },
         {
-          label: 'Выключен',
-          data: generateHourlyData(shutdownTime),
-          backgroundColor: 'rgba(220, 53, 69, 0.2)',
-          borderColor: 'rgba(220, 53, 69, 1)',
-          borderWidth: 1
+            label: 'Выключен',
+            data: generateHourlyData(shutdownTime),
+            backgroundColor: 'rgba(149, 165, 166, 0.2)', // Серый
+            borderColor: 'rgba(149, 165, 166, 1)',
+            borderWidth: 1
         }
-      ]
-    };
+    ]
+};
     
     return {
       workingMinutes: Math.round(workingTime),

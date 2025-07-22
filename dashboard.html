@@ -8,73 +8,7 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    <style>
-        :root {
-            --working-color: #28a745;
-            --stopped-color: #979691;
-            --shutdown-color: #dc3545;
-            --text-color: #333;
-        }
 
-        .machine-card {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .machine-chart-container {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: rgba(0, 0, 0, 0.03);
-            border-radius: 8px;
-        }
-        
-        .chart-row {
-            display: flex;
-            flex-wrap: wrap;
-            margin: 0 -10px;
-        }
-        
-        .chart-half {
-            flex: 1 1 50%;
-            min-width: 300px;
-            padding: 0 10px;
-            box-sizing: border-box;
-        }
-        
-        .machine-chart {
-            width: 100% !important;
-            height: 250px !important;
-            margin-bottom: 15px;
-        }
-        
-        .chart-title {
-            text-align: center;
-            font-weight: bold;
-            margin: 10px 0;
-            color: var(--text-color);
-            font-size: 16px;
-        }
-        
-        .time-stats {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .time-stat {
-            text-align: center;
-            padding: 8px 12px;
-            border-radius: 4px;
-            background-color: rgba(0, 0, 0, 0.05);
-            margin: 5px;
-            font-size: 13px;
-        }
-        
-        .time-stat.working { color: var(--working-color); }
-        .time-stat.stopped { color: var(--stopped-color); }
-        .time-stat.shutdown { color: var(--shutdown-color); }
-    </style>
 </head>
 <body>
     <header>
@@ -118,14 +52,14 @@
                 <div class="filter-group">
                     <button class="filter-btn active" data-status="all">Все</button>
                     <button class="filter-btn" data-status="working">
-                        <i class="fas fa-circle" style="color: var(--working-color);"></i> Работают
-                    </button>
-                    <button class="filter-btn" data-status="stopped">
-                        <i class="fas fa-circle" style="color: var(--stopped-color);"></i> Остановлены
-                    </button>
-                    <button class="filter-btn" data-status="shutdown">
-                        <i class="fas fa-circle" style="color: var(--shutdown-color);"></i> Выключены
-                    </button>
+    <i class="fas fa-circle" style="color: #2ecc71;"></i> Работают
+</button>
+<button class="filter-btn" data-status="stopped">
+    <i class="fas fa-circle" style="color: #e74c3c;"></i> Остановлены
+</button>
+<button class="filter-btn" data-status="shutdown">
+    <i class="fas fa-circle" style="color: #95a5a6;"></i> Выключены
+</button>
                 </div>
             </div>
         </div>
@@ -426,16 +360,16 @@
                             workingTimeData.stoppedMinutes,
                             workingTimeData.shutdownMinutes
                         ],
-                        backgroundColor: [
-                            'rgba(40, 167, 69, 0.8)',
-                            'rgba(255, 193, 7, 0.8)',
-                            'rgba(220, 53, 69, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgba(40, 167, 69, 1)',
-                            'rgba(255, 193, 7, 1)',
-                            'rgba(220, 53, 69, 1)'
-                        ],
+                       backgroundColor: [
+    'rgba(46, 204, 113, 0.8)', // Зеленый для "Работает"
+    'rgba(231, 76, 60, 0.8)',   // Красный для "Остановлен"
+    'rgba(149, 165, 166, 0.8)'  // Серый для "Выключен"
+],
+borderColor: [
+    'rgba(46, 204, 113, 1)',
+    'rgba(231, 76, 60, 1)',
+    'rgba(149, 165, 166, 1)'
+],
                         borderWidth: 1
                     }]
                 },
@@ -460,49 +394,75 @@
         }
 
         // Создание графика работы по часам
-        function createDailyChart(canvasId, chartData) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            const chartKey = `${canvasId}-daily`;
-            
-            // Удаляем старый график, если он существует
-            if (state.charts[chartKey]) {
-                state.charts[chartKey].destroy();
-            }
-            
-            state.charts[chartKey] = new Chart(ctx, {
-                type: 'bar',
-                data: chartData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            stacked: true,
-                        },
-                        y: {
-                            stacked: true,
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Минуты'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.dataset.label}: ${context.raw} мин`;
-                                }
-                            }
+function createDailyChart(canvasId, chartData) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    const chartKey = `${canvasId}-daily`;
+    
+    // Обновляем цвета в данных графика
+    chartData.datasets = chartData.datasets.map(dataset => {
+        if (dataset.label === 'Работает') {
+            return {
+                ...dataset,
+                backgroundColor: 'rgba(46, 204, 113, 0.7)', // Зеленый
+                borderColor: 'rgba(46, 204, 113, 1)'
+            };
+        }
+        if (dataset.label === 'Остановлен') {
+            return {
+                ...dataset,
+                backgroundColor: 'rgba(231, 76, 60, 0.7)', // Красный
+                borderColor: 'rgba(231, 76, 60, 1)'
+            };
+        }
+        if (dataset.label === 'Выключен') {
+            return {
+                ...dataset,
+                backgroundColor: 'rgba(149, 165, 166, 0.7)', // Серый
+                borderColor: 'rgba(149, 165, 166, 1)'
+            };
+        }
+        return dataset;
+    });
+    
+    // Удаляем старый график, если он существует
+    if (state.charts[chartKey]) {
+        state.charts[chartKey].destroy();
+    }
+    
+    state.charts[chartKey] = new Chart(ctx, {
+        type: 'bar',
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    stacked: true,
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Минуты'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.raw} мин`;
                         }
                     }
                 }
-            });
+            }
         }
+    });
+}
 
         // Сохранение/восстановление фильтров
         function saveFilters() {
