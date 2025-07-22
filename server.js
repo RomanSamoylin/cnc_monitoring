@@ -73,9 +73,34 @@ function determineMachineStatus(statusData) {
   }
 }
 
-// Генерация случайных данных для графика
-function generateRandomData(count, max) {
-  return Array.from({length: count}, () => Math.floor(Math.random() * max));
+// Генерация данных графика по умолчанию
+function generateDefaultChartData() {
+  return {
+    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+    datasets: [
+      {
+        label: 'Работает',
+        data: Array(24).fill(0),
+        backgroundColor: 'rgba(46, 204, 113, 0.7)',
+        borderColor: 'rgba(46, 204, 113, 1)',
+        borderWidth: 1
+      },
+      {
+        label: 'Остановлен',
+        data: Array(24).fill(0),
+        backgroundColor: 'rgba(231, 76, 60, 0.7)',
+        borderColor: 'rgba(231, 76, 60, 1)',
+        borderWidth: 1
+      },
+      {
+        label: 'Выключен',
+        data: Array(24).fill(0),
+        backgroundColor: 'rgba(149, 165, 166, 0.7)',
+        borderColor: 'rgba(149, 165, 166, 1)',
+        borderWidth: 1
+      }
+    ]
+  };
 }
 
 // Получение данных о времени работы станка за текущий день
@@ -108,25 +133,26 @@ async function getMachineWorkingTime(machineId) {
       };
     }
     
-    // Анализируем временные отрезки
-    let workingTime = 0;
-    let stoppedTime = 0;
-    let shutdownTime = 0;
-    let lastTimestamp = today;
-    let lastStatus = { status: 'shutdown', statusText: 'Выключено' };
+    // Инициализация данных по часам
+    const hourlyData = Array(24).fill().map(() => ({
+      working: 0,
+      stopped: 0,
+      shutdown: 0
+    }));
     
-    statusHistory.forEach(record => {
+    let lastTimestamp = today;
+    let lastStatus = determineMachineStatus({
+      SystemState: statusHistory[0]?.event_type === 7 ? statusHistory[0]?.value : undefined,
+      MUSP: statusHistory[0]?.event_type === 21 ? statusHistory[0]?.value : undefined
+    });
+    
+    // Обработка истории статусов
+    for (const record of statusHistory) {
       const currentTimestamp = new Date(record.timestamp);
       const timeDiff = (currentTimestamp - lastTimestamp) / 60000; // в минутах
       
-      // Добавляем время предыдущего статуса
-      if (lastStatus.status === 'working') {
-        workingTime += timeDiff;
-      } else if (lastStatus.status === 'stopped') {
-        stoppedTime += timeDiff;
-      } else {
-        shutdownTime += timeDiff;
-      }
+      // Распределяем время по часам между lastTimestamp и currentTimestamp
+      distributeTimeAcrossHours(lastTimestamp, currentTimestamp, timeDiff, lastStatus, hourlyData);
       
       // Обновляем последний статус
       lastStatus = determineMachineStatus({
@@ -135,50 +161,50 @@ async function getMachineWorkingTime(machineId) {
       });
       
       lastTimestamp = currentTimestamp;
-    });
-    
-    // Добавляем время от последней записи до текущего момента
-    const finalTimeDiff = (new Date() - lastTimestamp) / 60000;
-    if (lastStatus.status === 'working') {
-      workingTime += finalTimeDiff;
-    } else if (lastStatus.status === 'stopped') {
-      stoppedTime += finalTimeDiff;
-    } else {
-      shutdownTime += finalTimeDiff;
     }
     
-    // Генерируем данные для графиков
-    chartData: {
-    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
-    datasets [
+    // Обработка времени от последней записи до текущего момента
+    const now = new Date();
+    const finalTimeDiff = (now - lastTimestamp) / 60000;
+    distributeTimeAcrossHours(lastTimestamp, now, finalTimeDiff, lastStatus, hourlyData);
+    
+    // Подготовка данных для графика
+    const chartData = {
+      labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+      datasets: [
         {
-            label: 'Работает',
-            data: generateHourlyData(workingTime),
-            backgroundColor: 'rgba(46, 204, 113, 0.2)', // Зеленый
-            borderColor: 'rgba(46, 204, 113, 1)',
-            borderWidth: 1
+          label: 'Работает',
+          data: hourlyData.map(h => Math.round(h.working)),
+          backgroundColor: 'rgba(46, 204, 113, 0.7)',
+          borderColor: 'rgba(46, 204, 113, 1)',
+          borderWidth: 1
         },
         {
-            label: 'Остановлен',
-            data: generateHourlyData(stoppedTime),
-            backgroundColor: 'rgba(231, 76, 60, 0.2)', // Красный
-            borderColor: 'rgba(231, 76, 60, 1)',
-            borderWidth: 1
+          label: 'Остановлен',
+          data: hourlyData.map(h => Math.round(h.stopped)),
+          backgroundColor: 'rgba(231, 76, 60, 0.7)',
+          borderColor: 'rgba(231, 76, 60, 1)',
+          borderWidth: 1
         },
         {
-            label: 'Выключен',
-            data: generateHourlyData(shutdownTime),
-            backgroundColor: 'rgba(149, 165, 166, 0.2)', // Серый
-            borderColor: 'rgba(149, 165, 166, 1)',
-            borderWidth: 1
+          label: 'Выключен',
+          data: hourlyData.map(h => Math.round(h.shutdown)),
+          backgroundColor: 'rgba(149, 165, 166, 0.7)',
+          borderColor: 'rgba(149, 165, 166, 1)',
+          borderWidth: 1
         }
-    ]
-};
+      ]
+    };
+    
+    // Общее время за день
+    const totalWorking = hourlyData.reduce((sum, h) => sum + h.working, 0);
+    const totalStopped = hourlyData.reduce((sum, h) => sum + h.stopped, 0);
+    const totalShutdown = hourlyData.reduce((sum, h) => sum + h.shutdown, 0);
     
     return {
-      workingMinutes: Math.round(workingTime),
-      stoppedMinutes: Math.round(stoppedTime),
-      shutdownMinutes: Math.round(shutdownTime),
+      workingMinutes: Math.round(totalWorking),
+      stoppedMinutes: Math.round(totalStopped),
+      shutdownMinutes: Math.round(totalShutdown),
       lastUpdate: new Date().toISOString(),
       chartData: chartData
     };
@@ -197,48 +223,31 @@ async function getMachineWorkingTime(machineId) {
   }
 }
 
-// Генерация данных по часам
-function generateHourlyData(totalMinutes) {
-  const data = Array(24).fill(0);
-  const remainingMinutes = totalMinutes;
+// Распределение времени по часам между двумя временными метками
+function distributeTimeAcrossHours(startTime, endTime, totalMinutes, status, hourlyData) {
+  let remainingMinutes = totalMinutes;
+  let currentTime = new Date(startTime);
   
-  // Распределяем минуты по часам
-  for (let i = 0; i < 24 && remainingMinutes > 0; i++) {
-    const maxForHour = Math.min(60, remainingMinutes);
-    data[i] = Math.floor(maxForHour * Math.random());
+  while (remainingMinutes > 0 && currentTime < endTime) {
+    const currentHour = currentTime.getHours();
+    const nextHourTime = new Date(currentTime);
+    nextHourTime.setHours(currentHour + 1, 0, 0, 0);
+    
+    const segmentEndTime = new Date(Math.min(nextHourTime, endTime));
+    const segmentMinutes = (segmentEndTime - currentTime) / 60000;
+    
+    // Добавляем минуты к соответствующему статусу
+    if (status.status === 'working') {
+      hourlyData[currentHour].working += segmentMinutes;
+    } else if (status.status === 'stopped') {
+      hourlyData[currentHour].stopped += segmentMinutes;
+    } else {
+      hourlyData[currentHour].shutdown += segmentMinutes;
+    }
+    
+    remainingMinutes -= segmentMinutes;
+    currentTime = segmentEndTime;
   }
-  
-  return data;
-}
-
-// Генерация данных графика по умолчанию
-function generateDefaultChartData() {
-  return {
-    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
-    datasets: [
-      {
-        label: 'Работает',
-        data: Array(24).fill(0),
-        backgroundColor: 'rgba(40, 167, 69, 0.2)',
-        borderColor: 'rgba(40, 167, 69, 1)',
-        borderWidth: 1
-      },
-      {
-        label: 'Остановлен',
-        data: Array(24).fill(0),
-        backgroundColor: 'rgba(255, 193, 7, 0.2)',
-        borderColor: 'rgba(255, 193, 7, 1)',
-        borderWidth: 1
-      },
-      {
-        label: 'Выключен',
-        data: Array(24).fill(0),
-        backgroundColor: 'rgba(220, 53, 69, 0.2)',
-        borderColor: 'rgba(220, 53, 69, 1)',
-        borderWidth: 1
-      }
-    ]
-  };
 }
 
 // Получение данных станков
