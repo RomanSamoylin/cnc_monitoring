@@ -90,6 +90,33 @@ async function calculateMachineStatusTime(connection, machineId, startDate, endD
   return { off: offTime, idle: idleTime, active: activeTime };
 }
 
+// Функция для распределения времени по часам
+function distributeTime(startTime, endTime, totalMinutes, status, hourlyData) {
+  let remainingMinutes = totalMinutes;
+  let currentTime = new Date(startTime);
+  
+  while (remainingMinutes > 0 && currentTime < endTime) {
+    const currentHour = currentTime.getHours();
+    const nextHourTime = new Date(currentTime);
+    nextHourTime.setHours(currentHour + 1, 0, 0, 0);
+    
+    const segmentEndTime = new Date(Math.min(nextHourTime, endTime));
+    const segmentMinutes = (segmentEndTime - currentTime) / (1000 * 60);
+    
+    // Добавляем минуты к соответствующему статусу
+    if (status === 'active') {
+      hourlyData[currentHour].working += segmentMinutes;
+    } else if (status === 'idle') {
+      hourlyData[currentHour].stopped += segmentMinutes;
+    } else {
+      hourlyData[currentHour].shutdown += segmentMinutes;
+    }
+    
+    remainingMinutes -= segmentMinutes;
+    currentTime = segmentEndTime;
+  }
+}
+
 // Endpoint для получения сводных данных по цехам
 app.get('/api/workshops/summary', async (req, res) => {
   try {
@@ -225,8 +252,6 @@ app.get('/api/machines/:id/history/detailed', async (req, res) => {
       let currentStatus = 'off';
       let lastTimestamp = new Date(startDate);
 
-      historyData.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
       // Добавляем начальное состояние
       timelineData.push({
         timestamp: lastTimestamp.toISOString(),
@@ -260,6 +285,115 @@ app.get('/api/machines/:id/history/detailed', async (req, res) => {
     }
   } catch (error) {
     console.error('Error fetching machine detailed history:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Endpoint для получения почасовых данных по станку
+app.get('/api/machines/:id/hourly', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date } = req.query;
+    
+    if (!date) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Необходимо указать date' 
+      });
+    }
+
+    const startDate = new Date(date);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(date);
+    endDate.setHours(23, 59, 59, 999);
+
+    const connection = await mysql.createConnection(dbConfig);
+    
+    try {
+      // Получаем исторические данные
+      const [historyData] = await connection.execute(`
+        SELECT 
+          event_type,
+          value,
+          timestamp
+        FROM 
+          bit8_data
+        WHERE 
+          machine_id = ?
+          AND event_type IN (7, 21)
+          AND timestamp BETWEEN ? AND ?
+        ORDER BY 
+          timestamp ASC
+      `, [
+        id,
+        startDate.toISOString().slice(0, 19).replace('T', ' '),
+        endDate.toISOString().slice(0, 19).replace('T', ' ')
+      ]);
+
+      // Инициализация данных по часам
+      const hourlyData = Array(24).fill().map(() => ({
+        working: 0,
+        stopped: 0,
+        shutdown: 0
+      }));
+
+      let lastTimestamp = startDate;
+      let currentStatus = 'off';
+
+      // Обрабатываем каждое событие
+      for (const event of historyData) {
+        const eventTime = new Date(event.timestamp);
+        const timeDiffMinutes = (eventTime - lastTimestamp) / (1000 * 60);
+
+        // Распределяем время по часам
+        distributeTime(lastTimestamp, eventTime, timeDiffMinutes, currentStatus, hourlyData);
+
+        // Обновляем статус
+        currentStatus = determineStatus(event.event_type, event.value, currentStatus);
+        lastTimestamp = eventTime;
+      }
+
+      // Обрабатываем оставшееся время до конца дня
+      const finalTimeDiff = (endDate - lastTimestamp) / (1000 * 60);
+      distributeTime(lastTimestamp, endDate, finalTimeDiff, currentStatus, hourlyData);
+
+      // Формируем данные для графика
+      const chartData = {
+        labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+        datasets: [
+          {
+            label: 'Работает',
+            data: hourlyData.map(h => Math.round(h.working)),
+            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+            borderColor: 'rgba(46, 204, 113, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'Остановлен',
+            data: hourlyData.map(h => Math.round(h.stopped)),
+            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+            borderColor: 'rgba(231, 76, 60, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'Выключен',
+            data: hourlyData.map(h => Math.round(h.shutdown)),
+            backgroundColor: 'rgba(149, 165, 166, 0.7)',
+            borderColor: 'rgba(149, 165, 166, 1)',
+            borderWidth: 1
+          }
+        ]
+      };
+
+      res.json({
+        success: true,
+        data: chartData
+      });
+    } finally {
+      await connection.end();
+    }
+  } catch (error) {
+    console.error('Error fetching machine hourly data:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

@@ -8,6 +8,17 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles2.css">
+    <style>
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -75,7 +86,7 @@
                     <canvas id="pieChart"></canvas>
                 </div>
                 <div class="chart-container">
-                    <h3 id="barChartTitle">Состояние станков (вертикальные столбцы)</h3>
+                    <h3 id="barChartTitle">Работа станков по часам</h3>
                     <canvas id="barChart"></canvas>
                 </div>
                 <div class="chart-container">
@@ -163,6 +174,7 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'top' },
                         tooltip: {
@@ -180,50 +192,65 @@
                 }
             });
             
-            // Вертикальная столбчатая диаграмма
+            // Вертикальная столбчатая диаграмма (почасовые данные)
             const barCtx = document.getElementById('barChart').getContext('2d');
             barChart = new Chart(barCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['ЦЕХ-1', 'ЦЕХ-2'],
+                    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
                     datasets: [
                         {
-                            label: STATUS_LABELS[STATUS_OFF],
-                            data: [0, 0],
-                            backgroundColor: STATUS_COLORS[STATUS_OFF],
-                            borderColor: STATUS_COLORS[STATUS_OFF],
+                            label: 'Работает',
+                            data: Array(24).fill(0),
+                            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                            borderColor: 'rgba(46, 204, 113, 1)',
                             borderWidth: 1
                         },
                         {
-                            label: STATUS_LABELS[STATUS_IDLE],
-                            data: [0, 0],
-                            backgroundColor: STATUS_COLORS[STATUS_IDLE],
-                            borderColor: STATUS_COLORS[STATUS_IDLE],
+                            label: 'Остановлен',
+                            data: Array(24).fill(0),
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                            borderColor: 'rgba(231, 76, 60, 1)',
                             borderWidth: 1
                         },
                         {
-                            label: STATUS_LABELS[STATUS_ACTIVE],
-                            data: [0, 0],
-                            backgroundColor: STATUS_COLORS[STATUS_ACTIVE],
-                            borderColor: STATUS_COLORS[STATUS_ACTIVE],
+                            label: 'Выключен',
+                            data: Array(24).fill(0),
+                            backgroundColor: 'rgba(149, 165, 166, 0.7)',
+                            borderColor: 'rgba(149, 165, 166, 1)',
                             borderWidth: 1
                         }
                     ]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
-                        x: { stacked: true },
+                        x: { 
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Часы'
+                            }
+                        },
                         y: { 
                             stacked: true,
-                            title: { display: true, text: 'Часы' }
+                            title: { 
+                                display: true, 
+                                text: 'Минуты' 
+                            },
+                            beginAtZero: true
                         }
                     },
                     plugins: {
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return `${context.dataset.label}: ${context.raw.toFixed(1)} ч`;
+                                    return `${context.dataset.label}: ${context.raw} мин`;
+                                },
+                                footer: function(context) {
+                                    const total = context[0].parsed._stacks.y[context[0].datasetIndex];
+                                    return `Всего: ${total} мин`;
                                 }
                             }
                         }
@@ -264,6 +291,7 @@
                 options: {
                     indexAxis: 'y',
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         x: { stacked: true },
                         y: { stacked: true }
@@ -313,6 +341,7 @@
                 options: {
                     indexAxis: 'y',
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         x: { stacked: true },
                         y: { stacked: true }
@@ -349,6 +378,7 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         y: {
                             min: 0,
@@ -474,6 +504,33 @@
             DOM.notification.appendChild(loadingIndicator);
             DOM.notification.className = 'notification show';
 
+            // Загружаем почасовые данные для основного графика
+            fetch(`${API_BASE_URL}/api/machines/${machineId}/hourly?date=${startDate}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Ошибка сети');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        updateHourlyChart(machineId, data.data);
+                    } else {
+                        console.error('Ошибка в данных:', data.error);
+                        // Показываем тестовые данные для отладки
+                        updateHourlyChart(machineId, {
+                            labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                            datasets: [
+                                {data: Array(24).fill().map(() => Math.floor(Math.random() * 30))},
+                                {data: Array(24).fill().map(() => Math.floor(Math.random() * 30))},
+                                {data: Array(24).fill().map(() => Math.floor(Math.random() * 30))}
+                            ]
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка загрузки почасовых данных:', error);
+                    showNotification('Ошибка загрузки почасовых данных', 'error');
+                });
+
             // Загружаем сводные данные
             fetch(`${API_BASE_URL}/api/machines/${machineId}/history/summary?startDate=${startDate}&endDate=${endDate}`)
                 .then(response => {
@@ -526,10 +583,10 @@
             ];
             pieChart.update();
             
-            // Вертикальная столбчатая диаграмма
-            barChart.data.datasets[0].data = [workshopData.workshop1.off, workshopData.workshop2.off];
-            barChart.data.datasets[1].data = [workshopData.workshop1.idle, workshopData.workshop2.idle];
-            barChart.data.datasets[2].data = [workshopData.workshop1.active, workshopData.workshop2.active];
+            // Вертикальная столбчатая диаграмма (очищаем данные)
+            barChart.data.datasets.forEach(dataset => {
+                dataset.data = Array(24).fill(0);
+            });
             barChart.update();
             
             // Горизонтальная столбчатая диаграмма
@@ -540,10 +597,63 @@
             
             // Обновляем заголовки
             document.getElementById('pieChartTitle').textContent = `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
-            document.getElementById('barChartTitle').textContent = `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
+            document.getElementById('barChartTitle').textContent = `Работа станков по часам (${DOM.startDate.value})`;
             document.getElementById('horizontalBarChartTitle').textContent = `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
         }
         
+        // Обновление почасового графика станка
+        function updateHourlyChart(machineId, chartData) {
+            const machine = machinesList.find(m => m.id === machineId);
+            if (!machine) {
+                console.error('Станок не найден:', machineId);
+                return;
+            }
+
+            console.log('Обновление почасового графика:', chartData);
+
+            // Проверка и нормализация данных
+            const validatedData = {
+                labels: chartData.labels || Array.from({length: 24}, (_, i) => `${i}:00`),
+                datasets: [
+                    {
+                        label: 'Работает',
+                        data: chartData.datasets?.[0]?.data || Array(24).fill(0),
+                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Остановлен',
+                        data: chartData.datasets?.[1]?.data || Array(24).fill(0),
+                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Выключен',
+                        data: chartData.datasets?.[2]?.data || Array(24).fill(0),
+                        backgroundColor: 'rgba(149, 165, 166, 0.7)',
+                        borderColor: 'rgba(149, 165, 166, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            };
+
+            // Обновляем данные графика
+            barChart.data.labels = validatedData.labels;
+            barChart.data.datasets.forEach((dataset, index) => {
+                dataset.data = validatedData.datasets[index].data;
+            });
+
+            try {
+                barChart.update();
+                document.getElementById('barChartTitle').textContent = 
+                    `Работа станка ${machine.name} (ID: ${machineId}) по часам (${DOM.startDate.value})`;
+            } catch (e) {
+                console.error('Ошибка обновления графика:', e);
+            }
+        }
+
         // Обновление графика станка
         function updateMachineChart(machineId, data) {
             const machine = machinesList.find(m => m.id === machineId);
@@ -724,7 +834,6 @@
                 }
             });
         });
-    </script>]
-    
+    </script>
 </body>
 </html>

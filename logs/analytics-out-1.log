@@ -168,3 +168,29 @@ Analytics server running on port 3001
 Current server time: Tue Jul 22 2025 14:56:23 GMT+0300 (Москва, стандартное время)
 Analytics server running on port 3001
 Current server time: Tue Jul 22 2025 15:09:18 GMT+0300 (Москва, стандартное время)
+Analytics server running on port 3001
+Current server time: Tue Jul 22 2025 16:24:09 GMT+0300 (Москва, стандартное время)
+Analytics server running on port 3001
+Current server time: Wed Jul 23 2025 08:31:40 GMT+0300 (Москва, стандартное время)
+Analytics server running on port 3001
+Current server time: Wed Jul 23 2025 09:07:15 GMT+0300 (Москва, стандартное время)
+Analytics server running on port 3001
+Current server time: Wed Jul 23 2025 09:30:06 GMT+0300 (Москва, стандартное время)
+Analytics server running on port 3001
+Current server time: Wed Jul 23 2025 09:37:24 GMT+0300 (Москва, стандартное время)
+Analytics server running on port 3001
+Current server time: Wed Jul 23 2025 11:31:45 GMT+0300 (Москва, стандартное время)
+Analytics server running on port 3001
+Current server time: Wed Jul 23 2025 12:18:17 GMT+0300 (Москва, стандартное время)
+Analytics server running on port 3001
+Current server time: Wed Jul 23 2025 12:47:19 GMT+0300 (Москва, стандартное время)
+Сервер аналитики запущен на порту 3001
+Текущее время сервера: Wed Jul 23 2025 13:30:09 GMT+0300 (Москва, стандартное время)
+Конфигурация БД: {
+  host: '192.168.1.30',
+  user: 'monitor',
+  password: '***',
+  database: 'cnc_monitoring',
+  timezone: '+03:00',
+  connectionLimit: 10
+}
