@@ -339,3 +339,6 @@ Error fetching workshop summary: Error: connect ECONNREFUSED 192.168.1.42:3306
   errno: -4078,
   sqlState: undefined
 }
+Error fetching workshop summary: TypeError: Cannot read properties of undefined (reading 'idle')
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:224:69
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

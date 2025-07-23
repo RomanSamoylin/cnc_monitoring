@@ -194,3 +194,9 @@ Current server time: Wed Jul 23 2025 12:47:19 GMT+0300 (Москва, станд
   timezone: '+03:00',
   connectionLimit: 10
 }
+Analytics server running on port 3001
+Current server time: Wed Jul 23 2025 13:31:19 GMT+0300 (Москва, стандартное время)
+Analytics server running on port 3001
+Current server time: Wed Jul 23 2025 14:32:30 GMT+0300 (Москва, стандартное время)
+Analytics server running on port 3001
+Current server time: Wed Jul 23 2025 15:21:26 GMT+0300 (Москва, стандартное время)
