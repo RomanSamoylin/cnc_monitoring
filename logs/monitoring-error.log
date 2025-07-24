@@ -1654,3 +1654,32 @@ Error: bind EADDRINUSE null:3000
     at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:502:3)
     at process.emit (node:events:530:35)
     at process._fatalException (node:internal/process/execution:154:25)
+2025-07-23 16:34:18.298: [23.07.2025, 16:34:18] Ошибка обновления. Повтор через 30000ms
+2025-07-23 16:34:18.299: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:413:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-07-24 08:36:34.243: [24.07.2025, 08:36:34] Критическая ошибка запуска: connect ETIMEDOUT 192.168.1.30:3306
+2025-07-24 08:36:34.243: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at Server.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:530:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error: bind EADDRINUSE null:3000
+    at listenOnPrimaryHandle (node:net:2020:18)
+    at shared (node:internal/cluster/child:157:3)
+    at Worker.<anonymous> (node:internal/cluster/child:110:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:530:35)
+    at emit (node:internal/child_process:949:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+2025-07-24 08:36:44.254: [24.07.2025, 08:36:44] Неперехваченное исключение: bind EADDRINUSE null:3000
+2025-07-24 08:36:44.255: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:502:3)
+    at process.emit (node:events:530:35)
+    at process._fatalException (node:internal/process/execution:154:25)
+2025-07-24 14:26:38.527: [24.07.2025, 14:26:38] Ошибка обновления. Повтор через 30000ms
+2025-07-24 14:26:38.528: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:413:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

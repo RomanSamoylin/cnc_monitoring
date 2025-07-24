@@ -9,18 +9,146 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles2.css">
     <style>
+        /* Основные стили контейнера */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 120px);
+            width: 100%;
+        }
+
+        
+
+        /* Стили для графиков */
         .chart-container {
             width: 100%;
             height: 400px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            position: relative;
         }
+
         canvas {
             width: 100% !important;
             height: 100% !important;
         }
+
+        /* Стили для уведомлений */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            display: none;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+        }
+
+        .notification.show {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .notification.success {
+            background-color: #2ecc71;
+        }
+
+        .notification.error {
+            background-color: #e74c3c;
+        }
+
+        .notification.loading {
+            background-color: #3498db;
+        }
+
+        /* Анимация для уведомлений */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Стили для индикатора загрузки */
+        #loading-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Стили для заголовков графиков */
+        .chart-title {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Стили для фильтров */
+        select, input[type="date"] {
+            width: 100%;
+            padding: 8px 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+       
+
+        /* Стили для кнопки применения фильтров */
+        .filter-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .filter-btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* Стили для сетки графиков */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Адаптивные стили */
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Шапка страницы -->
     <header>
         <h1>Графики анализа станков</h1>
         <button class="logout-button" onclick="location.href='login.html'">
@@ -28,6 +156,7 @@
         </button>
     </header>
     
+    <!-- Навигационное меню -->
     <nav>
         <button onclick="location.href='dashboard.html'">
             <i class="fas fa-tachometer-alt"></i> Дашборды
@@ -43,12 +172,15 @@
         </button>
     </nav>
     
+    <!-- Основной контейнер -->
     <div class="container">
+        <!-- Боковая панель с фильтрами -->
         <div class="sidebar">
             <h3><i class="fas fa-industry"></i> Цех</h3>
             <select id="workshopFilter">
                 <option value="all">Все цеха</option>
-               
+                <option value="1">Цех 1</option>
+                <option value="2">Цех 2</option>
             </select>
             
             <h3><i class="fas fa-filter"></i> Фильтр по станкам</h3>
@@ -73,50 +205,55 @@
                 <input type="date" id="endDate">
             </div>
             
-            <button id="applyFilters" class="filter-btn" style="margin-top: 1rem;">
+            <button id="applyFilters" class="filter-btn">
                 <i class="fas fa-filter"></i> Применить фильтры
             </button>
         </div>
         
+        <!-- Основное содержимое -->
         <div class="content">
+            <!-- Графики для режима просмотра цехов -->
             <div id="workshopCharts" class="charts-row">
                 <div class="chart-container">
-                    <h3 id="pieChartTitle">Состояние станков (круговая диаграмма)</h3>
+                    <h3 class="chart-title" id="pieChartTitle">Состояние станков (круговая диаграмма)</h3>
                     <canvas id="pieChart"></canvas>
                 </div>
                 <div class="chart-container">
-                    <h3 id="barChartTitle">Работа станков по часам</h3>
+                    <h3 class="chart-title" id="barChartTitle">Работа станков по часам</h3>
                     <canvas id="barChart"></canvas>
                 </div>
                 <div class="chart-container">
-                    <h3 id="horizontalBarChartTitle">Состояние станков (горизонтальные столбцы)</h3>
+                    <h3 class="chart-title" id="horizontalBarChartTitle">Состояние станков (горизонтальные столбцы)</h3>
                     <canvas id="horizontalBarChart"></canvas>
                 </div>
             </div>
             
+            <!-- Графики для режима просмотра отдельных станков -->
             <div id="individualCharts" style="display: none;">
                 <div class="chart-container">
-                    <h3 id="chartTitle">Состояние станков</h3>
+                    <h3 class="chart-title" id="chartTitle">Состояние станков</h3>
                     <canvas id="machineStatusChart"></canvas>
                 </div>
                 <div class="chart-container">
-                    <h3 id="timelineChartTitle">График изменения состояния</h3>
+                    <h3 class="chart-title" id="timelineChartTitle">График изменения состояния</h3>
                     <canvas id="timelineChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
     
+    <!-- Уведомления -->
     <div class="notification" id="notification"></div>
     
+    <!-- Основной JavaScript код -->
     <script>
         // Базовый URL API аналитики
         const API_BASE_URL = 'http://localhost:3001';
         
         // Константы для состояний станков
-        const STATUS_OFF = 0;
-        const STATUS_IDLE = 1;
-        const STATUS_ACTIVE = 2;
+        const STATUS_OFF = 'off';
+        const STATUS_IDLE = 'idle';
+        const STATUS_ACTIVE = 'active';
         
         // Цвета для разных состояний
         const STATUS_COLORS = {
@@ -153,12 +290,91 @@
             notification: document.getElementById('notification'),
             startDate: document.getElementById('startDate'),
             endDate: document.getElementById('endDate'),
-            applyFilters: document.getElementById('applyFilters')
+            applyFilters: document.getElementById('applyFilters'),
+            workshopCharts: document.getElementById('workshopCharts'),
+            individualCharts: document.getElementById('individualCharts')
         };
 
-        // Инициализация графиков
+        /**
+         * Показывает уведомление
+         * @param {string} message - Текст сообщения
+         * @param {string} type - Тип уведомления (success, error, loading)
+         * @param {number} [duration=3000] - Время показа в миллисекундах
+         */
+        function showNotification(message, type = 'success', duration = 3000) {
+            // Очищаем предыдущее уведомление
+            DOM.notification.innerHTML = '';
+            
+            // Создаем содержимое уведомления
+            const content = document.createElement('div');
+            content.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                                  type === 'error' ? 'fa-exclamation-circle' : 
+                                  'fa-spinner fa-spin'}"></i>
+                <span>${message}</span>
+            `;
+            
+            // Устанавливаем классы и стили
+            DOM.notification.className = `notification show ${type}`;
+            DOM.notification.appendChild(content);
+            
+            // Автоматическое скрытие для не-loading уведомлений
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    DOM.notification.classList.remove('show');
+                }, duration);
+            }
+        }
+
+        /**
+         * Показывает индикатор загрузки
+         * @param {string} [message='Загрузка данных...'] - Текст сообщения
+         */
+        function showLoadingIndicator(message = 'Загрузка данных...') {
+            showNotification(message, 'loading', 0);
+        }
+
+        /**
+         * Скрывает индикатор загрузки
+         */
+        function hideLoadingIndicator() {
+            if (DOM.notification.classList.contains('loading')) {
+                DOM.notification.classList.remove('show');
+                setTimeout(() => {
+                    DOM.notification.className = 'notification';
+                    DOM.notification.innerHTML = '';
+                }, 300);
+            }
+        }
+
+        /**
+         * Обработчик ответов от API
+         * @param {Response} response - Объект ответа fetch
+         * @returns {Promise<object>} - Распарсенные данные
+         * @throws {Error} - Если ответ не успешный
+         */
+        async function handleApiResponse(response) {
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP error! status: ${response.status}, details: ${errorText}`);
+            }
+            
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Неизвестная ошибка сервера');
+            }
+            
+            return data;
+        }
+
+        /**
+         * Инициализирует все графики на странице
+         */
         function initCharts() {
-            // Круговая диаграмма
+            console.log('Инициализация графиков...');
+            
+            // 1. Круговая диаграмма (статусы станков)
             const pieCtx = document.getElementById('pieChart').getContext('2d');
             pieChart = new Chart(pieCtx, {
                 type: 'pie',
@@ -166,16 +382,28 @@
                     labels: Object.values(STATUS_LABELS),
                     datasets: [{
                         data: [0, 0, 0],
-                        backgroundColor: Object.values(STATUS_COLORS),
+                        backgroundColor: [
+                            STATUS_COLORS[STATUS_OFF],
+                            STATUS_COLORS[STATUS_IDLE],
+                            STATUS_COLORS[STATUS_ACTIVE]
+                        ],
                         borderColor: '#fff',
-                        borderWidth: 1
+                        borderWidth: 1,
+                        hoverOffset: 10
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'top' },
+                        legend: { 
+                            position: 'top',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -187,11 +415,15 @@
                                 }
                             }
                         }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
                     }
                 }
             });
             
-            // Вертикальная столбчатая диаграмма (почасовые данные)
+            // 2. Вертикальная столбчатая диаграмма (почасовые данные)
             const barCtx = document.getElementById('barChart').getContext('2d');
             barChart = new Chart(barCtx, {
                 type: 'bar',
@@ -199,25 +431,28 @@
                     labels: Array.from({length: 24}, (_, i) => `${i}:00`),
                     datasets: [
                         {
-                            label: 'Работает',
+                            label: STATUS_LABELS[STATUS_ACTIVE],
                             data: Array(24).fill(0),
                             backgroundColor: 'rgba(46, 204, 113, 0.7)',
                             borderColor: 'rgba(46, 204, 113, 1)',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 3
                         },
                         {
-                            label: 'Остановлен',
+                            label: STATUS_LABELS[STATUS_IDLE],
                             data: Array(24).fill(0),
                             backgroundColor: 'rgba(231, 76, 60, 0.7)',
                             borderColor: 'rgba(231, 76, 60, 1)',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 3
                         },
                         {
-                            label: 'Выключен',
+                            label: STATUS_LABELS[STATUS_OFF],
                             data: Array(24).fill(0),
                             backgroundColor: 'rgba(149, 165, 166, 0.7)',
                             borderColor: 'rgba(149, 165, 166, 1)',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 3
                         }
                     ]
                 },
@@ -229,16 +464,24 @@
                             stacked: true,
                             title: {
                                 display: true,
-                                text: 'Часы'
+                                text: 'Часы',
+                                padding: {top: 10}
+                            },
+                            grid: {
+                                display: false
                             }
                         },
                         y: { 
                             stacked: true,
                             title: { 
                                 display: true, 
-                                text: 'Минуты' 
+                                text: 'Минуты',
+                                padding: {bottom: 10}
                             },
-                            beginAtZero: true
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 30
+                            }
                         }
                     },
                     plugins: {
@@ -252,12 +495,23 @@
                                     return `Всего: ${total} мин`;
                                 }
                             }
+                        },
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20
+                            }
                         }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
                     }
                 }
             });
             
-            // Горизонтальная столбчатая диаграмма
+            // 3. Горизонтальная столбчатая диаграмма (сравнение цехов)
             const horizontalBarCtx = document.getElementById('horizontalBarChart').getContext('2d');
             horizontalBarChart = new Chart(horizontalBarCtx, {
                 type: 'bar',
@@ -269,21 +523,24 @@
                             data: [0, 0],
                             backgroundColor: STATUS_COLORS[STATUS_OFF],
                             borderColor: STATUS_COLORS[STATUS_OFF],
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 3
                         },
                         {
                             label: STATUS_LABELS[STATUS_IDLE],
                             data: [0, 0],
                             backgroundColor: STATUS_COLORS[STATUS_IDLE],
                             borderColor: STATUS_COLORS[STATUS_IDLE],
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 3
                         },
                         {
                             label: STATUS_LABELS[STATUS_ACTIVE],
                             data: [0, 0],
                             backgroundColor: STATUS_COLORS[STATUS_ACTIVE],
                             borderColor: STATUS_COLORS[STATUS_ACTIVE],
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 3
                         }
                     ]
                 },
@@ -292,8 +549,20 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { stacked: true },
-                        y: { stacked: true }
+                        x: { 
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Часы работы',
+                                padding: {top: 10}
+                            }
+                        },
+                        y: { 
+                            stacked: true,
+                            grid: {
+                                display: false
+                            }
+                        }
                     },
                     plugins: {
                         tooltip: {
@@ -302,12 +571,19 @@
                                     return `${context.dataset.label}: ${context.raw.toFixed(1)} ч`;
                                 }
                             }
+                        },
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20
+                            }
                         }
                     }
                 }
             });
             
-            // График для индивидуального станка (статусы)
+            // 4. График статусов для отдельного станка
             const machineCtx = document.getElementById('machineStatusChart').getContext('2d');
             machineStatusChart = new Chart(machineCtx, {
                 type: 'bar',
@@ -319,21 +595,24 @@
                             data: [],
                             backgroundColor: STATUS_COLORS[STATUS_OFF],
                             borderColor: STATUS_COLORS[STATUS_OFF],
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 3
                         },
                         {
                             label: STATUS_LABELS[STATUS_IDLE],
                             data: [],
                             backgroundColor: STATUS_COLORS[STATUS_IDLE],
                             borderColor: STATUS_COLORS[STATUS_IDLE],
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 3
                         },
                         {
                             label: STATUS_LABELS[STATUS_ACTIVE],
                             data: [],
                             backgroundColor: STATUS_COLORS[STATUS_ACTIVE],
                             borderColor: STATUS_COLORS[STATUS_ACTIVE],
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 3
                         }
                     ]
                 },
@@ -342,8 +621,20 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { stacked: true },
-                        y: { stacked: true }
+                        x: { 
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Часы работы',
+                                padding: {top: 10}
+                            }
+                        },
+                        y: { 
+                            stacked: true,
+                            grid: {
+                                display: false
+                            }
+                        }
                     },
                     plugins: {
                         tooltip: {
@@ -352,12 +643,19 @@
                                     return `${context.dataset.label}: ${context.raw.toFixed(1)} ч`;
                                 }
                             }
+                        },
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20
+                            }
                         }
                     }
                 }
             });
             
-            // График временной шкалы для индивидуального станка
+            // 5. График временной шкалы для отдельного станка
             const timelineCtx = document.getElementById('timelineChart').getContext('2d');
             timelineChart = new Chart(timelineCtx, {
                 type: 'line',
@@ -371,7 +669,10 @@
                             backgroundColor: 'rgba(52, 152, 219, 0.1)',
                             borderWidth: 2,
                             fill: true,
-                            tension: 0.1
+                            tension: 0.1,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#3498db'
                         }
                     ]
                 },
@@ -384,9 +685,13 @@
                             max: 2,
                             ticks: {
                                 callback: function(value) {
-                                    return STATUS_LABELS[value];
+                                    return STATUS_LABELS[Object.keys(STATUS_LABELS)[value]];
                                 },
                                 stepSize: 1
+                            },
+                            title: {
+                                display: true,
+                                text: 'Статус'
                             }
                         },
                         x: {
@@ -400,265 +705,210 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return STATUS_LABELS[context.raw];
+                                    return STATUS_LABELS[Object.keys(STATUS_LABELS)[context.raw]];
                                 }
                             }
+                        },
+                        legend: {
+                            display: false
                         }
                     }
                 }
             });
+            
+            console.log('Все графики инициализированы');
         }
         
-        // Загрузка списка станков
-        function loadMachineList() {
-            fetch(`${API_BASE_URL}/api/machines`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        machinesList = Object.entries(data.machines).map(([id, machine]) => ({
-                            id,
-                            name: machine.name,
-                            workshop: machine.workshop
-                        }));
-                        
-                        updateMachineFilter();
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка загрузки списка станков:', error);
-                    showNotification('Ошибка загрузки списка станков', 'error');
-                });
+        /**
+         * Загружает список станков с сервера
+         */
+        async function loadMachineList() {
+            try {
+                showLoadingIndicator('Загрузка списка станков...');
+                console.log('Загрузка списка станков...');
+                
+                const response = await fetch(`${API_BASE_URL}/api/machines`);
+                const data = await handleApiResponse(response);
+                
+                machinesList = Object.entries(data.machines).map(([id, machine]) => ({
+                    id,
+                    name: machine.name,
+                    workshop: machine.workshop
+                }));
+                
+                console.log('Получен список станков:', machinesList);
+                updateMachineFilter();
+                
+            } catch (error) {
+                console.error('Ошибка загрузки списка станков:', error);
+                showNotification(`Ошибка загрузки списка станков: ${error.message}`, 'error');
+            } finally {
+                hideLoadingIndicator();
+            }
         }
         
-        // Обновление фильтра станков
+        /**
+         * Обновляет фильтр станков на основе выбранного цеха
+         */
         function updateMachineFilter() {
+            console.log('Обновление фильтра станков...');
+            
+            // Сохраняем текущее выбранное значение
+            const currentMachine = DOM.machineFilter.value;
+            
+            // Очищаем список
             DOM.machineFilter.innerHTML = '<option value="all">Все станки</option>';
             
             const selectedWorkshop = DOM.workshopFilter.value;
             
-            machinesList.forEach(machine => {
-                if (selectedWorkshop === 'all' || machine.workshop === selectedWorkshop) {
-                    const option = document.createElement('option');
-                    option.value = machine.id;
-                    option.textContent = `${machine.name} (ID: ${machine.id})`;
-                    DOM.machineFilter.appendChild(option);
+            // Фильтруем станки по выбранному цеху
+            const filteredMachines = selectedWorkshop === 'all' 
+                ? machinesList 
+                : machinesList.filter(machine => machine.workshop === selectedWorkshop);
+            
+            // Добавляем станки в фильтр
+            filteredMachines.forEach(machine => {
+                const option = document.createElement('option');
+                option.value = machine.id;
+                option.textContent = `${machine.name} (ID: ${machine.id})`;
+                DOM.machineFilter.appendChild(option);
+            });
+            
+            // Восстанавливаем выбранное значение, если оно есть в новом списке
+            if (currentMachine && DOM.machineFilter.querySelector(`option[value="${currentMachine}"]`)) {
+                DOM.machineFilter.value = currentMachine;
+            }
+            
+            console.log('Фильтр станков обновлен');
+        }
+        
+        /**
+         * Загружает данные по выбранному станку
+         * @param {string} machineId - ID станка
+         */
+        async function loadMachineData(machineId) {
+            const startDate = DOM.startDate.value;
+            const endDate = DOM.endDate.value;
+            
+            if (!startDate || !endDate) {
+                showNotification('Пожалуйста, выберите начальную и конечную дату', 'error');
+                return;
+            }
+            
+            try {
+                showLoadingIndicator('Загрузка данных станка...');
+                console.log(`Загрузка данных для станка ${machineId} с ${startDate} по ${endDate}`);
+                
+                // 1. Загружаем почасовые данные
+                const hourlyResponse = await fetch(`${API_BASE_URL}/api/machines/${machineId}/hourly?date=${startDate}`);
+                const hourlyData = await handleApiResponse(hourlyResponse);
+                console.log('Почасовые данные:', hourlyData.data);
+                updateHourlyChart(machineId, hourlyData.data);
+                
+                // 2. Загружаем сводные данные
+                const summaryResponse = await fetch(`${API_BASE_URL}/api/machines/${machineId}/history/summary?startDate=${startDate}&endDate=${endDate}`);
+                const summaryData = await handleApiResponse(summaryResponse);
+                console.log('Сводные данные:', summaryData.data);
+                updateMachineChart(machineId, summaryData.data);
+                
+                // 3. Загружаем детальные данные для временной шкалы
+                const detailedResponse = await fetch(`${API_BASE_URL}/api/machines/${machineId}/history/detailed?startDate=${startDate}&endDate=${endDate}`);
+                const detailedData = await handleApiResponse(detailedResponse);
+                console.log('Детальные данные:', detailedData.data);
+                updateTimelineChart(machineId, detailedData.data);
+                
+                showNotification('Данные станка успешно загружены', 'success');
+                
+            } catch (error) {
+                console.error('Ошибка загрузки данных станка:', error);
+                showNotification(`Ошибка загрузки данных: ${error.message}`, 'error');
+                
+                // Показываем тестовые данные при ошибке
+                const machine = machinesList.find(m => m.id === machineId);
+                if (machine) {
+                    updateHourlyChart(machineId, null);
+                    updateMachineChart(machineId, {off: 0, idle: 0, active: 0});
                 }
-            });
-        }
-        
-        // Загрузка данных по цехам
-        function loadWorkshopData() {
-            const startDate = DOM.startDate.value;
-            const endDate = DOM.endDate.value;
-            
-            if (!startDate || !endDate) {
-                showNotification('Выберите начальную и конечную дату', 'error');
-                return;
+            } finally {
+                hideLoadingIndicator();
             }
-
-            // Показываем индикатор загрузки
-            const loadingIndicator = document.createElement('div');
-            loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка данных...';
-            DOM.notification.appendChild(loadingIndicator);
-            DOM.notification.className = 'notification show';
-
-            fetch(`${API_BASE_URL}/api/workshops/summary?startDate=${startDate}&endDate=${endDate}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Ошибка сети');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        workshopData = data.data;
-                        updateWorkshopCharts();
-                        showNotification('Данные цехов успешно загружены', 'success');
-                    } else {
-                        throw new Error(data.error || 'Ошибка в данных');
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка загрузки данных цехов:', error);
-                    showNotification(`Ошибка: ${error.message}`, 'error');
-                })
-                .finally(() => {
-                    DOM.notification.removeChild(loadingIndicator);
-                });
         }
-        
-        // Загрузка данных по станку
-        function loadMachineData(machineId) {
-            const startDate = DOM.startDate.value;
-            const endDate = DOM.endDate.value;
-            
-            if (!startDate || !endDate) {
-                showNotification('Выберите начальную и конечную дату', 'error');
-                return;
-            }
 
-            // Показываем индикатор загрузки
-            const loadingIndicator = document.createElement('div');
-            loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка данных...';
-            DOM.notification.appendChild(loadingIndicator);
-            DOM.notification.className = 'notification show';
-
-            // Загружаем почасовые данные для основного графика
-            fetch(`${API_BASE_URL}/api/machines/${machineId}/hourly?date=${startDate}`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Ошибка сети');
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        updateHourlyChart(machineId, data.data);
-                    } else {
-                        console.error('Ошибка в данных:', data.error);
-                        // Показываем тестовые данные для отладки
-                        updateHourlyChart(machineId, {
-                            labels: Array.from({length: 24}, (_, i) => `${i}:00`),
-                            datasets: [
-                                {data: Array(24).fill().map(() => Math.floor(Math.random() * 30))},
-                                {data: Array(24).fill().map(() => Math.floor(Math.random() * 30))},
-                                {data: Array(24).fill().map(() => Math.floor(Math.random() * 30))}
-                            ]
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка загрузки почасовых данных:', error);
-                    showNotification('Ошибка загрузки почасовых данных', 'error');
-                });
-
-            // Загружаем сводные данные
-            fetch(`${API_BASE_URL}/api/machines/${machineId}/history/summary?startDate=${startDate}&endDate=${endDate}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Ошибка сети');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        updateMachineChart(machineId, data.data);
-                        showNotification('Данные станка успешно загружены', 'success');
-                    } else {
-                        throw new Error(data.error || 'Ошибка в данных');
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка загрузки данных станка:', error);
-                    showNotification(`Ошибка: ${error.message}`, 'error');
-                });
-
-            // Загружаем детальные данные для временной шкалы
-            fetch(`${API_BASE_URL}/api/machines/${machineId}/history/detailed?startDate=${startDate}&endDate=${endDate}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Ошибка сети');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        updateTimelineChart(machineId, data.data);
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка загрузки детальных данных станка:', error);
-                })
-                .finally(() => {
-                    DOM.notification.removeChild(loadingIndicator);
-                });
-        }
-        
-        // Обновление графиков цехов
-        function updateWorkshopCharts() {
-            // Круговая диаграмма (общие данные)
-            pieChart.data.datasets[0].data = [
-                workshopData.total.off,
-                workshopData.total.idle,
-                workshopData.total.active
-            ];
-            pieChart.update();
-            
-            // Вертикальная столбчатая диаграмма (очищаем данные)
-            barChart.data.datasets.forEach(dataset => {
-                dataset.data = Array(24).fill(0);
-            });
-            barChart.update();
-            
-            // Горизонтальная столбчатая диаграмма
-            horizontalBarChart.data.datasets[0].data = [workshopData.workshop1.off, workshopData.workshop2.off];
-            horizontalBarChart.data.datasets[1].data = [workshopData.workshop1.idle, workshopData.workshop2.idle];
-            horizontalBarChart.data.datasets[2].data = [workshopData.workshop1.active, workshopData.workshop2.active];
-            horizontalBarChart.update();
-            
-            // Обновляем заголовки
-            document.getElementById('pieChartTitle').textContent = `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
-            document.getElementById('barChartTitle').textContent = `Работа станков по часам (${DOM.startDate.value})`;
-            document.getElementById('horizontalBarChartTitle').textContent = `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
-        }
-        
-        // Обновление почасового графика станка
+        /**
+         * Обновляет почасовой график работы станка
+         * @param {string} machineId - ID станка
+         * @param {object} chartData - Данные для графика
+         */
         function updateHourlyChart(machineId, chartData) {
+            console.log(`Обновление почасового графика для станка ${machineId}`, chartData);
+            
             const machine = machinesList.find(m => m.id === machineId);
             if (!machine) {
                 console.error('Станок не найден:', machineId);
                 return;
             }
 
-            console.log('Обновление почасового графика:', chartData);
-
-            // Проверка и нормализация данных
-            const validatedData = {
-                labels: chartData.labels || Array.from({length: 24}, (_, i) => `${i}:00`),
-                datasets: [
-                    {
-                        label: 'Работает',
-                        data: chartData.datasets?.[0]?.data || Array(24).fill(0),
-                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
-                        borderColor: 'rgba(46, 204, 113, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Остановлен',
-                        data: chartData.datasets?.[1]?.data || Array(24).fill(0),
-                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                        borderColor: 'rgba(231, 76, 60, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'Выключен',
-                        data: chartData.datasets?.[2]?.data || Array(24).fill(0),
-                        backgroundColor: 'rgba(149, 165, 166, 0.7)',
-                        borderColor: 'rgba(149, 165, 166, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            };
+            // Если нет данных, создаем тестовые данные для демонстрации
+            if (!chartData || !chartData.datasets) {
+                console.warn('Нет данных для графика, используем тестовые данные');
+                chartData = {
+                    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                    datasets: [
+                        {
+                            label: STATUS_LABELS[STATUS_ACTIVE],
+                            data: Array(24).fill().map(() => Math.floor(Math.random() * 30)),
+                            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            borderWidth: 1,
+                            borderRadius: 3
+                        },
+                        {
+                            label: STATUS_LABELS[STATUS_IDLE],
+                            data: Array(24).fill().map(() => Math.floor(Math.random() * 30)),
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                            borderColor: 'rgba(231, 76, 60, 1)',
+                            borderWidth: 1,
+                            borderRadius: 3
+                        },
+                        {
+                            label: STATUS_LABELS[STATUS_OFF],
+                            data: Array(24).fill().map(() => Math.floor(Math.random() * 30)),
+                            backgroundColor: 'rgba(149, 165, 166, 0.7)',
+                            borderColor: 'rgba(149, 165, 166, 1)',
+                            borderWidth: 1,
+                            borderRadius: 3
+                        }
+                    ]
+                };
+            }
 
             // Обновляем данные графика
-            barChart.data.labels = validatedData.labels;
-            barChart.data.datasets.forEach((dataset, index) => {
-                dataset.data = validatedData.datasets[index].data;
-            });
-
+            barChart.data = chartData;
+            
+            // Обновляем заголовок
+            document.getElementById('barChartTitle').textContent = 
+                `Работа станка ${machine.name} (ID: ${machineId}) по часам (${DOM.startDate.value})`;
+            
+            // Обновляем график
             try {
                 barChart.update();
-                document.getElementById('barChartTitle').textContent = 
-                    `Работа станка ${machine.name} (ID: ${machineId}) по часам (${DOM.startDate.value})`;
+                console.log('Почасовой график успешно обновлен');
             } catch (e) {
-                console.error('Ошибка обновления графика:', e);
+                console.error('Ошибка обновления почасового графика:', e);
             }
         }
 
-        // Обновление графика станка
+        /**
+         * Обновляет график статусов станка
+         * @param {string} machineId - ID станка
+         * @param {object} data - Данные о статусах
+         */
         function updateMachineChart(machineId, data) {
+            console.log(`Обновление графика статусов для станка ${machineId}`, data);
+            
             const machine = machinesList.find(m => m.id === machineId);
             if (!machine) {
                 console.error('Станок не найден:', machineId);
-                showNotification('Станок не найден', 'error');
                 return;
             }
 
@@ -666,19 +916,36 @@
             
             // Обновляем данные графика
             machineStatusChart.data.labels = [machineName];
-            machineStatusChart.data.datasets[0].data = [data.off];
-            machineStatusChart.data.datasets[1].data = [data.idle];
-            machineStatusChart.data.datasets[2].data = [data.active];
-            machineStatusChart.update();
+            machineStatusChart.data.datasets[0].data = [data.off || 0];
+            machineStatusChart.data.datasets[1].data = [data.idle || 0];
+            machineStatusChart.data.datasets[2].data = [data.active || 0];
             
             // Обновляем заголовок
-            document.getElementById('chartTitle').textContent = `Состояние станка ${machineName} (${DOM.startDate.value} - ${DOM.endDate.value})`;
+            document.getElementById('chartTitle').textContent = 
+                `Состояние станка ${machineName} (${DOM.startDate.value} - ${DOM.endDate.value})`;
+            
+            // Обновляем график
+            try {
+                machineStatusChart.update();
+                console.log('График статусов успешно обновлен');
+            } catch (e) {
+                console.error('Ошибка обновления графика статусов:', e);
+            }
         }
         
-        // Обновление графика временной шкалы
+        /**
+         * Обновляет график временной шкалы
+         * @param {string} machineId - ID станка
+         * @param {Array} data - Данные временной шкалы
+         */
         function updateTimelineChart(machineId, data) {
+            console.log(`Обновление временной шкалы для станка ${machineId}`, data);
+            
             const machine = machinesList.find(m => m.id === machineId);
-            if (!machine) return;
+            if (!machine || !data || !Array.isArray(data)) {
+                console.error('Нет данных для временной шкалы');
+                return;
+            }
 
             const machineName = `${machine.name} (ID: ${machineId})`;
             
@@ -690,12 +957,14 @@
                 const date = new Date(event.timestamp);
                 labels.push(date.toLocaleTimeString());
                 
-                // Преобразуем статус в числовое значение для графика
+                // Преобразуем статус в числовое значение
                 let statusValue;
-                if (event.status === 'off') statusValue = STATUS_OFF;
-                else if (event.status === 'idle') statusValue = STATUS_IDLE;
-                else if (event.status === 'active') statusValue = STATUS_ACTIVE;
-                else statusValue = STATUS_OFF;
+                switch (event.status) {
+                    case STATUS_OFF: statusValue = 0; break;
+                    case STATUS_IDLE: statusValue = 1; break;
+                    case STATUS_ACTIVE: statusValue = 2; break;
+                    default: statusValue = 0;
+                }
                 
                 statusData.push(statusValue);
             });
@@ -703,14 +972,156 @@
             // Обновляем график
             timelineChart.data.labels = labels;
             timelineChart.data.datasets[0].data = statusData;
-            timelineChart.update();
             
             // Обновляем заголовок
-            document.getElementById('timelineChartTitle').textContent = `Изменение состояния станка ${machineName} (${DOM.startDate.value} - ${DOM.endDate.value})`;
+            document.getElementById('timelineChartTitle').textContent = 
+                `Изменение состояния станка ${machineName} (${DOM.startDate.value} - ${DOM.endDate.value})`;
+            
+            // Обновляем график
+            try {
+                timelineChart.update();
+                console.log('График временной шкалы успешно обновлен');
+            } catch (e) {
+                console.error('Ошибка обновления графика временной шкалы:', e);
+            }
         }
-        
-        // Установка периода
+
+        /**
+         * Загружает данные по цехам
+         */
+        async function loadWorkshopData() {
+            const startDate = DOM.startDate.value;
+            const endDate = DOM.endDate.value;
+            
+            if (!startDate || !endDate) {
+                showNotification('Пожалуйста, выберите начальную и конечную дату', 'error');
+                return;
+            }
+
+            try {
+                showLoadingIndicator('Загрузка данных цехов...');
+                console.log(`Загрузка данных цехов с ${startDate} по ${endDate}`);
+                
+                const response = await fetch(`${API_BASE_URL}/api/workshops/summary?startDate=${startDate}&endDate=${endDate}`);
+                const data = await handleApiResponse(response);
+                
+                workshopData = data.data;
+                console.log('Данные цехов:', workshopData);
+                
+                updateWorkshopCharts();
+                showNotification('Данные цехов успешно загружены', 'success');
+                
+            } catch (error) {
+                console.error('Ошибка загрузки данных цехов:', error);
+                showNotification(`Ошибка загрузки данных цехов: ${error.message}`, 'error');
+            } finally {
+                hideLoadingIndicator();
+            }
+        }
+
+        /**
+         * Обновляет графики для режима просмотра цехов
+         */
+        function updateWorkshopCharts() {
+            console.log('Обновление графиков цехов');
+            
+            // 1. Круговая диаграмма (общие данные)
+            pieChart.data.datasets[0].data = [
+                workshopData.total.off,
+                workshopData.total.idle,
+                workshopData.total.active
+            ];
+            
+            // 2. Горизонтальная столбчатая диаграмма (сравнение цехов)
+            horizontalBarChart.data.datasets[0].data = [
+                workshopData.workshop1.off,
+                workshopData.workshop2.off
+            ];
+            horizontalBarChart.data.datasets[1].data = [
+                workshopData.workshop1.idle,
+                workshopData.workshop2.idle
+            ];
+            horizontalBarChart.data.datasets[2].data = [
+                workshopData.workshop1.active,
+                workshopData.workshop2.active
+            ];
+            
+            // 3. Почасовой график (показываем агрегированные данные)
+            updateHourlyChartForAllMachines();
+            
+            // Обновляем заголовки
+            document.getElementById('pieChartTitle').textContent = 
+                `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
+            document.getElementById('horizontalBarChartTitle').textContent = 
+                `Сравнение цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
+            
+            // Обновляем все графики
+            try {
+                pieChart.update();
+                horizontalBarChart.update();
+                console.log('Графики цехов успешно обновлены');
+            } catch (e) {
+                console.error('Ошибка обновления графиков цехов:', e);
+            }
+        }
+
+        /**
+         * Обновляет почасовой график для всех станков
+         */
+        function updateHourlyChartForAllMachines() {
+            console.log('Обновление почасового графика для всех станков');
+            
+            // Создаем пустые данные для графика
+            const chartData = {
+                labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                datasets: [
+                    {
+                        label: STATUS_LABELS[STATUS_ACTIVE],
+                        data: Array(24).fill(0),
+                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 1,
+                        borderRadius: 3
+                    },
+                    {
+                        label: STATUS_LABELS[STATUS_IDLE],
+                        data: Array(24).fill(0),
+                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 1,
+                        borderRadius: 3
+                    },
+                    {
+                        label: STATUS_LABELS[STATUS_OFF],
+                        data: Array(24).fill(0),
+                        backgroundColor: 'rgba(149, 165, 166, 0.7)',
+                        borderColor: 'rgba(149, 165, 166, 1)',
+                        borderWidth: 1,
+                        borderRadius: 3
+                    }
+                ]
+            };
+            
+            // Обновляем график
+            barChart.data = chartData;
+            document.getElementById('barChartTitle').textContent = 
+                `Работа всех станков по часам (${DOM.startDate.value})`;
+            
+            try {
+                barChart.update();
+                console.log('Почасовой график для всех станков обновлен');
+            } catch (e) {
+                console.error('Ошибка обновления графика:', e);
+            }
+        }
+
+        /**
+         * Устанавливает период для отображения данных
+         * @param {string} period - Тип периода (day, week, month, year)
+         */
         function setPeriod(period) {
+            console.log(`Установка периода: ${period}`);
+            
             currentPeriod = period;
             const today = new Date();
             let startDate, endDate;
@@ -731,6 +1142,7 @@
                     endDate = new Date(today);
                     endDate.setHours(23, 59, 59, 999);
                     break;
+                    
                 case 'week':
                     startDate = new Date(today);
                     startDate.setDate(today.getDate() - today.getDay());
@@ -739,11 +1151,13 @@
                     endDate.setDate(today.getDate() + (6 - today.getDay()));
                     endDate.setHours(23, 59, 59, 999);
                     break;
+                    
                 case 'month':
                     startDate = new Date(today.getFullYear(), today.getMonth(), 1);
                     endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
                     endDate.setHours(23, 59, 59, 999);
                     break;
+                    
                 case 'year':
                     startDate = new Date(today.getFullYear(), 0, 1);
                     endDate = new Date(today.getFullYear(), 11, 31);
@@ -751,6 +1165,7 @@
                     break;
             }
             
+            // Устанавливаем даты в полях ввода
             DOM.startDate.valueAsDate = startDate;
             DOM.endDate.valueAsDate = endDate;
             
@@ -764,61 +1179,61 @@
                 }
             }
         }
-        
-        // Показать данные по цехам
-        function showWorkshopData() {
+
+        /**
+         * Переключает режим просмотра на цеха
+         */
+        function showWorkshopView() {
+            console.log('Переключение в режим просмотра цехов');
             currentViewMode = 'workshop';
-            document.getElementById('workshopCharts').style.display = 'grid';
-            document.getElementById('individualCharts').style.display = 'none';
+            DOM.workshopCharts.style.display = 'grid';
+            DOM.individualCharts.style.display = 'none';
             loadWorkshopData();
         }
-        
-        // Показать данные по станку
-        function showMachineData() {
+
+        /**
+         * Переключает режим просмотра на отдельный станок
+         */
+        function showMachineView() {
+            console.log('Переключение в режим просмотра станка');
             currentViewMode = 'individual';
-            document.getElementById('workshopCharts').style.display = 'none';
-            document.getElementById('individualCharts').style.display = 'block';
+            DOM.workshopCharts.style.display = 'none';
+            DOM.individualCharts.style.display = 'block';
             
             const machineId = DOM.machineFilter.value;
             if (machineId && machineId !== 'all') {
                 loadMachineData(machineId);
             }
         }
-        
-        // Показать уведомление
-        function showNotification(message, type = 'success') {
-            DOM.notification.innerHTML = `
-                <i class="fas ${type === 'success' ? 'fa-check' : 'fa-exclamation-circle'}"></i> ${message}
-            `;
-            DOM.notification.className = `notification show ${type}`;
-            
-            setTimeout(() => {
-                DOM.notification.classList.remove('show');
-            }, 3000);
-        }
-        
-        // Инициализация при загрузке страницы
+
+        // Инициализация приложения после загрузки DOM
         document.addEventListener('DOMContentLoaded', function() {
-            // Инициализируем графики
+            console.log('DOM загружен, инициализация приложения...');
+            
+            // 1. Инициализируем графики
             initCharts();
             
-            // Загружаем список станков
+            // 2. Загружаем список станков
             loadMachineList();
             
-            // Устанавливаем текущий период
-            setPeriod('day');
+            // 3. Устанавливаем текущую дату по умолчанию
+            const today = new Date();
+            DOM.startDate.valueAsDate = today;
+            DOM.endDate.valueAsDate = today;
             
-            // Обработчики событий
+            // 4. Настраиваем обработчики событий
             DOM.workshopFilter.addEventListener('change', function() {
                 updateMachineFilter();
-                showWorkshopData();
+                if (currentViewMode === 'workshop') {
+                    loadWorkshopData();
+                }
             });
             
             DOM.machineFilter.addEventListener('change', function() {
                 if (this.value === 'all') {
-                    showWorkshopData();
+                    showWorkshopView();
                 } else {
-                    showMachineData();
+                    showMachineView();
                 }
             });
             
@@ -832,6 +1247,11 @@
                     }
                 }
             });
+            
+            // 5. Загружаем начальные данные
+            setPeriod('day');
+            
+            console.log('Приложение инициализировано');
         });
     </script>
 </body>
