@@ -51,7 +51,7 @@ function log(message, isError = false) {
   if (isError) console.error(new Error().stack);
 }
 
-// Определение статуса станка (обновленная версия)
+// Определение статуса станка (исправленная версия)
 function determineMachineStatus(statusData) {
   // Приоритет MUSP - если MUSP=1, станок выключен
   if (statusData.MUSP === 1) {
@@ -66,14 +66,18 @@ function determineMachineStatus(statusData) {
   const systemState = parseInt(statusData.SystemState);
   
   // Определение статуса на основе SystemState
-  switch (systemState) {
-    case 0: return { status: 'shutdown', statusText: 'Выключено' };
-    case 1: 
-    case 3: return { status: 'stopped', statusText: 'Остановлено' };
-    case 2: 
-    case 4: return { status: 'working', statusText: 'Работает' };
-    default: return { status: 'shutdown', statusText: 'Неизвестный статус' };
+  if (systemState === 0) {
+    return { status: 'shutdown', statusText: 'Выключено' };
+  } else if (systemState === 1 || systemState === 3) {
+    return { status: 'stopped', statusText: 'Остановлено' };
+  } else if (systemState === 2 || systemState === 4) {
+    // Проверяем дополнительные параметры для подтверждения работы
+    if (statusData.CONP === 1 && statusData.COMU === 1) {
+      return { status: 'working', statusText: 'Работает' };
+    }
+    return { status: 'stopped', statusText: 'Остановлено (ожидание)' };
   }
+  return { status: 'shutdown', statusText: 'Неизвестный статус' };
 }
 
 // Генерация данных графика по умолчанию
@@ -106,17 +110,17 @@ function generateDefaultChartData() {
   };
 }
 
-// Распределение времени по часам между двумя временными метками (обновленная версия)
-function distributeTimeAcrossHours(startTime, endTime, totalMinutes, status, hourlyData) {
-  let remainingMinutes = totalMinutes;
+// Распределение времени по часам между двумя временными метками (исправленная версия)
+function distributeTimeAcrossHours(startTime, endTime, status, hourlyData) {
   let currentTime = new Date(startTime);
+  const end = new Date(endTime);
   
-  while (remainingMinutes > 0 && currentTime < endTime) {
+  while (currentTime < end) {
     const currentHour = currentTime.getHours();
     const nextHourTime = new Date(currentTime);
     nextHourTime.setHours(currentHour + 1, 0, 0, 0);
     
-    const segmentEndTime = new Date(Math.min(nextHourTime, endTime));
+    const segmentEndTime = new Date(Math.min(nextHourTime, end));
     const segmentMinutes = (segmentEndTime - currentTime) / 60000;
     
     // Добавляем минуты к соответствующему статусу
@@ -128,12 +132,11 @@ function distributeTimeAcrossHours(startTime, endTime, totalMinutes, status, hou
       hourlyData[currentHour].shutdown += segmentMinutes;
     }
     
-    remainingMinutes -= segmentMinutes;
     currentTime = segmentEndTime;
   }
 }
 
-// Получение данных о времени работы станка за текущий день (обновленная версия)
+// Получение данных о времени работы станка за текущий день (исправленная версия)
 async function getMachineWorkingTime(machineId) {
   const connection = await pool.getConnection();
   
@@ -142,22 +145,16 @@ async function getMachineWorkingTime(machineId) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    // Получаем данные о статусе станка за текущий день
+    // Получаем все статусные данные за текущий день
     const [statusHistory] = await connection.query(`
       SELECT timestamp, event_type, value 
       FROM bit8_data 
       WHERE machine_id = ? 
-        AND event_type IN (7, 21)  /* SystemState и MUSP */
         AND timestamp >= ?
       ORDER BY timestamp ASC
     `, [machineId, today]);
     
-    // Логирование полученных данных для отладки
-    log(`Данные статуса для станка ${machineId}: ${JSON.stringify(statusHistory)}`);
-    
-    // Если данных нет, возвращаем значения по умолчанию
     if (statusHistory.length === 0) {
-      log(`Нет данных о статусе для станка ${machineId}`);
       return {
         workingMinutes: 0,
         stoppedMinutes: 0,
@@ -175,40 +172,47 @@ async function getMachineWorkingTime(machineId) {
     }));
     
     let lastTimestamp = today;
-    let lastStatus = { status: 'shutdown', statusText: 'Выключено' }; // Начальное состояние
+    let lastStatusData = {};
+    let lastStatus = { status: 'shutdown', statusText: 'Выключено' };
+    
+    // Группируем данные по timestamp
+    const groupedByTime = {};
+    statusHistory.forEach(record => {
+      if (!groupedByTime[record.timestamp]) {
+        groupedByTime[record.timestamp] = {};
+      }
+      groupedByTime[record.timestamp][record.event_type] = record.value;
+    });
     
     // Обработка истории статусов
-    for (const record of statusHistory) {
-      const currentTimestamp = new Date(record.timestamp);
-      const timeDiff = (currentTimestamp - lastTimestamp) / 60000; // в минутах
+    for (const [timestamp, records] of Object.entries(groupedByTime)) {
+      const currentTimestamp = new Date(timestamp);
       
-      // Определяем текущий статус на основе записи
-      let currentStatus;
-      if (record.event_type === 7) { // SystemState
-        currentStatus = determineMachineStatus({
-          SystemState: record.value,
-          MUSP: statusHistory.find(r => r.timestamp === record.timestamp && r.event_type === 21)?.value
-        });
-      } else if (record.event_type === 21) { // MUSP
-        currentStatus = determineMachineStatus({
-          SystemState: statusHistory.find(r => r.timestamp === record.timestamp && r.event_type === 7)?.value,
-          MUSP: record.value
-        });
-      }
+      // Формируем полные данные статуса
+      const currentStatusData = {
+        ...lastStatusData,
+        ...records
+      };
       
-      // Распределяем время по часам между lastTimestamp и currentTimestamp
-      if (currentStatus) {
-        distributeTimeAcrossHours(lastTimestamp, currentTimestamp, timeDiff, lastStatus, hourlyData);
-        lastStatus = currentStatus;
-      }
+      // Определяем текущий статус
+      const currentStatus = determineMachineStatus({
+        SystemState: currentStatusData[7],
+        MUSP: currentStatusData[21],
+        CONP: currentStatusData[32],
+        COMU: currentStatusData[19]
+      });
       
+      // Распределяем время между lastTimestamp и currentTimestamp
+      distributeTimeAcrossHours(lastTimestamp, currentTimestamp, lastStatus, hourlyData);
+      
+      lastStatus = currentStatus;
+      lastStatusData = currentStatusData;
       lastTimestamp = currentTimestamp;
     }
     
     // Обработка времени от последней записи до текущего момента
     const now = new Date();
-    const finalTimeDiff = (now - lastTimestamp) / 60000;
-    distributeTimeAcrossHours(lastTimestamp, now, finalTimeDiff, lastStatus, hourlyData);
+    distributeTimeAcrossHours(lastTimestamp, now, lastStatus, hourlyData);
     
     // Подготовка данных для графика
     const chartData = {
@@ -243,8 +247,6 @@ async function getMachineWorkingTime(machineId) {
     const totalStopped = hourlyData.reduce((sum, h) => sum + h.stopped, 0);
     const totalShutdown = hourlyData.reduce((sum, h) => sum + h.shutdown, 0);
     
-    log(`Время работы станка ${machineId}: работал ${Math.round(totalWorking)} мин, остановлен ${Math.round(totalStopped)} мин, выключен ${Math.round(totalShutdown)} мин`);
-    
     return {
       workingMinutes: Math.round(totalWorking),
       stoppedMinutes: Math.round(totalStopped),
@@ -254,7 +256,7 @@ async function getMachineWorkingTime(machineId) {
     };
     
   } catch (error) {
-    log(`Ошибка при получении времени работы станка ${machineId}: ${error.message}`, true);
+    console.error('Ошибка при получении времени работы станка:', error);
     return {
       workingMinutes: 0,
       stoppedMinutes: 0,
@@ -267,7 +269,7 @@ async function getMachineWorkingTime(machineId) {
   }
 }
 
-// Получение данных станков (обновленная версия)
+// Получение данных станков (исправленная версия)
 async function getMachineData() {
   // Проверка кэша
   const cacheAge = Date.now() - (dataCache.lastUpdated || 0);
@@ -313,23 +315,20 @@ async function getMachineData() {
       ORDER BY fd.id DESC
     `);
 
-    // Получаем статусы
+    // Получаем статусы и дополнительные параметры
     const [statusData] = await connection.query(`
       SELECT bd.machine_id, bd.event_type, bd.value
       FROM bit8_data bd
       JOIN (
         SELECT machine_id, event_type, MAX(timestamp) as max_ts
         FROM bit8_data
-        WHERE event_type IN (7, 21) /* SystemState и MUSP */
+        WHERE event_type IN (7, 21, 32, 19) /* SystemState, MUSP, CONP, COMU */
         GROUP BY machine_id, event_type
       ) latest ON bd.machine_id = latest.machine_id 
                 AND bd.event_type = latest.event_type
                 AND bd.timestamp = latest.max_ts
       ORDER BY bd.id DESC
     `);
-
-    // Логирование полученных статусов для отладки
-    log(`Полученные статусы станков: ${JSON.stringify(statusData)}`);
 
     // Группировка данных
     const statusMap = statusData.reduce((acc, row) => {
@@ -350,7 +349,9 @@ async function getMachineData() {
       const machineId = machine.machine_id;
       const status = determineMachineStatus({
         SystemState: statusMap[machineId]?.[7],
-        MUSP: statusMap[machineId]?.[21]
+        MUSP: statusMap[machineId]?.[21],
+        CONP: statusMap[machineId]?.[32],
+        COMU: statusMap[machineId]?.[19]
       });
 
       const params = paramsMap[machineId] || {};
@@ -374,7 +375,10 @@ async function getMachineData() {
         workingTime: await getMachineWorkingTime(machineId)
       };
 
-      log(`Сформированы данные для станка ${machineId}: ${JSON.stringify(machinesData[machineId])}`);
+      log(`Сформированы данные для станка ${machineId}: ${JSON.stringify({
+        ...machinesData[machineId],
+        workingTime: '...' // Не логируем полные данные workingTime для краткости
+      })}`);
     }
 
     // Обновление кэша
