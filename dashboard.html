@@ -39,7 +39,8 @@
                 <h3><i class="fas fa-industry"></i> Цех</h3>
                 <select id="workshopFilter">
                     <option value="all">Все цеха</option>
-                    
+                    <option value="1">Цех 1</option>
+                    <option value="2">Цех 2</option>
                 </select>
 
                 <h3><i class="fas fa-filter"></i> Фильтр по станкам</h3>
@@ -51,14 +52,14 @@
                 <div class="filter-group">
                     <button class="filter-btn active" data-status="all">Все</button>
                     <button class="filter-btn" data-status="working">
-    <i class="fas fa-circle" style="color: #2ecc71;"></i> Работают
-</button>
-<button class="filter-btn" data-status="stopped">
-    <i class="fas fa-circle" style="color: #e74c3c;"></i> Остановлены
-</button>
-<button class="filter-btn" data-status="shutdown">
-    <i class="fas fa-circle" style="color: #95a5a6;"></i> Выключены
-</button>
+                        <i class="fas fa-circle" style="color: var(--working-color);"></i> Работают
+                    </button>
+                    <button class="filter-btn" data-status="stopped">
+                        <i class="fas fa-circle" style="color: var(--stopped-color);"></i> Остановлены
+                    </button>
+                    <button class="filter-btn" data-status="shutdown">
+                        <i class="fas fa-circle" style="color: var(--shutdown-color);"></i> Выключены
+                    </button>
                 </div>
             </div>
         </div>
@@ -166,7 +167,7 @@
                 state.ws.onmessage = (event) => {
                     try {
                         const message = JSON.parse(event.data);
-                        console.log('Message received at:', new Date().toISOString(), 'Type:', message.type);
+                        console.log('Получено сообщение:', message.type, 'в', new Date().toLocaleTimeString());
                         
                         if (message.type === 'PONG') {
                             console.log('Получен ответ от сервера');
@@ -174,7 +175,7 @@
                         }
                         
                         if (message.type === 'INITIAL_DATA' || message.type === 'UPDATE') {
-                            console.log('Data timestamp:', message.timestamp);
+                            console.log('Обновление данных станков:', Object.keys(message.data).length, 'станков');
                             processMachineData(message.data);
                             updateLastUpdateTime(message.timestamp || new Date().toISOString());
                         }
@@ -289,10 +290,13 @@
         // Загрузка данных через HTTP (резервный метод)
         async function fetchData() {
             try {
+                console.log('Запрос данных через HTTP API');
                 const response = await fetch(`${config.apiUrl}/api/machines`);
                 if (!response.ok) throw new Error('Ошибка сети');
                 
                 const data = await response.json();
+                console.log('Получены данные:', data);
+                
                 if (data.success) {
                     processMachineData(data.machines);
                     updateLastUpdateTime(new Date().toISOString());
@@ -308,37 +312,11 @@
 
         // Обработка данных станков
         function processMachineData(machinesData) {
+            console.log('Обработка данных для', Object.keys(machinesData).length, 'станков');
             state.machines = machinesData;
             updateSummary();
             populateFilters();
             renderMachines();
-        }
-
-        // Определение статуса станка
-        function determineMachineStatus(statusData) {
-            if (statusData.MUSP === 1) {
-                return { status: 'shutdown', statusText: 'Выключено (MUSP)' };
-            }
-            
-            if (!statusData.SystemState && statusData.SystemState !== 0) {
-                return { status: 'shutdown', statusText: 'Нет данных' };
-            }
-            
-            const systemState = statusData.SystemState;
-            
-            if (systemState === 0) {
-                return { status: 'shutdown', statusText: 'Выключено' };
-            }
-            
-            if (systemState === 1 || systemState === 3) {
-                return { status: 'stopped', statusText: 'Остановлено' };
-            }
-            
-            if (systemState === 2 || systemState === 4) {
-                return { status: 'working', statusText: 'Работает' };
-            }
-            
-            return { status: 'shutdown', statusText: 'Неизвестный статус' };
         }
 
         // Создание круговой диаграммы работы станка
@@ -355,20 +333,20 @@
                     labels: ['Работает', 'Остановлен', 'Выключен'],
                     datasets: [{
                         data: [
-                            workingTimeData.workingMinutes,
-                            workingTimeData.stoppedMinutes,
-                            workingTimeData.shutdownMinutes
+                            workingTimeData.workingMinutes || 0,
+                            workingTimeData.stoppedMinutes || 0,
+                            workingTimeData.shutdownMinutes || 0
                         ],
-                       backgroundColor: [
-    'rgba(46, 204, 113, 0.8)', // Зеленый для "Работает"
-    'rgba(231, 76, 60, 0.8)',   // Красный для "Остановлен"
-    'rgba(149, 165, 166, 0.8)'  // Серый для "Выключен"
-],
-borderColor: [
-    'rgba(46, 204, 113, 1)',
-    'rgba(231, 76, 60, 1)',
-    'rgba(149, 165, 166, 1)'
-],
+                        backgroundColor: [
+                            'rgba(46, 204, 113, 0.8)', // Зеленый для "Работает"
+                            'rgba(231, 76, 60, 0.8)',   // Красный для "Остановлен"
+                            'rgba(149, 165, 166, 0.8)'  // Серый для "Выключен"
+                        ],
+                        borderColor: [
+                            'rgba(46, 204, 113, 1)',
+                            'rgba(231, 76, 60, 1)',
+                            'rgba(149, 165, 166, 1)'
+                        ],
                         borderWidth: 1
                     }]
                 },
@@ -393,75 +371,49 @@ borderColor: [
         }
 
         // Создание графика работы по часам
-function createDailyChart(canvasId, chartData) {
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    const chartKey = `${canvasId}-daily`;
-    
-    // Обновляем цвета в данных графика
-    chartData.datasets = chartData.datasets.map(dataset => {
-        if (dataset.label === 'Работает') {
-            return {
-                ...dataset,
-                backgroundColor: 'rgba(46, 204, 113, 0.7)', // Зеленый
-                borderColor: 'rgba(46, 204, 113, 1)'
-            };
-        }
-        if (dataset.label === 'Остановлен') {
-            return {
-                ...dataset,
-                backgroundColor: 'rgba(231, 76, 60, 0.7)', // Красный
-                borderColor: 'rgba(231, 76, 60, 1)'
-            };
-        }
-        if (dataset.label === 'Выключен') {
-            return {
-                ...dataset,
-                backgroundColor: 'rgba(149, 165, 166, 0.7)', // Серый
-                borderColor: 'rgba(149, 165, 166, 1)'
-            };
-        }
-        return dataset;
-    });
-    
-    // Удаляем старый график, если он существует
-    if (state.charts[chartKey]) {
-        state.charts[chartKey].destroy();
-    }
-    
-    state.charts[chartKey] = new Chart(ctx, {
-        type: 'bar',
-        data: chartData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    stacked: true,
-                },
-                y: {
-                    stacked: true,
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Минуты'
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.dataset.label}: ${context.raw} мин`;
+        function createDailyChart(canvasId, chartData) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const chartKey = `${canvasId}-daily`;
+            
+            // Удаляем старый график, если он существует
+            if (state.charts[chartKey]) {
+                state.charts[chartKey].destroy();
+            }
+            
+            state.charts[chartKey] = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Минуты'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw} мин`;
+                                }
+                            }
                         }
                     }
                 }
-            }
+            });
         }
-    });
-}
 
         // Сохранение/восстановление фильтров
         function saveFilters() {

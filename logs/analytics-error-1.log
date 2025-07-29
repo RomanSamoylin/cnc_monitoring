@@ -342,3 +342,4 @@ Error fetching workshop summary: Error: connect ECONNREFUSED 192.168.1.42:3306
 Error fetching workshop summary: TypeError: Cannot read properties of undefined (reading 'idle')
     at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:224:69
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
