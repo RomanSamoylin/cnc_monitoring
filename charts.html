@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Графики анализа станков</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment"></script>
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles2.css">
@@ -15,8 +16,6 @@
             min-height: calc(100vh - 120px);
             width: 100%;
         }
-
-        
 
         /* Стили для графиков */
         .chart-container {
@@ -100,8 +99,6 @@
             font-weight: 500;
             color: #555;
         }
-
-       
 
         /* Стили для кнопки применения фильтров */
         .filter-btn {
@@ -250,23 +247,25 @@
         // Базовый URL API аналитики
         const API_BASE_URL = 'http://localhost:3001';
         
-        // Константы для состояний станков
-        const STATUS_OFF = 'off';
-        const STATUS_IDLE = 'idle';
-        const STATUS_ACTIVE = 'active';
+        // Константы для состояний станков (совместимые с dashboard.html)
+        const STATUS = {
+            WORKING: 'working',
+            STOPPED: 'stopped',
+            SHUTDOWN: 'shutdown'
+        };
         
         // Цвета для разных состояний
         const STATUS_COLORS = {
-            [STATUS_OFF]: '#95a5a6',
-            [STATUS_IDLE]: '#e74c3c',
-            [STATUS_ACTIVE]: '#2ecc71'
+            [STATUS.WORKING]: '#2ecc71',
+            [STATUS.STOPPED]: '#e74c3c',
+            [STATUS.SHUTDOWN]: '#95a5a6'
         };
         
         // Названия состояний
         const STATUS_LABELS = {
-            [STATUS_OFF]: 'Выключено',
-            [STATUS_IDLE]: 'Остановлено',
-            [STATUS_ACTIVE]: 'Работает'
+            [STATUS.WORKING]: 'Работает',
+            [STATUS.STOPPED]: 'Остановлено',
+            [STATUS.SHUTDOWN]: 'Выключено'
         };
         
         // Текущий выбранный период
@@ -276,8 +275,8 @@
         // Данные о станках
         let machinesList = [];
         let workshopData = {
-            '1': { off: 0, idle: 0, active: 0 },
-            '2': { off: 0, idle: 0, active: 0 }
+            '1': { working: 0, stopped: 0, shutdown: 0 },
+            '2': { working: 0, stopped: 0, shutdown: 0 }
         };
         
         // Объекты графиков
@@ -383,9 +382,9 @@
                     datasets: [{
                         data: [0, 0, 0],
                         backgroundColor: [
-                            STATUS_COLORS[STATUS_OFF],
-                            STATUS_COLORS[STATUS_IDLE],
-                            STATUS_COLORS[STATUS_ACTIVE]
+                            STATUS_COLORS[STATUS.WORKING],
+                            STATUS_COLORS[STATUS.STOPPED],
+                            STATUS_COLORS[STATUS.SHUTDOWN]
                         ],
                         borderColor: '#fff',
                         borderWidth: 1,
@@ -431,7 +430,7 @@
                     labels: Array.from({length: 24}, (_, i) => `${i}:00`),
                     datasets: [
                         {
-                            label: STATUS_LABELS[STATUS_ACTIVE],
+                            label: STATUS_LABELS[STATUS.WORKING],
                             data: Array(24).fill(0),
                             backgroundColor: 'rgba(46, 204, 113, 0.7)',
                             borderColor: 'rgba(46, 204, 113, 1)',
@@ -439,7 +438,7 @@
                             borderRadius: 3
                         },
                         {
-                            label: STATUS_LABELS[STATUS_IDLE],
+                            label: STATUS_LABELS[STATUS.STOPPED],
                             data: Array(24).fill(0),
                             backgroundColor: 'rgba(231, 76, 60, 0.7)',
                             borderColor: 'rgba(231, 76, 60, 1)',
@@ -447,7 +446,7 @@
                             borderRadius: 3
                         },
                         {
-                            label: STATUS_LABELS[STATUS_OFF],
+                            label: STATUS_LABELS[STATUS.SHUTDOWN],
                             data: Array(24).fill(0),
                             backgroundColor: 'rgba(149, 165, 166, 0.7)',
                             borderColor: 'rgba(149, 165, 166, 1)',
@@ -519,26 +518,26 @@
                     labels: ['ЦЕХ-1', 'ЦЕХ-2'],
                     datasets: [
                         {
-                            label: STATUS_LABELS[STATUS_OFF],
+                            label: STATUS_LABELS[STATUS.SHUTDOWN],
                             data: [0, 0],
-                            backgroundColor: STATUS_COLORS[STATUS_OFF],
-                            borderColor: STATUS_COLORS[STATUS_OFF],
+                            backgroundColor: STATUS_COLORS[STATUS.SHUTDOWN],
+                            borderColor: STATUS_COLORS[STATUS.SHUTDOWN],
                             borderWidth: 1,
                             borderRadius: 3
                         },
                         {
-                            label: STATUS_LABELS[STATUS_IDLE],
+                            label: STATUS_LABELS[STATUS.STOPPED],
                             data: [0, 0],
-                            backgroundColor: STATUS_COLORS[STATUS_IDLE],
-                            borderColor: STATUS_COLORS[STATUS_IDLE],
+                            backgroundColor: STATUS_COLORS[STATUS.STOPPED],
+                            borderColor: STATUS_COLORS[STATUS.STOPPED],
                             borderWidth: 1,
                             borderRadius: 3
                         },
                         {
-                            label: STATUS_LABELS[STATUS_ACTIVE],
+                            label: STATUS_LABELS[STATUS.WORKING],
                             data: [0, 0],
-                            backgroundColor: STATUS_COLORS[STATUS_ACTIVE],
-                            borderColor: STATUS_COLORS[STATUS_ACTIVE],
+                            backgroundColor: STATUS_COLORS[STATUS.WORKING],
+                            borderColor: STATUS_COLORS[STATUS.WORKING],
                             borderWidth: 1,
                             borderRadius: 3
                         }
@@ -591,26 +590,26 @@
                     labels: [],
                     datasets: [
                         {
-                            label: STATUS_LABELS[STATUS_OFF],
+                            label: STATUS_LABELS[STATUS.SHUTDOWN],
                             data: [],
-                            backgroundColor: STATUS_COLORS[STATUS_OFF],
-                            borderColor: STATUS_COLORS[STATUS_OFF],
+                            backgroundColor: STATUS_COLORS[STATUS.SHUTDOWN],
+                            borderColor: STATUS_COLORS[STATUS.SHUTDOWN],
                             borderWidth: 1,
                             borderRadius: 3
                         },
                         {
-                            label: STATUS_LABELS[STATUS_IDLE],
+                            label: STATUS_LABELS[STATUS.STOPPED],
                             data: [],
-                            backgroundColor: STATUS_COLORS[STATUS_IDLE],
-                            borderColor: STATUS_COLORS[STATUS_IDLE],
+                            backgroundColor: STATUS_COLORS[STATUS.STOPPED],
+                            borderColor: STATUS_COLORS[STATUS.STOPPED],
                             borderWidth: 1,
                             borderRadius: 3
                         },
                         {
-                            label: STATUS_LABELS[STATUS_ACTIVE],
+                            label: STATUS_LABELS[STATUS.WORKING],
                             data: [],
-                            backgroundColor: STATUS_COLORS[STATUS_ACTIVE],
-                            borderColor: STATUS_COLORS[STATUS_ACTIVE],
+                            backgroundColor: STATUS_COLORS[STATUS.WORKING],
+                            borderColor: STATUS_COLORS[STATUS.WORKING],
                             borderWidth: 1,
                             borderRadius: 3
                         }
@@ -827,7 +826,7 @@
                 const machine = machinesList.find(m => m.id === machineId);
                 if (machine) {
                     updateHourlyChart(machineId, null);
-                    updateMachineChart(machineId, {off: 0, idle: 0, active: 0});
+                    updateMachineChart(machineId, {working: 0, stopped: 0, shutdown: 0});
                 }
             } finally {
                 hideLoadingIndicator();
@@ -855,7 +854,7 @@
                     labels: Array.from({length: 24}, (_, i) => `${i}:00`),
                     datasets: [
                         {
-                            label: STATUS_LABELS[STATUS_ACTIVE],
+                            label: STATUS_LABELS[STATUS.WORKING],
                             data: Array(24).fill().map(() => Math.floor(Math.random() * 30)),
                             backgroundColor: 'rgba(46, 204, 113, 0.7)',
                             borderColor: 'rgba(46, 204, 113, 1)',
@@ -863,7 +862,7 @@
                             borderRadius: 3
                         },
                         {
-                            label: STATUS_LABELS[STATUS_IDLE],
+                            label: STATUS_LABELS[STATUS.STOPPED],
                             data: Array(24).fill().map(() => Math.floor(Math.random() * 30)),
                             backgroundColor: 'rgba(231, 76, 60, 0.7)',
                             borderColor: 'rgba(231, 76, 60, 1)',
@@ -871,7 +870,7 @@
                             borderRadius: 3
                         },
                         {
-                            label: STATUS_LABELS[STATUS_OFF],
+                            label: STATUS_LABELS[STATUS.SHUTDOWN],
                             data: Array(24).fill().map(() => Math.floor(Math.random() * 30)),
                             backgroundColor: 'rgba(149, 165, 166, 0.7)',
                             borderColor: 'rgba(149, 165, 166, 1)',
@@ -916,9 +915,9 @@
             
             // Обновляем данные графика
             machineStatusChart.data.labels = [machineName];
-            machineStatusChart.data.datasets[0].data = [data.off || 0];
-            machineStatusChart.data.datasets[1].data = [data.idle || 0];
-            machineStatusChart.data.datasets[2].data = [data.active || 0];
+            machineStatusChart.data.datasets[0].data = [data.shutdown || 0];
+            machineStatusChart.data.datasets[1].data = [data.stopped || 0];
+            machineStatusChart.data.datasets[2].data = [data.working || 0];
             
             // Обновляем заголовок
             document.getElementById('chartTitle').textContent = 
@@ -960,9 +959,9 @@
                 // Преобразуем статус в числовое значение
                 let statusValue;
                 switch (event.status) {
-                    case STATUS_OFF: statusValue = 0; break;
-                    case STATUS_IDLE: statusValue = 1; break;
-                    case STATUS_ACTIVE: statusValue = 2; break;
+                    case STATUS.SHUTDOWN: statusValue = 0; break;
+                    case STATUS.STOPPED: statusValue = 1; break;
+                    case STATUS.WORKING: statusValue = 2; break;
                     default: statusValue = 0;
                 }
                 
@@ -1027,23 +1026,23 @@
             
             // 1. Круговая диаграмма (общие данные)
             pieChart.data.datasets[0].data = [
-                workshopData.total.off,
-                workshopData.total.idle,
-                workshopData.total.active
+                workshopData.total.working,
+                workshopData.total.stopped,
+                workshopData.total.shutdown
             ];
             
             // 2. Горизонтальная столбчатая диаграмма (сравнение цехов)
             horizontalBarChart.data.datasets[0].data = [
-                workshopData.workshop1.off,
-                workshopData.workshop2.off
+                workshopData.workshop1.shutdown,
+                workshopData.workshop2.shutdown
             ];
             horizontalBarChart.data.datasets[1].data = [
-                workshopData.workshop1.idle,
-                workshopData.workshop2.idle
+                workshopData.workshop1.stopped,
+                workshopData.workshop2.stopped
             ];
             horizontalBarChart.data.datasets[2].data = [
-                workshopData.workshop1.active,
-                workshopData.workshop2.active
+                workshopData.workshop1.working,
+                workshopData.workshop2.working
             ];
             
             // 3. Почасовой график (показываем агрегированные данные)
@@ -1076,7 +1075,7 @@
                 labels: Array.from({length: 24}, (_, i) => `${i}:00`),
                 datasets: [
                     {
-                        label: STATUS_LABELS[STATUS_ACTIVE],
+                        label: STATUS_LABELS[STATUS.WORKING],
                         data: Array(24).fill(0),
                         backgroundColor: 'rgba(46, 204, 113, 0.7)',
                         borderColor: 'rgba(46, 204, 113, 1)',
@@ -1084,7 +1083,7 @@
                         borderRadius: 3
                     },
                     {
-                        label: STATUS_LABELS[STATUS_IDLE],
+                        label: STATUS_LABELS[STATUS.STOPPED],
                         data: Array(24).fill(0),
                         backgroundColor: 'rgba(231, 76, 60, 0.7)',
                         borderColor: 'rgba(231, 76, 60, 1)',
@@ -1092,7 +1091,7 @@
                         borderRadius: 3
                     },
                     {
-                        label: STATUS_LABELS[STATUS_OFF],
+                        label: STATUS_LABELS[STATUS.SHUTDOWN],
                         data: Array(24).fill(0),
                         backgroundColor: 'rgba(149, 165, 166, 0.7)',
                         borderColor: 'rgba(149, 165, 166, 1)',

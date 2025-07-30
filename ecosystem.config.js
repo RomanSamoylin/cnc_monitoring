@@ -16,7 +16,7 @@ module.exports = {
         NODE_ENV: "production",
         PORT: 3000,
         MYSQL_HOST: "192.168.1.30",
-        MYSQL_USER: "monitorl",
+        MYSQL_USER: "monitor",
         MYSQL_PASSWORD: "victoria123",
         MYSQL_DATABASE: "cnc_monitoring",
         WS_PORT: 8080,
@@ -38,24 +38,34 @@ module.exports = {
       log_date_format: "YYYY-MM-DD HH:mm:ss.SSS"
     },
     {
-      name: "analytics-server",
-      script: "./server2.js",
-      instances: 1,
-      autorestart: true,
-      watch: false,
-      max_memory_restart: "600M", // Меньше памяти для аналитики
-      env: {
-        NODE_ENV: "production",
-        PORT: 3001,
-        MONITORING_API_URL: "http://localhost:3000"
-      },
-      node_args: [
-        "--max-old-space-size=500",
-        "--optimize-for-size"
-      ],
-      error_file: "./logs/analytics-error.log",
-      out_file: "./logs/analytics-out.log"
-    }
+  name: "analytics-server",
+  script: "./server2.js",
+  instances: 1,
+  autorestart: true,
+  watch: false,
+  max_memory_restart: "600M",
+  env: {
+    NODE_ENV: "production",
+    PORT: 3001,
+    MYSQL_HOST: "192.168.1.30",
+    MYSQL_USER: "monitor",
+    MYSQL_PASSWORD: "victoria123",
+    MYSQL_DATABASE: "cnc_monitoring",
+    JWT_SECRET: "your-secret-key",
+    // Добавьте таймауты
+    MYSQL_CONNECT_TIMEOUT: 10000,
+    MYSQL_ACQUIRE_TIMEOUT: 10000
+  },
+  node_args: [
+    "--max-old-space-size=500",
+    "--optimize-for-size"
+  ],
+  error_file: "./logs/analytics-error.log",
+  out_file: "./logs/analytics-out.log",
+  // Добавьте задержку перед рестартом
+  min_uptime: "10s",
+  restart_delay: 5000
+}
   ],
 
   // Настройки деплоя (если используется)
