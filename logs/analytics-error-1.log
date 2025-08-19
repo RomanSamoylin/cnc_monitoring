@@ -343,3 +343,42 @@ Error fetching workshop summary: TypeError: Cannot read properties of undefined 
     at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:224:69
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
 Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ошибка генерации почасовых данных: TypeError: moments[i].isValid is not a function
+    at pickBy (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\moment\moment.js:3145:29)
+    at Function.min (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\moment\moment.js:3156:16)
+    at generateHourlyChartData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:333:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:558:27
+Ошибка: Error: Не удалось сгенерировать почасовые данные
+    at generateHourlyChartData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:375:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:558:27
+Ошибка генерации почасовых данных: TypeError: moments[i].isValid is not a function
+    at pickBy (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\moment\moment.js:3145:29)
+    at Function.min (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\moment\moment.js:3156:16)
+    at generateHourlyChartData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:333:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:558:27
+Ошибка: Error: Не удалось сгенерировать почасовые данные
+    at generateHourlyChartData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:375:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:558:27
+Ошибка генерации почасовых данных: TypeError: moments[i].isValid is not a function
+    at pickBy (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\moment\moment.js:3145:29)
+    at Function.min (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\moment\moment.js:3156:16)
+    at generateHourlyChartData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:333:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:558:27
+Ошибка: Error: Не удалось сгенерировать почасовые данные
+    at generateHourlyChartData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:375:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:558:27
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Нет данных для станка 1 за период 2025-07-29 00:00:00 - 2025-07-30 23:59:59
+Нет данных для станка 3 за период 2025-07-29 00:00:00 - 2025-07-30 23:59:59
+Нет данных для станка 1 за период 2025-07-26 00:00:00 - 2025-08-02 23:59:59
+Нет данных для станка 3 за период 2025-07-26 00:00:00 - 2025-08-02 23:59:59
+Нет данных для станка 1 за период 2025-06-30 00:00:00 - 2025-07-31 23:59:59
+Нет данных для станка 1 за период 2025-07-29 00:00:00 - 2025-07-30 23:59:59
+Нет данных для станка 3 за период 2025-07-29 00:00:00 - 2025-07-30 23:59:59

@@ -1021,49 +1021,48 @@
         /**
          * Обновляет графики для режима просмотра цехов
          */
-        function updateWorkshopCharts() {
-            console.log('Обновление графиков цехов');
-            
-            // 1. Круговая диаграмма (общие данные)
-            pieChart.data.datasets[0].data = [
-                workshopData.total.working,
-                workshopData.total.stopped,
-                workshopData.total.shutdown
-            ];
-            
-            // 2. Горизонтальная столбчатая диаграмма (сравнение цехов)
-            horizontalBarChart.data.datasets[0].data = [
-                workshopData.workshop1.shutdown,
-                workshopData.workshop2.shutdown
-            ];
-            horizontalBarChart.data.datasets[1].data = [
-                workshopData.workshop1.stopped,
-                workshopData.workshop2.stopped
-            ];
-            horizontalBarChart.data.datasets[2].data = [
-                workshopData.workshop1.working,
-                workshopData.workshop2.working
-            ];
-            
-            // 3. Почасовой график (показываем агрегированные данные)
-            updateHourlyChartForAllMachines();
-            
-            // Обновляем заголовки
-            document.getElementById('pieChartTitle').textContent = 
-                `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
-            document.getElementById('horizontalBarChartTitle').textContent = 
-                `Сравнение цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
-            
-            // Обновляем все графики
-            try {
-                pieChart.update();
-                horizontalBarChart.update();
-                console.log('Графики цехов успешно обновлены');
-            } catch (e) {
-                console.error('Ошибка обновления графиков цехов:', e);
-            }
-        }
-
+       function updateWorkshopCharts() {
+  console.log('Обновление графиков цехов');
+  
+  // 1. Круговая диаграмма (общие данные)
+  pieChart.data.datasets[0].data = [
+    workshopData.total.working,
+    workshopData.total.stopped,
+    workshopData.total.shutdown
+  ];
+  
+  // 2. Горизонтальная столбчатая диаграмма (сравнение цехов)
+  horizontalBarChart.data.datasets[0].data = [
+    workshopData.workshop1.shutdown,
+    workshopData.workshop2.shutdown
+  ];
+  horizontalBarChart.data.datasets[1].data = [
+    workshopData.workshop1.stopped,
+    workshopData.workshop2.stopped
+  ];
+  horizontalBarChart.data.datasets[2].data = [
+    workshopData.workshop1.working,
+    workshopData.workshop2.working
+  ];
+  
+  // 3. Почасовой график (показываем агрегированные данные)
+  updateHourlyChartForAllMachines();
+  
+  // Обновляем заголовки
+  document.getElementById('pieChartTitle').textContent = 
+    `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
+  document.getElementById('horizontalBarChartTitle').textContent = 
+    `Сравнение цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
+  
+  // Обновляем все графики
+  try {
+    pieChart.update();
+    horizontalBarChart.update();
+    console.log('Графики цехов успешно обновлены');
+  } catch (e) {
+    console.error('Ошибка обновления графиков цехов:', e);
+  }
+}
         /**
          * Обновляет почасовой график для всех станков
          */
