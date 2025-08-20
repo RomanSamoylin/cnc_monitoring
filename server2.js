@@ -136,24 +136,46 @@ async function getAllMachines(connection) {
 }
 
 /**
- * Рассчитывает время в разных статусах для станка
+ * Вспомогательная функция для распределения времени по часам
+ */
+function distributeTimeToHours(startTime, endTime, status, hourlyData) {
+  let current = startTime.clone();
+  
+  while (current.isBefore(endTime)) {
+    const hour = current.hour();
+    const nextHour = current.clone().add(1, 'hour').startOf('hour');
+    const segmentEnd = moment.min(nextHour, endTime);
+    
+    const minutes = segmentEnd.diff(current, 'minutes');
+    
+    if (status === STATUS.WORKING) {
+      hourlyData[hour].working += minutes;
+    } else if (status === STATUS.STOPPED) {
+      hourlyData[hour].stopped += minutes;
+    } else {
+      hourlyData[hour].shutdown += minutes;
+    }
+    
+    current = segmentEnd;
+  }
+}
+
+/**
+ * Рассчитывает время в разных статусах для станка (исправленная версия)
  */
 async function calculateMachineStatusTime(connection, machineId, startDate, endDate) {
   try {
-    const start = moment(startDate);
-    const end = moment(endDate);
-    const totalDays = Math.ceil(end.diff(start, 'days', true));
+    const start = moment(startDate).startOf('day');
+    const end = moment(endDate).endOf('day');
     
-    console.log(`Расчет времени для станка ${machineId} с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')}, дней: ${totalDays}`);
+    console.log(`Расчет времени для станка ${machineId} с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')}`);
 
-    // Получаем данные за весь период
     const [rows] = await connection.execute(`
       SELECT 
         timestamp,
         event_type,
         value
       FROM bit8_data
-      FORCE INDEX (idx_bit8_data_machine_timestamp)
       WHERE 
         machine_id = ?
         AND timestamp BETWEEN ? AND ?
@@ -162,94 +184,62 @@ async function calculateMachineStatusTime(connection, machineId, startDate, endD
     `, [machineId, start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')]);
 
     if (rows.length === 0) {
-      console.warn(`Нет данных для станка ${machineId} за период ${start.format('YYYY-MM-DD')} - ${end.format('YYYY-MM-DD')}`);
       const totalMinutes = end.diff(start, 'minutes');
-      // Ограничиваем максимальное время 24 часами (1440 минут) в сутки
-      const maxDailyMinutes = 1440 * totalDays;
-      const actualMinutes = Math.min(totalMinutes, maxDailyMinutes);
       return {
         working: 0,
         stopped: 0,
-        shutdown: actualMinutes
+        shutdown: totalMinutes
       };
     }
 
-    let working = 0, stopped = 0, shutdown = 0;
+    // Группируем данные по timestamp
+    const events = {};
+    rows.forEach(row => {
+      const timestamp = moment(row.timestamp).format('YYYY-MM-DD HH:mm:ss');
+      if (!events[timestamp]) events[timestamp] = {};
+      events[timestamp][row.event_type] = row.value;
+    });
+
+    const sortedTimestamps = Object.keys(events).sort();
+    let totalWorking = 0, totalStopped = 0, totalShutdown = 0;
     let lastStatus = STATUS.SHUTDOWN;
     let lastTime = start.clone();
 
-    // Группируем данные по дням и timestamp
-    const dailyData = {};
-    rows.forEach(row => {
-      const date = moment(row.timestamp).format('YYYY-MM-DD');
-      const timestamp = moment(row.timestamp).format('YYYY-MM-DD HH:mm:ss');
+    // Обрабатываем каждое событие
+    for (const timestamp of sortedTimestamps) {
+      const currentTime = moment(timestamp);
+      const currentData = events[timestamp];
       
-      if (!dailyData[date]) {
-        dailyData[date] = {};
-      }
+      // Определяем статус на основе текущих данных
+      const currentStatus = determineMachineStatus({
+        SystemState: currentData[7],
+        MUSP: currentData[21],
+        CONP: currentData[32],
+        COMU: currentData[19]
+      });
+
+      // Рассчитываем время между событиями
+      const minutesDiff = currentTime.diff(lastTime, 'minutes');
       
-      if (!dailyData[date][timestamp]) {
-        dailyData[date][timestamp] = {};
-      }
-      
-      dailyData[date][timestamp][row.event_type] = row.value;
-    });
+      // Добавляем время к соответствующему статусу
+      if (lastStatus === STATUS.WORKING) totalWorking += minutesDiff;
+      else if (lastStatus === STATUS.STOPPED) totalStopped += minutesDiff;
+      else totalShutdown += minutesDiff;
 
-    // Обрабатываем данные по дням
-    for (const [date, dayData] of Object.entries(dailyData)) {
-      const dayStart = moment(date).startOf('day');
-      const dayEnd = moment(date).endOf('day');
-      let dayWorking = 0, dayStopped = 0, dayShutdown = 0;
-      let dayLastStatus = lastStatus;
-      let dayLastTime = dayStart.clone();
-
-      // Обрабатываем записи за день
-      for (const [timestamp, data] of Object.entries(dayData)) {
-        const currentTime = moment(timestamp);
-        const minutes = currentTime.diff(dayLastTime, 'minutes');
-
-        // Добавляем время к соответствующему статусу
-        if (dayLastStatus === STATUS.WORKING) dayWorking += minutes;
-        else if (dayLastStatus === STATUS.STOPPED) dayStopped += minutes;
-        else dayShutdown += minutes;
-
-        // Обновляем текущий статус
-        dayLastStatus = determineMachineStatus({
-          SystemState: data[7],
-          MUSP: data[21],
-          CONP: data[32],
-          COMU: data[19]
-        });
-        
-        dayLastTime = currentTime;
-      }
-
-      // Добавляем время после последней записи до конца дня
-      const finalMinutes = dayEnd.diff(dayLastTime, 'minutes');
-      if (dayLastStatus === STATUS.WORKING) dayWorking += finalMinutes;
-      else if (dayLastStatus === STATUS.STOPPED) dayStopped += finalMinutes;
-      else dayShutdown += finalMinutes;
-
-      // Проверяем, чтобы сумма по дням не превышала 24 часа (1440 минут)
-      const dayTotal = dayWorking + dayStopped + dayShutdown;
-      if (dayTotal > 1440) {
-        const ratio = 1440 / dayTotal;
-        dayWorking = Math.round(dayWorking * ratio);
-        dayStopped = Math.round(dayStopped * ratio);
-        dayShutdown = Math.round(dayShutdown * ratio);
-      }
-
-      // Суммируем результаты по дням
-      working += dayWorking;
-      stopped += dayStopped;
-      shutdown += dayShutdown;
-      lastStatus = dayLastStatus;
+      lastStatus = currentStatus;
+      lastTime = currentTime;
     }
 
+    // Добавляем время от последнего события до конца периода
+    const finalMinutes = end.diff(lastTime, 'minutes');
+    if (lastStatus === STATUS.WORKING) totalWorking += finalMinutes;
+    else if (lastStatus === STATUS.STOPPED) totalStopped += finalMinutes;
+    else totalShutdown += finalMinutes;
+
     return { 
-      working: Math.round(working),
-      stopped: Math.round(stopped),
-      shutdown: Math.round(shutdown)
+      working: Math.round(totalWorking),
+      stopped: Math.round(totalStopped),
+      shutdown: Math.round(totalShutdown)
     };
   } catch (error) {
     console.error(`Ошибка расчета для станка ${machineId}:`, error);
@@ -258,22 +248,12 @@ async function calculateMachineStatusTime(connection, machineId, startDate, endD
 }
 
 /**
- * Генерирует данные для почасового графика
+ * Генерирует данные для почасового графика (исправленная версия)
  */
 async function generateHourlyChartData(connection, machineId, date) {
-  const cacheKey = `${machineId}_${date}`;
-  
-  if (cache.machineHourlyData[cacheKey] && 
-      Date.now() - cache.lastUpdate[cacheKey] < cache.ttl.hourlyData) {
-    console.log(`Использование кэшированных данных для станка ${machineId}`);
-    return cache.machineHourlyData[cacheKey];
-  }
-
   try {
-    const start = moment(date).startOf('day').format('YYYY-MM-DD HH:mm:ss');
-    const end = moment(date).endOf('day').format('YYYY-MM-DD HH:mm:ss');
-    
-    console.log(`Генерация почасовых данных для станка ${machineId} за ${date}`);
+    const dayStart = moment(date).startOf('day');
+    const dayEnd = moment(date).endOf('day');
     
     const [rows] = await connection.execute(`
       SELECT 
@@ -281,14 +261,14 @@ async function generateHourlyChartData(connection, machineId, date) {
         event_type,
         value
       FROM bit8_data
-      FORCE INDEX (idx_bit8_data_machine_timestamp)
       WHERE 
         machine_id = ?
         AND timestamp BETWEEN ? AND ?
         AND event_type IN (7, 21, 32, 19)
       ORDER BY timestamp ASC
-    `, [machineId, start, end]);
+    `, [machineId, dayStart.format('YYYY-MM-DD HH:mm:ss'), dayEnd.format('YYYY-MM-DD HH:mm:ss')]);
 
+    // Инициализируем данные для каждого часа
     const hourlyData = Array(24).fill().map(() => ({
       working: 0,
       stopped: 0,
@@ -296,6 +276,7 @@ async function generateHourlyChartData(connection, machineId, date) {
     }));
 
     if (rows.length === 0) {
+      // Если нет данных, считаем весь день выключенным
       const result = {
         labels: Array.from({length: 24}, (_, i) => `${i}:00`),
         datasets: [
@@ -322,73 +303,45 @@ async function generateHourlyChartData(connection, machineId, date) {
           }
         ]
       };
-
-      cache.machineHourlyData[cacheKey] = result;
-      cache.lastUpdate[cacheKey] = Date.now();
       return result;
     }
 
-    let lastStatus = STATUS.SHUTDOWN;
-    let lastTime = moment(start);
-
-    // Группируем данные по timestamp
-    const groupedData = {};
+    // Группируем события по timestamp
+    const events = {};
     rows.forEach(row => {
       const timestamp = moment(row.timestamp).format('YYYY-MM-DD HH:mm:ss');
-      if (!groupedData[timestamp]) {
-        groupedData[timestamp] = {};
-      }
-      groupedData[timestamp][row.event_type] = row.value;
+      if (!events[timestamp]) events[timestamp] = {};
+      events[timestamp][row.event_type] = row.value;
     });
 
-    // Распределяем время по часам
-    for (const [timestamp, data] of Object.entries(groupedData)) {
+    const sortedTimestamps = Object.keys(events).sort();
+    let lastStatus = STATUS.SHUTDOWN;
+    let lastTime = dayStart.clone();
+
+    // Обрабатываем каждое событие
+    for (const timestamp of sortedTimestamps) {
       const currentTime = moment(timestamp);
+      const currentData = events[timestamp];
       
-      // Распределяем время между lastTime и currentTime
-      while (lastTime.isBefore(currentTime)) {
-        const hour = lastTime.hour();
-        const minutes = currentTime.diff(lastTime, 'minutes');
-
-        if (lastStatus === STATUS.WORKING) hourlyData[hour].working += minutes;
-        else if (lastStatus === STATUS.STOPPED) hourlyData[hour].stopped += minutes;
-        else hourlyData[hour].shutdown += minutes;
-
-        lastTime = currentTime;
-      }
-
-      // Обновляем текущий статус
-      lastStatus = determineMachineStatus({
-        SystemState: data[7],
-        MUSP: data[21],
-        CONP: data[32],
-        COMU: data[19]
+      // Определяем статус
+      const currentStatus = determineMachineStatus({
+        SystemState: currentData[7],
+        MUSP: currentData[21],
+        CONP: currentData[32],
+        COMU: currentData[19]
       });
+
+      // Распределяем время по часам
+      distributeTimeToHours(lastTime, currentTime, lastStatus, hourlyData);
+      
+      lastStatus = currentStatus;
+      lastTime = currentTime;
     }
 
-    // Обрабатываем оставшееся время
-    while (lastTime.isBefore(end)) {
-      const hour = lastTime.hour();
-      const minutes = moment(end).diff(lastTime, 'minutes');
+    // Обрабатываем оставшееся время до конца дня
+    distributeTimeToHours(lastTime, dayEnd, lastStatus, hourlyData);
 
-      if (lastStatus === STATUS.WORKING) hourlyData[hour].working += minutes;
-      else if (lastStatus === STATUS.STOPPED) hourlyData[hour].stopped += minutes;
-      else hourlyData[hour].shutdown += minutes;
-
-      lastTime = moment(end);
-    }
-
-    // Проверяем, чтобы сумма по часам не превышала 60 минут
-    hourlyData.forEach(hour => {
-      const total = hour.working + hour.stopped + hour.shutdown;
-      if (total > 60) {
-        const ratio = 60 / total;
-        hour.working = Math.round(hour.working * ratio);
-        hour.stopped = Math.round(hour.stopped * ratio);
-        hour.shutdown = Math.round(hour.shutdown * ratio);
-      }
-    });
-
+    // Формируем данные для графика
     const result = {
       labels: Array.from({length: 24}, (_, i) => `${i}:00`),
       datasets: [
@@ -416,8 +369,6 @@ async function generateHourlyChartData(connection, machineId, date) {
       ]
     };
 
-    cache.machineHourlyData[cacheKey] = result;
-    cache.lastUpdate[cacheKey] = Date.now();
     return result;
   } catch (error) {
     console.error('Ошибка генерации почасовых данных:', error);
@@ -457,9 +408,7 @@ async function getMachineStatusData(connection, machineId, startDate, endDate) {
     const groupedData = {};
     rows.forEach(row => {
       const timestamp = moment(row.timestamp).format('YYYY-MM-DD HH:mm:ss');
-      if (!groupedData[timestamp]) {
-        groupedData[timestamp] = {};
-      }
+      if (!groupedData[timestamp]) groupedData[timestamp] = {};
       groupedData[timestamp][row.event_type] = row.value;
     });
 
@@ -616,6 +565,7 @@ app.get('/api/workshops/summary',
                 endDate
               );
 
+              // Сохраняем данные в минутах для внутренних вычислений
               if (machine.workshop === '1') {
                 workshop1.working += stats.working;
                 workshop1.stopped += stats.stopped;
@@ -632,13 +582,22 @@ app.get('/api/workshops/summary',
           }));
         }
 
+        // Переводим минуты в часы для отдачи клиенту
         const result = {
-          workshop1,
-          workshop2,
+          workshop1: {
+            working: workshop1.working / 60,
+            stopped: workshop1.stopped / 60,
+            shutdown: workshop1.shutdown / 60
+          },
+          workshop2: {
+            working: workshop2.working / 60,
+            stopped: workshop2.stopped / 60,
+            shutdown: workshop2.shutdown / 60
+          },
           total: {
-            working: workshop1.working + workshop2.working,
-            stopped: workshop1.stopped + workshop2.stopped,
-            shutdown: workshop1.shutdown + workshop2.shutdown
+            working: (workshop1.working + workshop2.working) / 60,
+            stopped: (workshop1.stopped + workshop2.stopped) / 60,
+            shutdown: (workshop1.shutdown + workshop2.shutdown) / 60
           }
         };
 
@@ -771,10 +730,11 @@ app.get('/api/machines/:id/history/summary',
         
         const stats = await calculateMachineStatusTime(connection, id, startDate, endDate);
         
+        // Переводим минуты в часы для отдачи клиенту
         res.json({
           success: true,
           data: {
-            working: stats.working / 60,  // Переводим минуты в часы
+            working: stats.working / 60,
             stopped: stats.stopped / 60,
             shutdown: stats.shutdown / 60
           }
