@@ -368,6 +368,40 @@
         }
 
         /**
+         * Проверяет, является ли дата сегодняшним днем
+         * @param {string} dateString - Дата в формате YYYY-MM-DD
+         * @returns {boolean} - true если дата сегодняшняя
+         */
+        function isToday(dateString) {
+            const today = new Date();
+            const todayFormatted = today.toISOString().split('T')[0];
+            return dateString === todayFormatted;
+        }
+
+        /**
+         * Обрезает данные часового графика до текущего часа для сегодняшней даты
+         * @param {object} chartData - Данные графика
+         * @param {string} date - Дата в формате YYYY-MM-DD
+         * @returns {object} - Обновленные данные графика
+         */
+        function truncateToCurrentHour(chartData, date) {
+            if (!isToday(date)) {
+                return chartData;
+            }
+            
+            const currentHour = new Date().getHours();
+            
+            // Обрезаем метки и данные до текущего часа
+            chartData.labels = chartData.labels.slice(0, currentHour + 1);
+            
+            chartData.datasets.forEach(dataset => {
+                dataset.data = dataset.data.slice(0, currentHour + 1);
+            });
+            
+            return chartData;
+        }
+
+        /**
          * Инициализирует все графики на странице
          */
         function initCharts() {
@@ -802,7 +836,10 @@
                 const hourlyResponse = await fetch(`${API_BASE_URL}/api/machines/${machineId}/hourly?date=${startDate}`);
                 const hourlyData = await handleApiResponse(hourlyResponse);
                 console.log('Почасовые данные:', hourlyData.data);
-                updateHourlyChart(machineId, hourlyData.data);
+                
+                // Обрезаем данные до текущего часа, если это сегодня
+                const truncatedHourlyData = truncateToCurrentHour(hourlyData.data, startDate);
+                updateHourlyChart(machineId, truncatedHourlyData);
                 
                 // 2. Загружаем сводные данные
                 const summaryResponse = await fetch(`${API_BASE_URL}/api/machines/${machineId}/history/summary?startDate=${startDate}&endDate=${endDate}`);
@@ -885,8 +922,11 @@
             barChart.data = chartData;
             
             // Обновляем заголовок
+            const isTodayDate = isToday(DOM.startDate.value);
+            const timeInfo = isTodayDate ? `(до ${new Date().getHours()}:00)` : `(${DOM.startDate.value})`;
+            
             document.getElementById('barChartTitle').textContent = 
-                `Работа станка ${machine.name} (ID: ${machineId}) по часам (${DOM.startDate.value})`;
+                `Работа станка ${machine.name} (ID: ${machineId}) по часам ${timeInfo}`;
             
             // Обновляем график
             try {
@@ -947,14 +987,19 @@
             }
 
             const machineName = `${machine.name} (ID: ${machineId})`;
+            const isSingleDay = DOM.startDate.value === DOM.endDate.value;
             
             // Подготавливаем данные для графика
             const labels = [];
             const statusData = [];
             
             data.forEach(event => {
-                const date = new Date(event.timestamp);
-                labels.push(date.toLocaleTimeString());
+                const date = moment(event.timestamp);
+                if (isSingleDay) {
+                    labels.push(date.format('HH:mm:ss'));
+                } else {
+                    labels.push(date.format('YYYY-MM-DD HH:mm'));
+                }
                 
                 // Преобразуем статус в числовое значение
                 let statusValue;
@@ -975,6 +1020,11 @@
             // Обновляем заголовок
             document.getElementById('timelineChartTitle').textContent = 
                 `Изменение состояния станка ${machineName} (${DOM.startDate.value} - ${DOM.endDate.value})`;
+            
+            // Обновляем настройки оси Y
+            timelineChart.options.scales.y.ticks.callback = function(value) {
+                return STATUS_LABELS[Object.keys(STATUS_LABELS)[value]];
+            };
             
             // Обновляем график
             try {
@@ -1080,10 +1130,17 @@
                 );
                 const data = await handleApiResponse(response);
                 
+                // Обрезаем данные до текущего часа, если это сегодня
+                const truncatedData = truncateToCurrentHour(data.data, date);
+                
                 // Обновляем график
-                barChart.data = data.data;
+                barChart.data = truncatedData;
+                
+                const isTodayDate = isToday(date);
+                const timeInfo = isTodayDate ? `(до ${new Date().getHours()}:00)` : `(${date})`;
+                
                 document.getElementById('barChartTitle').textContent = 
-                    `Работа ${selectedWorkshop === 'all' ? 'всех станков' : 'станков цеха ' + selectedWorkshop} по часам (${date})`;
+                    `Работа ${selectedWorkshop === 'all' ? 'всех станков' : 'станков цеха ' + selectedWorkshop} по часам ${timeInfo}`;
                 
                 barChart.update();
                 

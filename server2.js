@@ -232,7 +232,7 @@ async function calculateMachineStatusTime(connection, machineId, startDate, endD
       lastTime = currentTime;
     }
 
-    // Добавляем время от последнего события до конца периода
+    // Добавляем время от последнего событий до конца периода
     const finalMinutes = end.diff(lastTime, 'minutes');
     if (lastStatus === STATUS.WORKING) totalWorking += finalMinutes;
     else if (lastStatus === STATUS.STOPPED) totalStopped += finalMinutes;
@@ -256,6 +256,10 @@ async function generateHourlyChartData(connection, machineId, date) {
   try {
     const dayStart = moment(date).startOf('day');
     const dayEnd = moment(date).endOf('day');
+    
+    // Проверяем, является ли запрашиваемая дата сегодняшней
+    const isToday = moment().isSame(dayStart, 'day');
+    const currentHour = moment().hour();
     
     const [rows] = await connection.execute(`
       SELECT 
@@ -305,6 +309,15 @@ async function generateHourlyChartData(connection, machineId, date) {
           }
         ]
       };
+      
+      // Если сегодня, обрезаем данные до текущего часа
+      if (isToday) {
+        result.labels = result.labels.slice(0, currentHour + 1);
+        result.datasets.forEach(dataset => {
+          dataset.data = dataset.data.slice(0, currentHour + 1);
+        });
+      }
+      
       return result;
     }
 
@@ -371,6 +384,14 @@ async function generateHourlyChartData(connection, machineId, date) {
       ]
     };
 
+    // Если сегодня, обрезаем данные до текущего часа
+    if (isToday) {
+      result.labels = result.labels.slice(0, currentHour + 1);
+      result.datasets.forEach(dataset => {
+        dataset.data = dataset.data.slice(0, currentHour + 1);
+      });
+    }
+
     return result;
   } catch (error) {
     console.error('Ошибка генерации почасовых данных:', error);
@@ -382,7 +403,7 @@ async function generateHourlyChartData(connection, machineId, date) {
  * Получает детальные данные по истории статусов станка
  */
 async function getMachineStatusData(connection, machineId, startDate, endDate) {
-  try {
+    try {
     const start = moment(startDate).format('YYYY-MM-DD HH:mm:ss');
     const end = moment(endDate).format('YYYY-MM-DD HH:mm:ss');
     
@@ -414,31 +435,29 @@ async function getMachineStatusData(connection, machineId, startDate, endDate) {
       groupedData[timestamp][row.event_type] = row.value;
     });
 
-    // Формируем историю изменений статусов
-    for (const [timestamp, data] of Object.entries(groupedData)) {
-      lastStatusData = { ...lastStatusData, ...data };
-      const newStatus = determineMachineStatus(lastStatusData);
-      
-      if (newStatus !== lastStatus) {
-        statusHistory.push({
-          timestamp,
-          status: newStatus,
-          statusText: newStatus === STATUS.WORKING ? 'Работает' : 
-                     newStatus === STATUS.STOPPED ? 'Остановлено' : 'Выключено'
-        });
-        lastStatus = newStatus;
-      }
-    }
+     // Формируем историю изменений статусов
+        for (const [timestamp, data] of Object.entries(groupedData)) {
+            lastStatusData = { ...lastStatusData, ...data };
+            const newStatus = determineMachineStatus(lastStatusData);
+            
+            if (newStatus !== lastStatus) {
+                statusHistory.push({
+                    timestamp,
+                    status: newStatus
+                });
+                lastStatus = newStatus;
+            }
+        }
 
-    return {
-      machineId,
-      statusHistory,
-      currentStatus: lastStatus
-    };
-  } catch (error) {
-    console.error('Ошибка получения истории статусов:', error);
-    throw new Error('Не удалось получить историю статусов');
-  }
+        return {
+            machineId,
+            statusHistory,
+            currentStatus: lastStatus
+        };
+    } catch (error) {
+        console.error('Ошибка получения истории статусов:', error);
+        throw new Error('Не удалось получить историю статусов');
+    }
 }
 
 /**
@@ -448,6 +467,10 @@ async function generateWorkshopHourlyData(connection, workshop, date) {
   try {
     const dayStart = moment(date).startOf('day');
     const dayEnd = moment(date).endOf('day');
+    
+    // Проверяем, является ли запрашиваемая дата сегодняшней
+    const isToday = moment().isSame(dayStart, 'day');
+    const currentHour = moment().hour();
     
     // Определяем условие WHERE в зависимости от параметра workshop
     let whereClause = '';
@@ -479,7 +502,7 @@ async function generateWorkshopHourlyData(connection, workshop, date) {
 
     if (rows.length === 0) {
       // Если нет данных, возвращаем пустой результат
-      return {
+      const result = {
         labels: Array.from({length: 24}, (_, i) => `${i}:00`),
         datasets: [
           {
@@ -505,6 +528,16 @@ async function generateWorkshopHourlyData(connection, workshop, date) {
           }
         ]
       };
+      
+      // Если сегодня, обрезаем данные до текущего часа
+      if (isToday) {
+        result.labels = result.labels.slice(0, currentHour + 1);
+        result.datasets.forEach(dataset => {
+          dataset.data = dataset.data.slice(0, currentHour + 1);
+        });
+      }
+      
+      return result;
     }
 
     // Группируем данные по machine_id и timestamp
@@ -586,6 +619,14 @@ async function generateWorkshopHourlyData(connection, workshop, date) {
         }
       ]
     };
+
+    // Если сегодня, обрезаем данные до текущего часа
+    if (isToday) {
+      result.labels = result.labels.slice(0, currentHour + 1);
+      result.datasets.forEach(dataset => {
+        dataset.data = dataset.data.slice(0, currentHour + 1);
+      });
+    }
 
     return result;
   } catch (error) {
@@ -914,7 +955,7 @@ app.get('/api/machines/:id/history/summary',
     param('id').isInt().toInt(),
     query('startDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
     query('endDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
-    query('startDate').isISO8601().withMessage('Неверный формат начальной даты'),
+    query('startDate').isISO8601().withMessage('Неверный формат начальной дата'),
     query('endDate').isISO8601().withMessage('Неверный формат конечной даты')
   ],
   validateErrors,
