@@ -54,12 +54,14 @@ const cache = {
   workshopSummaries: {},
   machineHourlyData: {},
   machineHistory: {},
+  workshopHourlyData: {},
   lastUpdate: {},
   ttl: {
     machines: 30000,
     workshopSummary: 60000,
     hourlyData: 300000,
-    history: 300000
+    history: 300000,
+    workshopHourly: 300000
   }
 };
 
@@ -439,6 +441,159 @@ async function getMachineStatusData(connection, machineId, startDate, endDate) {
   }
 }
 
+/**
+ * Генерирует агрегированные почасовые данные для всех станков или станков цеха
+ */
+async function generateWorkshopHourlyData(connection, workshop, date) {
+  try {
+    const dayStart = moment(date).startOf('day');
+    const dayEnd = moment(date).endOf('day');
+    
+    // Определяем условие WHERE в зависимости от параметра workshop
+    let whereClause = '';
+    let params = [dayStart.format('YYYY-MM-DD HH:mm:ss'), dayEnd.format('YYYY-MM-DD HH:mm:ss')];
+    
+    if (workshop && workshop !== 'all') {
+      if (workshop === '1') {
+        whereClause = 'AND machine_id <= 16';
+      } else if (workshop === '2') {
+        whereClause = 'AND machine_id > 16';
+      }
+    }
+    
+    console.log(`Генерация агрегированных почасовых данных для цеха ${workshop || 'all'} на дату ${date}`);
+    
+    const [rows] = await connection.execute(`
+      SELECT 
+        machine_id,
+        timestamp,
+        event_type,
+        value
+      FROM bit8_data
+      WHERE 
+        timestamp BETWEEN ? AND ?
+        AND event_type IN (7, 21, 32, 19)
+        ${whereClause}
+      ORDER BY timestamp ASC
+    `, params);
+
+    if (rows.length === 0) {
+      // Если нет данных, возвращаем пустой результат
+      return {
+        labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+        datasets: [
+          {
+            label: 'Работает',
+            data: Array(24).fill(0),
+            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+            borderColor: 'rgba(46, 204, 113, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'Остановлен',
+            data: Array(24).fill(0),
+            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+            borderColor: 'rgba(231, 76, 60, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'Выключен',
+            data: Array(24).fill(0),
+            backgroundColor: 'rgba(149, 165, 166, 0.7)',
+            borderColor: 'rgba(149, 165, 166, 1)',
+            borderWidth: 1
+          }
+        ]
+      };
+    }
+
+    // Группируем данные по machine_id и timestamp
+    const machineEvents = {};
+    rows.forEach(row => {
+      if (!machineEvents[row.machine_id]) {
+        machineEvents[row.machine_id] = {};
+      }
+      
+      const timestamp = moment(row.timestamp).format('YYYY-MM-DD HH:mm:ss');
+      if (!machineEvents[row.machine_id][timestamp]) {
+        machineEvents[row.machine_id][timestamp] = {};
+      }
+      
+      machineEvents[row.machine_id][timestamp][row.event_type] = row.value;
+    });
+
+    // Инициализируем данные для каждого часа
+    const hourlyData = Array(24).fill().map(() => ({
+      working: 0,
+      stopped: 0,
+      shutdown: 0
+    }));
+
+    // Обрабатываем данные для каждого станка
+    for (const machineId of Object.keys(machineEvents)) {
+      const timestamps = Object.keys(machineEvents[machineId]).sort();
+      let lastStatus = STATUS.SHUTDOWN;
+      let lastTime = dayStart.clone();
+
+      // Обрабатываем каждое событие для текущего станка
+      for (const timestamp of timestamps) {
+        const currentTime = moment(timestamp);
+        const currentData = machineEvents[machineId][timestamp];
+        
+        // Определяем статус
+        const currentStatus = determineMachineStatus({
+          SystemState: currentData[7],
+          MUSP: currentData[21],
+          CONP: currentData[32],
+          COMU: currentData[19]
+        });
+
+        // Распределяем время по часам для текущего станка
+        distributeTimeToHours(lastTime, currentTime, lastStatus, hourlyData);
+        
+        lastStatus = currentStatus;
+        lastTime = currentTime;
+      }
+
+      // Обрабатываем оставшееся время до конца дня для текущего станка
+      distributeTimeToHours(lastTime, dayEnd, lastStatus, hourlyData);
+    }
+
+    // Формируем данные для графика
+    const result = {
+      labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+      datasets: [
+        {
+          label: 'Работает',
+          data: hourlyData.map(h => Math.round(h.working)),
+          backgroundColor: 'rgba(46, 204, 113, 0.7)',
+          borderColor: 'rgba(46, 204, 113, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Остановлен',
+          data: hourlyData.map(h => Math.round(h.stopped)),
+          backgroundColor: 'rgba(231, 76, 60, 0.7)',
+          borderColor: 'rgba(231, 76, 60, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Выключен',
+          data: hourlyData.map(h => Math.round(h.shutdown)),
+          backgroundColor: 'rgba(149, 165, 166, 0.7)',
+          borderColor: 'rgba(149, 165, 166, 1)',
+          borderWidth: 1
+        }
+      ]
+    };
+
+    return result;
+  } catch (error) {
+    console.error('Ошибка генерации агрегированных почасовых данных:', error);
+    throw new Error('Не удалось сгенерировать агрегированные почасовые данные');
+  }
+}
+
 function validateErrors(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -642,6 +797,53 @@ app.get('/api/machines/:id/hourly',
         
         res.json({
           success: true,
+          data: chartData
+        });
+      } finally {
+        if (connection) await connection.release();
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * Получает агрегированные почасовые данные для всех станков или станков цеха
+ */
+app.get('/api/workshops/hourly', 
+  [
+    query('date').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
+    query('date').isISO8601().withMessage('Неверный формат даты'),
+    query('workshop').optional().isIn(['all', '1', '2']).withMessage('Неверный идентификатор цеха')
+  ],
+  validateErrors,
+  async (req, res, next) => {
+    let connection;
+    try {
+      const { date, workshop = 'all' } = req.query;
+      const cacheKey = `${workshop}_${date}`;
+      
+      if (cache.workshopHourlyData[cacheKey] && 
+          Date.now() - cache.lastUpdate[cacheKey] < cache.ttl.workshopHourly) {
+        return res.json({
+          success: true,
+          fromCache: true,
+          data: cache.workshopHourlyData[cacheKey]
+        });
+      }
+
+      connection = await getConnection();
+      
+      try {
+        const chartData = await generateWorkshopHourlyData(connection, workshop, date);
+        
+        cache.workshopHourlyData[cacheKey] = chartData;
+        cache.lastUpdate[cacheKey] = Date.now();
+        
+        res.json({
+          success: true,
+          fromCache: false,
           data: chartData
         });
       } finally {

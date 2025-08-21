@@ -1021,95 +1021,111 @@
         /**
          * Обновляет графики для режима просмотра цехов
          */
-       function updateWorkshopCharts() {
-  console.log('Обновление графиков цехов');
-  
-  // 1. Круговая диаграмма (общие данные)
-  pieChart.data.datasets[0].data = [
-    workshopData.total.working,
-    workshopData.total.stopped,
-    workshopData.total.shutdown
-  ];
-  
-  // 2. Горизонтальная столбчатая диаграмма (сравнение цехов)
-  horizontalBarChart.data.datasets[0].data = [
-    workshopData.workshop1.shutdown,
-    workshopData.workshop2.shutdown
-  ];
-  horizontalBarChart.data.datasets[1].data = [
-    workshopData.workshop1.stopped,
-    workshopData.workshop2.stopped
-  ];
-  horizontalBarChart.data.datasets[2].data = [
-    workshopData.workshop1.working,
-    workshopData.workshop2.working
-  ];
-  
-  // 3. Почасовой график (показываем агрегированные данные)
-  updateHourlyChartForAllMachines();
-  
-  // Обновляем заголовки
-  document.getElementById('pieChartTitle').textContent = 
-    `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
-  document.getElementById('horizontalBarChartTitle').textContent = 
-    `Сравнение цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
-  
-  // Обновляем все графики
-  try {
-    pieChart.update();
-    horizontalBarChart.update();
-    console.log('Графики цехов успешно обновлены');
-  } catch (e) {
-    console.error('Ошибка обновления графиков цехов:', e);
-  }
-}
+        async function updateWorkshopCharts() {
+            console.log('Обновление графиков цехов');
+            
+            // 1. Круговая диаграмма (общие данные)
+            pieChart.data.datasets[0].data = [
+                workshopData.total.working,
+                workshopData.total.stopped,
+                workshopData.total.shutdown
+            ];
+            
+            // 2. Горизонтальная столбчатая диаграмма (сравнение цехов)
+            horizontalBarChart.data.datasets[0].data = [
+                workshopData.workshop1.shutdown,
+                workshopData.workshop2.shutdown
+            ];
+            horizontalBarChart.data.datasets[1].data = [
+                workshopData.workshop1.stopped,
+                workshopData.workshop2.stopped
+            ];
+            horizontalBarChart.data.datasets[2].data = [
+                workshopData.workshop1.working,
+                workshopData.workshop2.working
+            ];
+            
+            // 3. Почасовой график (загружаем агрегированные данные)
+            await updateHourlyChartForAllMachines();
+            
+            // Обновляем заголовки
+            document.getElementById('pieChartTitle').textContent = 
+                `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
+            document.getElementById('horizontalBarChartTitle').textContent = 
+                `Сравнение цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
+            
+            // Обновляем все графики
+            try {
+                pieChart.update();
+                horizontalBarChart.update();
+                console.log('Графики цехов успешно обновлены');
+            } catch (e) {
+                console.error('Ошибка обновления графиков цехов:', e);
+            }
+        }
+
         /**
-         * Обновляет почасовой график для всех станков
+         * Обновляет почасовой график для всех станков или выбранного цеха
          */
-        function updateHourlyChartForAllMachines() {
-            console.log('Обновление почасового графика для всех станков');
-            
-            // Создаем пустые данные для графика
-            const chartData = {
-                labels: Array.from({length: 24}, (_, i) => `${i}:00`),
-                datasets: [
-                    {
-                        label: STATUS_LABELS[STATUS.WORKING],
-                        data: Array(24).fill(0),
-                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
-                        borderColor: 'rgba(46, 204, 113, 1)',
-                        borderWidth: 1,
-                        borderRadius: 3
-                    },
-                    {
-                        label: STATUS_LABELS[STATUS.STOPPED],
-                        data: Array(24).fill(0),
-                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                        borderColor: 'rgba(231, 76, 60, 1)',
-                        borderWidth: 1,
-                        borderRadius: 3
-                    },
-                    {
-                        label: STATUS_LABELS[STATUS.SHUTDOWN],
-                        data: Array(24).fill(0),
-                        backgroundColor: 'rgba(149, 165, 166, 0.7)',
-                        borderColor: 'rgba(149, 165, 166, 1)',
-                        borderWidth: 1,
-                        borderRadius: 3
-                    }
-                ]
-            };
-            
-            // Обновляем график
-            barChart.data = chartData;
-            document.getElementById('barChartTitle').textContent = 
-                `Работа всех станков по часам (${DOM.startDate.value})`;
+        async function updateHourlyChartForAllMachines() {
+            const selectedWorkshop = DOM.workshopFilter.value;
+            const date = DOM.startDate.value;
             
             try {
+                showLoadingIndicator('Загрузка агрегированных данных...');
+                
+                // Используем новый эндпоинт для получения агрегированных данных
+                const response = await fetch(
+                    `${API_BASE_URL}/api/workshops/hourly?date=${date}&workshop=${selectedWorkshop}`
+                );
+                const data = await handleApiResponse(response);
+                
+                // Обновляем график
+                barChart.data = data.data;
+                document.getElementById('barChartTitle').textContent = 
+                    `Работа ${selectedWorkshop === 'all' ? 'всех станков' : 'станков цеха ' + selectedWorkshop} по часам (${date})`;
+                
                 barChart.update();
-                console.log('Почасовой график для всех станков обновлен');
-            } catch (e) {
-                console.error('Ошибка обновления графика:', e);
+                
+            } catch (error) {
+                console.error('Ошибка загрузки агрегированных данных:', error);
+                showNotification('Ошибка загрузки данных по станкам', 'error');
+                
+                // Показываем тестовые данные при ошибке
+                const chartData = {
+                    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                    datasets: [
+                        {
+                            label: STATUS_LABELS[STATUS.WORKING],
+                            data: Array(24).fill().map(() => Math.floor(Math.random() * 30)),
+                            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            borderWidth: 1,
+                            borderRadius: 3
+                        },
+                        {
+                            label: STATUS_LABELS[STATUS.STOPPED],
+                            data: Array(24).fill().map(() => Math.floor(Math.random() * 30)),
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                            borderColor: 'rgba(231, 76, 60, 1)',
+                            borderWidth: 1,
+                            borderRadius: 3
+                        },
+                        {
+                            label: STATUS_LABELS[STATUS.SHUTDOWN],
+                            data: Array(24).fill().map(() => Math.floor(Math.random() * 30)),
+                            backgroundColor: 'rgba(149, 165, 166, 0.7)',
+                            borderColor: 'rgba(149, 165, 166, 1)',
+                            borderWidth: 1,
+                            borderRadius: 3
+                        }
+                    ]
+                };
+                
+                barChart.data = chartData;
+                barChart.update();
+            } finally {
+                hideLoadingIndicator();
             }
         }
 
