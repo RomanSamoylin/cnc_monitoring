@@ -381,7 +381,7 @@
         /**
          * Обрезает данные часового графика до текущего часа для сегодняшней даты
          * @param {object} chartData - Данные графика
-         * @param {string} date - Дата в формате YYYY-MM-DD
+         * @param {string} date - Дата в формаite YYYY-MM-DD
          * @returns {object} - Обновленные данные графика
          */
         function truncateToCurrentHour(chartData, date) {
@@ -399,6 +399,90 @@
             });
             
             return chartData;
+        }
+
+        /**
+         * Агрегирует данные станка из почасовых отчетов
+         * @param {string} machineId - ID станка
+         * @param {string} startDate - Начальная дата
+         * @param {string} endDate - Конечная дата
+         * @returns {object} - Агрегированные данные
+         */
+        async function aggregateMachineDataFromHourly(machineId, startDate, endDate) {
+            let totalWorking = 0;
+            let totalStopped = 0;
+            let totalShutdown = 0;
+
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const current = new Date(start);
+
+            while (current <= end) {
+                const dateStr = current.toISOString().split('T')[0];
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/machines/${machineId}/hourly?date=${dateStr}`);
+                    const data = await handleApiResponse(response);
+
+                    // Суммируем данные за день
+                    if (data.data && data.data.datasets) {
+                        totalWorking += data.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        totalStopped += data.data.datasets[1].data.reduce((a, b) => a + b, 0);
+                        totalShutdown += data.data.datasets[2].data.reduce((a, b) => a + b, 0);
+                    }
+                } catch (error) {
+                    console.error(`Ошибка загрузки данных за ${dateStr}:`, error);
+                }
+                current.setDate(current.getDate() + 1);
+            }
+
+            // Конвертируем минуты в часы
+            return {
+                working: totalWorking / 60,
+                stopped: totalStopped / 60,
+                shutdown: totalShutdown / 60
+            };
+        }
+
+        /**
+         * Агрегирует данные цеха из почасовых отчетов
+         * @param {string} workshop - ID цеха
+         * @param {string} startDate - Начальная дата
+         * @param {string} endDate - Конечная дата
+         * @returns {object} - Агрегированные данные
+         */
+        async function aggregateWorkshopDataFromHourly(workshop, startDate, endDate) {
+            let totalWorking = 0;
+            let totalStopped = 0;
+            let totalShutdown = 0;
+
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const current = new Date(start);
+
+            while (current <= end) {
+                const dateStr = current.toISOString().split('T')[0];
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/workshops/hourly?date=${dateStr}&workshop=${workshop}`);
+                    const data = await handleApiResponse(response);
+
+                    // Суммируем данные за день
+                    if (data.data && data.data.datasets) {
+                        totalWorking += data.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        totalStopped += data.data.datasets[1].data.reduce((a, b) => a + b, 0);
+                        totalShutdown += data.data.datasets[2].data.reduce((a, b) => a + b, 0);
+                    }
+                } catch (error) {
+                    console.error(`Ошибка загрузки данных за ${dateStr}:`, error);
+                }
+                current.setDate(current.getDate() + 1);
+            }
+
+            // Конвертируем минуты в часы
+            return {
+                working: totalWorking / 60,
+                stopped: totalStopped / 60,
+                shutdown: totalShutdown / 60
+            };
         }
 
         /**
@@ -841,11 +925,9 @@
                 const truncatedHourlyData = truncateToCurrentHour(hourlyData.data, startDate);
                 updateHourlyChart(machineId, truncatedHourlyData);
                 
-                // 2. Загружаем сводные данные
-                const summaryResponse = await fetch(`${API_BASE_URL}/api/machines/${machineId}/history/summary?startDate=${startDate}&endDate=${endDate}`);
-                const summaryData = await handleApiResponse(summaryResponse);
-                console.log('Сводные данные:', summaryData.data);
-                updateMachineChart(machineId, summaryData.data);
+                // 2. Агрегируем данные из почасовых отчетов
+                const summaryData = await aggregateMachineDataFromHourly(machineId, startDate, endDate);
+                updateMachineChart(machineId, summaryData);
                 
                 // 3. Загружаем детальные данные для временной шкалы
                 const detailedResponse = await fetch(`${API_BASE_URL}/api/machines/${machineId}/history/detailed?startDate=${startDate}&endDate=${endDate}`);
@@ -981,8 +1063,8 @@
             console.log(`Обновление временной шкалы для станка ${machineId}`, data);
             
             const machine = machinesList.find(m => m.id === machineId);
-            if (!machine || !data || !Array.isArray(data)) {
-                console.error('Нет данных для временной шкалы');
+            if (!machine) {
+                console.error('Станок не найден:', machineId);
                 return;
             }
 
@@ -993,25 +1075,38 @@
             const labels = [];
             const statusData = [];
             
-            data.forEach(event => {
-                const date = moment(event.timestamp);
-                if (isSingleDay) {
-                    labels.push(date.format('HH:mm:ss'));
-                } else {
-                    labels.push(date.format('YYYY-MM-DD HH:mm'));
-                }
+            // Если данных нет, создаем запись о выключенном состоянии
+            if (!data || data.length === 0) {
+                const start = moment(DOM.startDate.value).startOf('day');
+                const end = moment(DOM.endDate.value).endOf('day');
                 
-                // Преобразуем статус в числовое значение
-                let statusValue;
-                switch (event.status) {
-                    case STATUS.SHUTDOWN: statusValue = 0; break;
-                    case STATUS.STOPPED: statusValue = 1; break;
-                    case STATUS.WORKING: statusValue = 2; break;
-                    default: statusValue = 0;
-                }
+                labels.push(start.format('YYYY-MM-DD HH:mm'));
+                labels.push(end.format('YYYY-MM-DD HH:mm'));
                 
-                statusData.push(statusValue);
-            });
+                statusData.push(0); // SHUTDOWN
+                statusData.push(0); // SHUTDOWN
+            } else {
+                // Обрабатываем существующие данные
+                data.forEach(event => {
+                    const date = moment(event.timestamp);
+                    if (isSingleDay) {
+                        labels.push(date.format('HH:mm:ss'));
+                    } else {
+                        labels.push(date.format('YYYY-MM-DD HH:mm'));
+                    }
+                    
+                    // Преобразуем статус в числовое значение
+                    let statusValue;
+                    switch (event.status) {
+                        case STATUS.SHUTDOWN: statusValue = 0; break;
+                        case STATUS.STOPPED: statusValue = 1; break;
+                        case STATUS.WORKING: statusValue = 2; break;
+                        default: statusValue = 0;
+                    }
+                    
+                    statusData.push(statusValue);
+                });
+            }
             
             // Обновляем график
             timelineChart.data.labels = labels;
@@ -1049,14 +1144,29 @@
 
             try {
                 showLoadingIndicator('Загрузка данных цехов...');
-                console.log(`Загрузка данных цехов с ${startDate} по ${endDate}`);
                 
-                const response = await fetch(`${API_BASE_URL}/api/workshops/summary?startDate=${startDate}&endDate=${endDate}`);
-                const data = await handleApiResponse(response);
+                const selectedWorkshop = DOM.workshopFilter.value;
                 
-                workshopData = data.data;
+                // Загружаем данные для каждого цеха отдельно
+                const workshop1Data = selectedWorkshop === 'all' || selectedWorkshop === '1' ? 
+                    await aggregateWorkshopDataFromHourly('1', startDate, endDate) : 
+                    { working: 0, stopped: 0, shutdown: 0 };
+                    
+                const workshop2Data = selectedWorkshop === 'all' || selectedWorkshop === '2' ? 
+                    await aggregateWorkshopDataFromHourly('2', startDate, endDate) : 
+                    { working: 0, stopped: 0, shutdown: 0 };
+
+                workshopData = {
+                    workshop1: workshop1Data,
+                    workshop2: workshop2Data,
+                    total: {
+                        working: workshop1Data.working + workshop2Data.working,
+                        stopped: workshop1Data.stopped + workshop2Data.stopped,
+                        shutdown: workshop1Data.shutdown + workshop2Data.shutdown
+                    }
+                };
+                
                 console.log('Данные цехов:', workshopData);
-                
                 updateWorkshopCharts();
                 showNotification('Данные цехов успешно загружены', 'success');
                 

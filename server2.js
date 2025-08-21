@@ -402,30 +402,49 @@ async function generateHourlyChartData(connection, machineId, date) {
 /**
  * Получает детальные данные по истории статусов станка
  */
+// В функции getMachineStatusData изменим обработку пустых данных
 async function getMachineStatusData(connection, machineId, startDate, endDate) {
     try {
-    const start = moment(startDate).format('YYYY-MM-DD HH:mm:ss');
-    const end = moment(endDate).format('YYYY-MM-DD HH:mm:ss');
-    
-    console.log(`Запрос истории статусов для станка ${machineId} с ${start} по ${end}`);
+        const start = moment(startDate).format('YYYY-MM-DD HH:mm:ss');
+        const end = moment(endDate).format('YYYY-MM-DD HH:mm:ss');
+        
+        console.log(`Запрос истории статусов для станка ${machineId} с ${start} по ${end}`);
 
-    const [rows] = await connection.execute(`
-      SELECT 
-        timestamp,
-        event_type,
-        value
-      FROM bit8_data
-      FORCE INDEX (idx_bit8_data_machine_timestamp)
-      WHERE 
-        machine_id = ?
-        AND timestamp BETWEEN ? AND ?
-        AND event_type IN (7, 21, 32, 19)
-      ORDER BY timestamp ASC
-    `, [machineId, start, end]);
+        const [rows] = await connection.execute(`
+            SELECT 
+                timestamp,
+                event_type,
+                value
+            FROM bit8_data
+            FORCE INDEX (idx_bit8_data_machine_timestamp)
+            WHERE 
+                machine_id = ?
+                AND timestamp BETWEEN ? AND ?
+                AND event_type IN (7, 21, 32, 19)
+            ORDER BY timestamp ASC
+        `, [machineId, start, end]);
 
-    const statusHistory = [];
-    let lastStatusData = {};
-    let lastStatus = STATUS.SHUTDOWN;
+        const statusHistory = [];
+        let lastStatusData = {};
+        let lastStatus = STATUS.SHUTDOWN;
+
+        // Если данных нет, создаем запись о выключенном состоянии на весь период
+        if (rows.length === 0) {
+            statusHistory.push({
+                timestamp: start,
+                status: STATUS.SHUTDOWN
+            });
+            statusHistory.push({
+                timestamp: end,
+                status: STATUS.SHUTDOWN
+            });
+            
+            return {
+                machineId,
+                statusHistory,
+                currentStatus: STATUS.SHUTDOWN
+            };
+        }
 
     // Группируем данные по timestamp
     const groupedData = {};
