@@ -170,8 +170,8 @@ async function calculateMachineStatusTime(connection, machineId, startDate, endD
     let start = moment(startDate).startOf('day');
     let end = moment(endDate).endOf('day');
     
-    // Если конечная дата - сегодня, используем текущее время вместо конца дня
-    if (moment().isSame(end, 'day')) {
+    // Если начальная и конечная даты одинаковые (период "День"), используем текущее время вместо конца дня
+    if (moment(startDate).isSame(endDate, 'day') && moment().isSame(endDate, 'day')) {
       end = moment();
     }
     
@@ -403,8 +403,8 @@ async function getMachineStatusData(connection, machineId, startDate, endDate) {
         let start = moment(startDate).format('YYYY-MM-DD HH:mm:ss');
         let end = moment(endDate).format('YYYY-MM-DD HH:mm:ss');
         
-        // Если конечная дата - сегодня, используем текущее время
-        if (moment().isSame(moment(endDate), 'day')) {
+        // Если начальная и конечная даты одинаковые (период "День"), используем текущее время
+        if (moment(startDate).isSame(endDate, 'day') && moment().isSame(endDate, 'day')) {
             end = moment().format('YYYY-MM-DD HH:mm:ss');
         }
         

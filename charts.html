@@ -298,6 +298,15 @@
          * Форматирует период для отображения в заголовках
          */
         function formatPeriod(startDateStr, endDateStr) {
+            const startDate = new Date(startDateStr);
+            const endDate = new Date(endDateStr);
+            
+            // Если выбран период "День", показываем только одну дату
+            if (currentPeriod === 'day') {
+                return startDateStr;
+            }
+            
+            // Для других периодов показываем диапазон, если даты разные
             if (startDateStr === endDateStr) {
                 return startDateStr;
             }
@@ -1332,9 +1341,10 @@
             // Устанавливаем даты в соответствии с периодом
             switch (period) {
                 case 'day':
+                    // Для периода "День" используем только текущий день
                     startDate = new Date(today);
                     startDate.setHours(0, 0, 0, 0);
-                    endDate = new Date(today);
+                    endDate = new Date(today); // Используем тот же день
                     endDate.setHours(23, 59, 59, 999);
                     break;
                     
@@ -1414,7 +1424,7 @@
             // 3. Устанавливаем текущую дату по умолчанию
             const today = new Date();
             DOM.startDate.valueAsDate = today;
-            DOM.endDate.valueAsDate = today;
+            DOM.endDate.valueAsDate = today; // Устанавливаем ту же дату для конца периода
             
             // 4. Настраиваем обработчики событий
             DOM.workshopFilter.addEventListener('change', function() {
