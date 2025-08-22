@@ -167,10 +167,15 @@ function distributeTimeToHours(startTime, endTime, status, hourlyData) {
  */
 async function calculateMachineStatusTime(connection, machineId, startDate, endDate) {
   try {
-    const start = moment(startDate).startOf('day');
-    const end = moment(endDate).endOf('day');
+    let start = moment(startDate).startOf('day');
+    let end = moment(endDate).endOf('day');
     
-    console.log(`Расчет времени для станка ${machineId} с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')}`);
+    // Если конечная дата - сегодня, используем текущее время вместо конца дня
+    if (moment().isSame(end, 'day')) {
+      end = moment();
+    }
+    
+    console.log(`Расчет времени для станка ${machineId} с ${start.format('YYYY-MM-DD HH:mm:ss')} по ${end.format('YYYY-MM-DD HH:mm:ss')}`);
 
     const [rows] = await connection.execute(`
       SELECT 
@@ -255,11 +260,16 @@ async function calculateMachineStatusTime(connection, machineId, startDate, endD
 async function generateHourlyChartData(connection, machineId, date) {
   try {
     const dayStart = moment(date).startOf('day');
-    const dayEnd = moment(date).endOf('day');
+    let dayEnd = moment(date).endOf('day');
     
     // Проверяем, является ли запрашиваемая дата сегодняшней
     const isToday = moment().isSame(dayStart, 'day');
     const currentHour = moment().hour();
+    
+    // Если дата сегодняшняя, используем текущее время вместо конца дня
+    if (isToday) {
+      dayEnd = moment();
+    }
     
     const [rows] = await connection.execute(`
       SELECT 
@@ -283,40 +293,33 @@ async function generateHourlyChartData(connection, machineId, date) {
 
     if (rows.length === 0) {
       // Если нет данных, считаем весь день выключенным
+      const totalHours = isToday ? currentHour + 1 : 24;
       const result = {
-        labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+        labels: Array.from({length: totalHours}, (_, i) => `${i}:00`),
         datasets: [
           {
             label: 'Работает',
-            data: Array(24).fill(0),
+            data: Array(totalHours).fill(0),
             backgroundColor: 'rgba(46, 204, 113, 0.7)',
             borderColor: 'rgba(46, 204, 113, 1)',
             borderWidth: 1
           },
           {
             label: 'Остановлен',
-            data: Array(24).fill(0),
+            data: Array(totalHours).fill(0),
             backgroundColor: 'rgba(231, 76, 60, 0.7)',
             borderColor: 'rgba(231, 76, 60, 1)',
             borderWidth: 1
           },
           {
             label: 'Выключен',
-            data: Array(24).fill(0),
+            data: Array(totalHours).fill(0),
             backgroundColor: 'rgba(149, 165, 166, 0.7)',
             borderColor: 'rgba(149, 165, 166, 1)',
             borderWidth: 1
           }
         ]
       };
-      
-      // Если сегодня, обрезаем данные до текущего часа
-      if (isToday) {
-        result.labels = result.labels.slice(0, currentHour + 1);
-        result.datasets.forEach(dataset => {
-          dataset.data = dataset.data.slice(0, currentHour + 1);
-        });
-      }
       
       return result;
     }
@@ -357,40 +360,33 @@ async function generateHourlyChartData(connection, machineId, date) {
     distributeTimeToHours(lastTime, dayEnd, lastStatus, hourlyData);
 
     // Формируем данные для графика
+    const totalHours = isToday ? currentHour + 1 : 24;
     const result = {
-      labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+      labels: Array.from({length: totalHours}, (_, i) => `${i}:00`),
       datasets: [
         {
           label: 'Работает',
-          data: hourlyData.map(h => Math.round(h.working)),
+          data: hourlyData.slice(0, totalHours).map(h => Math.round(h.working)),
           backgroundColor: 'rgba(46, 204, 113, 0.7)',
           borderColor: 'rgba(46, 204, 113, 1)',
           borderWidth: 1
         },
         {
           label: 'Остановлен',
-          data: hourlyData.map(h => Math.round(h.stopped)),
+          data: hourlyData.slice(0, totalHours).map(h => Math.round(h.stopped)),
           backgroundColor: 'rgba(231, 76, 60, 0.7)',
           borderColor: 'rgba(231, 76, 60, 1)',
           borderWidth: 1
         },
         {
           label: 'Выключен',
-          data: hourlyData.map(h => Math.round(h.shutdown)),
+          data: hourlyData.slice(0, totalHours).map(h => Math.round(h.shutdown)),
           backgroundColor: 'rgba(149, 165, 166, 0.7)',
           borderColor: 'rgba(149, 165, 166, 1)',
           borderWidth: 1
         }
       ]
     };
-
-    // Если сегодня, обрезаем данные до текущего часа
-    if (isToday) {
-      result.labels = result.labels.slice(0, currentHour + 1);
-      result.datasets.forEach(dataset => {
-        dataset.data = dataset.data.slice(0, currentHour + 1);
-      });
-    }
 
     return result;
   } catch (error) {
@@ -402,11 +398,15 @@ async function generateHourlyChartData(connection, machineId, date) {
 /**
  * Получает детальные данные по истории статусов станка
  */
-// В функции getMachineStatusData изменим обработку пустых данных
 async function getMachineStatusData(connection, machineId, startDate, endDate) {
     try {
-        const start = moment(startDate).format('YYYY-MM-DD HH:mm:ss');
-        const end = moment(endDate).format('YYYY-MM-DD HH:mm:ss');
+        let start = moment(startDate).format('YYYY-MM-DD HH:mm:ss');
+        let end = moment(endDate).format('YYYY-MM-DD HH:mm:ss');
+        
+        // Если конечная дата - сегодня, используем текущее время
+        if (moment().isSame(moment(endDate), 'day')) {
+            end = moment().format('YYYY-MM-DD HH:mm:ss');
+        }
         
         console.log(`Запрос истории статусов для станка ${machineId} с ${start} по ${end}`);
 
@@ -485,11 +485,16 @@ async function getMachineStatusData(connection, machineId, startDate, endDate) {
 async function generateWorkshopHourlyData(connection, workshop, date) {
   try {
     const dayStart = moment(date).startOf('day');
-    const dayEnd = moment(date).endOf('day');
+    let dayEnd = moment(date).endOf('day');
     
     // Проверяем, является ли запрашиваемая дата сегодняшней
     const isToday = moment().isSame(dayStart, 'day');
     const currentHour = moment().hour();
+    
+    // Если дата сегодняшняя, используем текущее время вместо конца дня
+    if (isToday) {
+      dayEnd = moment();
+    }
     
     // Определяем условие WHERE в зависимости от параметра workshop
     let whereClause = '';
@@ -521,40 +526,33 @@ async function generateWorkshopHourlyData(connection, workshop, date) {
 
     if (rows.length === 0) {
       // Если нет данных, возвращаем пустой результат
+      const totalHours = isToday ? currentHour + 1 : 24;
       const result = {
-        labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+        labels: Array.from({length: totalHours}, (_, i) => `${i}:00`),
         datasets: [
           {
             label: 'Работает',
-            data: Array(24).fill(0),
+            data: Array(totalHours).fill(0),
             backgroundColor: 'rgba(46, 204, 113, 0.7)',
             borderColor: 'rgba(46, 204, 113, 1)',
             borderWidth: 1
           },
           {
             label: 'Остановлен',
-            data: Array(24).fill(0),
+            data: Array(totalHours).fill(0),
             backgroundColor: 'rgba(231, 76, 60, 0.7)',
             borderColor: 'rgba(231, 76, 60, 1)',
             borderWidth: 1
           },
           {
             label: 'Выключен',
-            data: Array(24).fill(0),
+            data: Array(totalHours).fill(0),
             backgroundColor: 'rgba(149, 165, 166, 0.7)',
             borderColor: 'rgba(149, 165, 166, 1)',
             borderWidth: 1
           }
         ]
       };
-      
-      // Если сегодня, обрезаем данные до текущего часа
-      if (isToday) {
-        result.labels = result.labels.slice(0, currentHour + 1);
-        result.datasets.forEach(dataset => {
-          dataset.data = dataset.data.slice(0, currentHour + 1);
-        });
-      }
       
       return result;
     }
@@ -612,40 +610,33 @@ async function generateWorkshopHourlyData(connection, workshop, date) {
     }
 
     // Формируем данные для графика
+    const totalHours = isToday ? currentHour + 1 : 24;
     const result = {
-      labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+      labels: Array.from({length: totalHours}, (_, i) => `${i}:00`),
       datasets: [
         {
           label: 'Работает',
-          data: hourlyData.map(h => Math.round(h.working)),
+          data: hourlyData.slice(0, totalHours).map(h => Math.round(h.working)),
           backgroundColor: 'rgba(46, 204, 113, 0.7)',
           borderColor: 'rgba(46, 204, 113, 1)',
           borderWidth: 1
         },
         {
           label: 'Остановлен',
-          data: hourlyData.map(h => Math.round(h.stopped)),
+          data: hourlyData.slice(0, totalHours).map(h => Math.round(h.stopped)),
           backgroundColor: 'rgba(231, 76, 60, 0.7)',
           borderColor: 'rgba(231, 76, 60, 1)',
           borderWidth: 1
         },
         {
           label: 'Выключен',
-          data: hourlyData.map(h => Math.round(h.shutdown)),
+          data: hourlyData.slice(0, totalHours).map(h => Math.round(h.shutdown)),
           backgroundColor: 'rgba(149, 165, 166, 0.7)',
           borderColor: 'rgba(149, 165, 166, 1)',
           borderWidth: 1
         }
       ]
     };
-
-    // Если сегодня, обрезаем данные до текущего часа
-    if (isToday) {
-      result.labels = result.labels.slice(0, currentHour + 1);
-      result.datasets.forEach(dataset => {
-        dataset.data = dataset.data.slice(0, currentHour + 1);
-      });
-    }
 
     return result;
   } catch (error) {

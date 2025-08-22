@@ -295,6 +295,16 @@
         };
 
         /**
+         * Форматирует период для отображения в заголовках
+         */
+        function formatPeriod(startDateStr, endDateStr) {
+            if (startDateStr === endDateStr) {
+                return startDateStr;
+            }
+            return `${startDateStr} - ${endDateStr}`;
+        }
+
+        /**
          * Показывает уведомление
          * @param {string} message - Текст сообщения
          * @param {string} type - Тип уведомления (success, error, loading)
@@ -381,7 +391,7 @@
         /**
          * Обрезает данные часового графика до текущего часа для сегодняшней даты
          * @param {object} chartData - Данные графика
-         * @param {string} date - Дата в формаite YYYY-MM-DD
+         * @param {string} date - Дата в формате YYYY-MM-DD
          * @returns {object} - Обновленные данные графика
          */
         function truncateToCurrentHour(chartData, date) {
@@ -1034,6 +1044,7 @@
             }
 
             const machineName = `${machine.name} (ID: ${machineId})`;
+            const periodText = formatPeriod(DOM.startDate.value, DOM.endDate.value);
             
             // Обновляем данные графика
             machineStatusChart.data.labels = [machineName];
@@ -1043,7 +1054,7 @@
             
             // Обновляем заголовок
             document.getElementById('chartTitle').textContent = 
-                `Состояние станка ${machineName} (${DOM.startDate.value} - ${DOM.endDate.value})`;
+                `Состояние станка ${machineName} (${periodText})`;
             
             // Обновляем график
             try {
@@ -1069,6 +1080,7 @@
             }
 
             const machineName = `${machine.name} (ID: ${machineId})`;
+            const periodText = formatPeriod(DOM.startDate.value, DOM.endDate.value);
             const isSingleDay = DOM.startDate.value === DOM.endDate.value;
             
             // Подготавливаем данные для графика
@@ -1114,7 +1126,7 @@
             
             // Обновляем заголовок
             document.getElementById('timelineChartTitle').textContent = 
-                `Изменение состояния станка ${machineName} (${DOM.startDate.value} - ${DOM.endDate.value})`;
+                `Изменение состояния станка ${machineName} (${periodText})`;
             
             // Обновляем настройки оси Y
             timelineChart.options.scales.y.ticks.callback = function(value) {
@@ -1168,7 +1180,7 @@
                 
                 console.log('Данные цехов:', workshopData);
                 updateWorkshopCharts();
-                showNotification('Данные цехов успешно загружены', 'success');
+                showNotification('Даны цехов успешно загружены', 'success');
                 
             } catch (error) {
                 console.error('Ошибка загрузки данных цехов:', error);
@@ -1183,6 +1195,8 @@
          */
         async function updateWorkshopCharts() {
             console.log('Обновление графиков цехов');
+            
+            const periodText = formatPeriod(DOM.startDate.value, DOM.endDate.value);
             
             // 1. Круговая диаграмма (общие данные)
             pieChart.data.datasets[0].data = [
@@ -1210,9 +1224,9 @@
             
             // Обновляем заголовки
             document.getElementById('pieChartTitle').textContent = 
-                `Состояние станков всех цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
+                `Состояние станков всех цехов (${periodText})`;
             document.getElementById('horizontalBarChartTitle').textContent = 
-                `Сравнение цехов (${DOM.startDate.value} - ${DOM.endDate.value})`;
+                `Сравнение цехов (${periodText})`;
             
             // Обновляем все графики
             try {
@@ -1429,7 +1443,7 @@
                 }
             });
             
-            // 5. Загружаем начальные данные
+            // 5. Загружаем начальные данные за сегодняшний день
             setPeriod('day');
             
             console.log('Приложение инициализировано');
