@@ -1869,3 +1869,61 @@ Error: bind EADDRINUSE null:3000
     at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:528:3)
     at process.emit (node:events:530:35)
     at process._fatalException (node:internal/process/execution:154:25)
+2025-08-22 15:09:18.791: [22.08.2025, 15:09:18] Ошибка обновления. Повтор через 30000ms
+2025-08-22 15:09:18.791: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:439:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-08-25 08:42:10.415: [25.08.2025, 08:42:10] Критическая ошибка запуска: connect ETIMEDOUT 192.168.1.30:3306
+2025-08-25 08:42:10.415: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at Server.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:556:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error: bind EADDRINUSE null:3000
+    at listenOnPrimaryHandle (node:net:2020:18)
+    at shared (node:internal/cluster/child:157:3)
+    at Worker.<anonymous> (node:internal/cluster/child:110:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:530:35)
+    at emit (node:internal/child_process:949:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+2025-08-25 08:42:20.430: [25.08.2025, 08:42:20] Неперехваченное исключение: bind EADDRINUSE null:3000
+2025-08-25 08:42:20.431: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:528:3)
+    at process.emit (node:events:530:35)
+    at process._fatalException (node:internal/process/execution:154:25)
+2025-08-25 13:24:48.578: [25.08.2025, 13:24:48] Ошибка обновления. Повтор через 30000ms
+2025-08-25 13:24:48.579: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:439:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-08-25 14:23:44.049: [25.08.2025, 14:23:44] Ошибка обновления. Повтор через 30000ms
+2025-08-25 14:23:44.050: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:439:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-08-25 16:29:47.119: [25.08.2025, 16:29:47] Ошибка обновления. Повтор через 30000ms
+2025-08-25 16:29:47.119: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:439:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-08-26 09:06:32.059: [26.08.2025, 09:06:32] Критическая ошибка запуска: connect ETIMEDOUT 192.168.1.30:3306
+2025-08-26 09:06:32.059: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at Server.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:556:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Error: bind EADDRINUSE null:3000
+    at listenOnPrimaryHandle (node:net:2020:18)
+    at shared (node:internal/cluster/child:157:3)
+    at Worker.<anonymous> (node:internal/cluster/child:110:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:530:35)
+    at emit (node:internal/child_process:949:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+2025-08-26 09:06:42.063: [26.08.2025, 09:06:42] Неперехваченное исключение: bind EADDRINUSE null:3000
+2025-08-26 09:06:42.064: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:528:3)
+    at process.emit (node:events:530:35)
+    at process._fatalException (node:internal/process/execution:154:25)

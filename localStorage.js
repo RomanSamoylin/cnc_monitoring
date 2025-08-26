@@ -25,19 +25,19 @@ window.onload = function () {
         document.getElementById("username").value = savedUsername;
     }
 };
-/**
- * Модуль для работы с localStorage и взаимодействия с сервером
- * Версия 2.0
- */
+// Модуль для работы с localStorage и взаимодействия с сервером
+// Версия 2.1 - Адаптировано для системы мониторинга станков
 
 // Конфигурация приложения
 const APP_CONFIG = {
     APP_NAME: 'MachineMonitoring',
-    API_BASE_URL: 'https://api.machine-monitoring.com/v1',
+    API_BASE_URL: 'http://localhost:3000/api',
     ENDPOINTS: {
         LOGIN: '/auth/login',
         LOGOUT: '/auth/logout',
         VERIFY_SESSION: '/auth/verify',
+        GET_MACHINES: '/machines',
+        UPDATE_MACHINES: '/machines/update',
         GET_SETTINGS: '/settings',
         UPDATE_SETTINGS: '/settings/update'
     },
@@ -143,7 +143,7 @@ const ApiClient = {
             const response = await fetch(url, requestOptions);
             
             if (!response.ok) {
-                const errorData = await response.json();
+                const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
 
@@ -179,11 +179,11 @@ const ApiClient = {
     logout: async function() {
         try {
             await this.request(APP_CONFIG.ENDPOINTS.LOGOUT, 'POST');
+        } catch (error) {
+            console.error('Logout API call failed:', error);
+        } finally {
             StorageManager.clearAll();
             return true;
-        } catch (error) {
-            console.error('Logout failed:', error);
-            return false;
         }
     },
 
@@ -204,6 +204,49 @@ const ApiClient = {
         } catch (error) {
             console.error('Session verification failed:', error);
             return false;
+        }
+    },
+
+    // Получить данные о станках с сервера
+    getMachines: async function() {
+        try {
+            const token = StorageManager.getItem('authToken');
+            if (!token) throw new Error('Not authenticated');
+
+            const response = await this.request(
+                APP_CONFIG.ENDPOINTS.GET_MACHINES,
+                'GET',
+                null,
+                { 'Authorization': `Bearer ${token}` }
+            );
+
+            if (response.success) {
+                return response.machines;
+            }
+            return null;
+        } catch (error) {
+            console.error('Failed to get machines:', error);
+            throw error;
+        }
+    },
+
+    // Обновить данные о станках на сервере
+    updateMachines: async function(machinesData) {
+        try {
+            const token = StorageManager.getItem('authToken');
+            if (!token) throw new Error('Not authenticated');
+
+            const response = await this.request(
+                APP_CONFIG.ENDPOINTS.UPDATE_MACHINES,
+                'POST',
+                machinesData,
+                { 'Authorization': `Bearer ${token}` }
+            );
+
+            return response.success;
+        } catch (error) {
+            console.error('Failed to update machines:', error);
+            throw error;
         }
     },
 
@@ -257,52 +300,57 @@ const ApiClient = {
 };
 
 // Обработчик формы входа
-document.getElementById("loginForm")?.addEventListener("submit", async function(event) {
-    event.preventDefault();
+function setupLoginForm() {
+    const loginForm = document.getElementById("loginForm");
+    if (!loginForm) return;
 
-    // Проверка блокировки
-    const loginAttempts = StorageManager.getItem('loginAttempts') || 0;
-    const lastAttemptTime = StorageManager.getItem('lastAttemptTime');
-    
-    if (loginAttempts >= APP_CONFIG.MAX_LOGIN_ATTEMPTS && 
-        lastAttemptTime && 
-        (Date.now() - lastAttemptTime) < APP_CONFIG.LOCKOUT_TIME) {
-        const minutesLeft = Math.ceil((APP_CONFIG.LOCKOUT_TIME - (Date.now() - lastAttemptTime)) / 60000);
-        showError(`Слишком много попыток входа. Попробуйте через ${minutesLeft} минут.`);
-        return;
-    }
+    loginForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
 
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value;
-    const rememberMe = document.getElementById("rememberMe")?.checked;
-
-    try {
-        const loginSuccess = await ApiClient.login(username, password);
+        // Проверка блокировки
+        const loginAttempts = StorageManager.getItem('loginAttempts') || 0;
+        const lastAttemptTime = StorageManager.getItem('lastAttemptTime');
         
-        if (loginSuccess) {
-            // Сброс счетчика попыток
-            StorageManager.removeItem('loginAttempts');
-            StorageManager.removeItem('lastAttemptTime');
-
-            // Сохранение для "запомнить меня"
-            if (rememberMe) {
-                StorageManager.setItem('rememberedUser', StorageManager.encrypt(username));
-            } else {
-                StorageManager.removeItem('rememberedUser');
-            }
-
-            // Загрузка начальных настроек
-            await ApiClient.getSettings();
-            
-            window.location.href = "dashboard.html";
-        } else {
-            handleFailedLogin(loginAttempts);
+        if (loginAttempts >= APP_CONFIG.MAX_LOGIN_ATTEMPTS && 
+            lastAttemptTime && 
+            (Date.now() - lastAttemptTime) < APP_CONFIG.LOCKOUT_TIME) {
+            const minutesLeft = Math.ceil((APP_CONFIG.LOCKOUT_TIME - (Date.now() - lastAttemptTime)) / 60000);
+            showError(`Слишком много попыток входа. Попробуйте через ${minutesLeft} минут.`);
+            return;
         }
-    } catch (error) {
-        handleFailedLogin(loginAttempts);
-        showError(error.message || 'Ошибка при входе в систему');
-    }
-});
+
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+        const rememberMe = document.getElementById("rememberMe")?.checked;
+
+        try {
+            const loginSuccess = await ApiClient.login(username, password);
+            
+            if (loginSuccess) {
+                // Сброс счетчика попыток
+                StorageManager.removeItem('loginAttempts');
+                StorageManager.removeItem('lastAttemptTime');
+
+                // Сохранение для "запомнить меня"
+                if (rememberMe) {
+                    StorageManager.setItem('rememberedUser', StorageManager.encrypt(username));
+                } else {
+                    StorageManager.removeItem('rememberedUser');
+                }
+
+                // Загрузка начальных настроек
+                await ApiClient.getSettings();
+                
+                window.location.href = "dashboard.html";
+            } else {
+                handleFailedLogin(loginAttempts);
+            }
+        } catch (error) {
+            handleFailedLogin(loginAttempts);
+            showError(error.message || 'Ошибка при входе в систему');
+        }
+    });
+}
 
 // Обработка неудачного входа
 function handleFailedLogin(attempts) {
@@ -324,6 +372,11 @@ function showError(message) {
     if (errorElement) {
         errorElement.textContent = message;
         errorElement.style.display = "block";
+        
+        // Автоматическое скрытие через 5 секунд
+        setTimeout(() => {
+            errorElement.style.display = "none";
+        }, 5000);
     }
 }
 
@@ -361,25 +414,36 @@ async function initialize() {
         const usernameInput = document.getElementById("username");
         if (usernameInput) {
             usernameInput.value = StorageManager.decrypt(rememberedUser);
-            document.getElementById("rememberMe").checked = true;
+            const rememberMeCheckbox = document.getElementById("rememberMe");
+            if (rememberMeCheckbox) {
+                rememberMeCheckbox.checked = true;
+            }
         }
     }
+
+    // Настройка формы входа
+    setupLoginForm();
 
     // Проверка авторизации для защищенных страниц
     if (!window.location.pathname.includes('login.html')) {
         const isAuthenticated = await checkAuth();
         if (!isAuthenticated) {
             window.location.href = "login.html";
+            return false;
         } else {
             // Загрузка данных приложения
             try {
                 await ApiClient.getSettings();
                 console.log('Application initialized');
+                return true;
             } catch (error) {
                 console.error('Initialization error:', error);
+                return false;
             }
         }
     }
+    
+    return true;
 }
 
 // Инициализация приложения
