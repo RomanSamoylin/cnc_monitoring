@@ -269,6 +269,34 @@ async function getMachineWorkingTime(machineId) {
   }
 }
 
+// Получение количества деталей за текущий день
+async function getPartsCount(machineId) {
+  const connection = await pool.getConnection();
+  
+  try {
+    // Получаем начало текущего дня (00:00:00)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Получаем количество завершенных деталей за сегодня
+    const [partsData] = await connection.query(`
+      SELECT COUNT(*) as parts_count 
+      FROM bit8_data 
+      WHERE machine_id = ? 
+        AND event_type = 29 
+        AND value = 0 
+        AND timestamp >= ?
+    `, [machineId, today]);
+    
+    return partsData[0].parts_count || 0;
+  } catch (error) {
+    console.error('Ошибка при получении количества деталей:', error);
+    return 0;
+  } finally {
+    connection.release();
+  }
+}
+
 // Получение данных станков (исправленная версия)
 async function getMachineData() {
   // Проверка кэша
@@ -329,19 +357,30 @@ async function getMachineData() {
                 AND bd.timestamp = latest.max_ts
       ORDER BY bd.id DESC
     `);
+    
     const [programData] = await connection.query(`
-  SELECT p.machine_id, p.string_value1
-  FROM bit8_two_strings_data p
-  JOIN (
-    SELECT machine_id, MAX(timestamp) as max_ts
-    FROM bit8_two_strings_data
-    WHERE event_type = 9
-    GROUP BY machine_id
-  ) latest ON p.machine_id = latest.machine_id 
-            AND p.timestamp = latest.max_ts
-            AND p.event_type = 9
-  ORDER BY p.id DESC
-`);
+      SELECT p.machine_id, p.string_value1
+      FROM bit8_two_strings_data p
+      JOIN (
+        SELECT machine_id, MAX(timestamp) as max_ts
+        FROM bit8_two_strings_data
+        WHERE event_type = 9
+        GROUP BY machine_id
+      ) latest ON p.machine_id = latest.machine_id 
+                AND p.timestamp = latest.max_ts
+                AND p.event_type = 9
+      ORDER BY p.id DESC
+    `);
+
+    // Получаем количество деталей за сегодня для каждого станка
+    const [partsData] = await connection.query(`
+      SELECT machine_id, COUNT(*) as parts_count 
+      FROM bit8_data 
+      WHERE event_type = 29 
+        AND value = 0 
+        AND DATE(timestamp) = CURDATE()
+      GROUP BY machine_id
+    `);
 
     // Группировка данных
     const statusMap = statusData.reduce((acc, row) => {
@@ -355,10 +394,16 @@ async function getMachineData() {
       acc[row.machine_id][row.event_type] = row.value;
       return acc;
     }, {});
+    
     const programMap = programData.reduce((acc, row) => {
-  acc[row.machine_id] = row.string_value1;
-  return acc;
-}, {});
+      acc[row.machine_id] = row.string_value1;
+      return acc;
+    }, {});
+
+    const partsMap = partsData.reduce((acc, row) => {
+      acc[row.machine_id] = row.parts_count;
+      return acc;
+    }, {});
 
     // Формирование данных станков
     const machinesData = {};
@@ -379,8 +424,9 @@ async function getMachineData() {
         displayName: machine.cnc_name,
         status: status.status,
         statusText: status.statusText,
-         systemState: statusMap[machineId]?.[7] || 0, // Добавляем состояние системы
+        systemState: statusMap[machineId]?.[7] || 0,
         currentProgram: programMap[machineId] || 'Нет данных',
+        partsCount: partsMap[machineId] || 0, // Добавлено количество деталей
         currentPerformance: Math.min(100, Math.max(0, Math.round(spindlePower))),
         lastUpdate: new Date().toISOString(),
         params: {
