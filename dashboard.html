@@ -601,6 +601,11 @@
                             <div class="time-stat shutdown">
                                 <i class="fas fa-circle"></i> Выключен: ${machine.workingTime?.shutdownMinutes || 0} мин
                             </div>
+                            <div class="machine-program">
+    <div class="program-item">
+        <span class="program-label">Выполнение программы:</span>
+        <span class="program-value">${machine.currentProgram}</span>
+    </div>
                         </div>
                     </div>
                 `;

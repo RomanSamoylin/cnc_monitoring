@@ -527,3 +527,33 @@ h3 {
         .time-stat.working { color: var(--working-color); }
         .time-stat.stopped { color: var(--stopped-color); }
         .time-stat.shutdown { color: var(--shutdown-color); }
+        .machine-program {
+    padding: 10px;
+    background-color: var(--card-bg);
+    border-radius: 5px;
+    margin: 10px 0;
+    border-left: 4px solid var(--primary-color);
+}
+
+.program-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.program-label {
+    font-weight: bold;
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+.program-value {
+    color: var(--primary-color);
+    font-weight: 500;
+    font-size: 14px;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
