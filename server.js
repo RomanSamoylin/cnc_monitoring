@@ -329,6 +329,19 @@ async function getMachineData() {
                 AND bd.timestamp = latest.max_ts
       ORDER BY bd.id DESC
     `);
+    const [programData] = await connection.query(`
+  SELECT p.machine_id, p.string_value1
+  FROM bit8_two_strings_data p
+  JOIN (
+    SELECT machine_id, MAX(timestamp) as max_ts
+    FROM bit8_two_strings_data
+    WHERE event_type = 9
+    GROUP BY machine_id
+  ) latest ON p.machine_id = latest.machine_id 
+            AND p.timestamp = latest.max_ts
+            AND p.event_type = 9
+  ORDER BY p.id DESC
+`);
 
     // Группировка данных
     const statusMap = statusData.reduce((acc, row) => {
@@ -342,6 +355,10 @@ async function getMachineData() {
       acc[row.machine_id][row.event_type] = row.value;
       return acc;
     }, {});
+    const programMap = programData.reduce((acc, row) => {
+  acc[row.machine_id] = row.string_value1;
+  return acc;
+}, {});
 
     // Формирование данных станков
     const machinesData = {};
@@ -362,6 +379,7 @@ async function getMachineData() {
         displayName: machine.cnc_name,
         status: status.status,
         statusText: status.statusText,
+        currentProgram: programMap[machineId] || 'Нет данных',
         currentPerformance: Math.min(100, Math.max(0, Math.round(spindlePower))),
         lastUpdate: new Date().toISOString(),
         params: {
