@@ -519,6 +519,17 @@
             document.getElementById('stoppedMachines').textContent = filteredMachines.filter(m => m.status === 'stopped').length;
             document.getElementById('shutdownMachines').textContent = filteredMachines.filter(m => m.status === 'shutdown').length;
         }
+        function getSystemStateText(value) {
+    const states = {
+        1: 'IDLE',
+        2: 'RUN',
+        3: 'HOLD',
+        4: 'RUNH',
+        5: 'RESE',
+        6: 'RTSE'
+    };
+    return states[value] || 'Неизвестно';
+}
 
         // Отрисовка станков
         function renderMachines() {
@@ -606,6 +617,10 @@
         <span class="program-label">Выполнение программы:</span>
         <span class="program-value">${machine.currentProgram}</span>
     </div>
+    <div class="param-item">
+    <span class="param-label">Состояние системы:</span>
+    <span class="param-value">${getSystemStateText(machine.systemState)}</span>
+</div>
                         </div>
                     </div>
                 `;

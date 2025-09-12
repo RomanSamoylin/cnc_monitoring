@@ -379,6 +379,7 @@ async function getMachineData() {
         displayName: machine.cnc_name,
         status: status.status,
         statusText: status.statusText,
+         systemState: statusMap[machineId]?.[7] || 0, // Добавляем состояние системы
         currentProgram: programMap[machineId] || 'Нет данных',
         currentPerformance: Math.min(100, Math.max(0, Math.round(spindlePower))),
         lastUpdate: new Date().toISOString(),
