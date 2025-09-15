@@ -479,7 +479,7 @@
                 const machine = state.machines[cardMachineId];
                 if (!machine) return;
 
-                const cardWorkshopId = machine.internalId <= 16 ? '1' : '2';
+                const cardWorkshopId = machine.internalId <= 100 ? '1' : '2';
                 
                 const workshopMatch = state.filters.workshop === 'all' || cardWorkshopId === state.filters.workshop;
                 const machineMatch = state.filters.machine === 'all' || cardMachineId === state.filters.machine;
@@ -625,6 +625,15 @@
         <span class="param-label">Количество деталей за сегодня:</span>
         <span class="param-value">${machine.partsCount}</span>
     </div>
+    <div class="machine-params">
+    <div class="param-item">
+        <span class="param-label">Номер инструмента:</span>
+        <span class="param-value">${machine.toolNumber}</span>
+    </div>
+    <div class="param-item">
+    <span class="param-label">Номер корректора:</span>
+    <span class="param-value">${machine.correctorNumber}</span>
+</div>
     <div class="machine-errors">
     <div class="error-header">
         <i class="fas fa-exclamation-triangle"></i>

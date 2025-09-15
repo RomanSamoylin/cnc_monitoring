@@ -410,6 +410,36 @@ async function getMachineData() {
       ORDER BY p.id DESC
     `);
 
+    // Получаем номер инструмента (event_type 14) из bit16_data
+    const [toolData] = await connection.query(`
+      SELECT bd.machine_id, bd.value
+      FROM bit16_data bd
+      JOIN (
+        SELECT machine_id, MAX(timestamp) as max_ts
+        FROM bit16_data
+        WHERE event_type = 14
+        GROUP BY machine_id
+      ) latest ON bd.machine_id = latest.machine_id 
+                AND bd.timestamp = latest.max_ts
+                AND bd.event_type = 14
+      ORDER BY bd.id DESC
+    `);
+
+    // Получаем номер корректора (event_type 15) из bit16_data
+    const [correctorData] = await connection.query(`
+      SELECT bd.machine_id, bd.value
+      FROM bit16_data bd
+      JOIN (
+        SELECT machine_id, MAX(timestamp) as max_ts
+        FROM bit16_data
+        WHERE event_type = 15
+        GROUP BY machine_id
+      ) latest ON bd.machine_id = latest.machine_id 
+                AND bd.timestamp = latest.max_ts
+                AND bd.event_type = 15
+      ORDER BY bd.id DESC
+    `);
+
     // Получаем количество деталей за сегодня для каждого станка
     const [partsData] = await connection.query(`
       SELECT machine_id, COUNT(*) as parts_count 
@@ -441,6 +471,16 @@ async function getMachineData() {
     
     const programMap = programData.reduce((acc, row) => {
       acc[row.machine_id] = row.string_value1;
+      return acc;
+    }, {});
+
+    const toolMap = toolData.reduce((acc, row) => {
+      acc[row.machine_id] = row.value;
+      return acc;
+    }, {});
+
+    const correctorMap = correctorData.reduce((acc, row) => {
+      acc[row.machine_id] = row.value;
       return acc;
     }, {});
 
@@ -482,7 +522,9 @@ async function getMachineData() {
           spindlePower: spindlePower
         },
         workingTime: await getMachineWorkingTime(machineId),
-        lastError: errorsMap[machineId] || null
+        lastError: errorsMap[machineId] || null,
+        toolNumber: toolMap[machineId] || 'Нет данных',
+        correctorNumber: correctorMap[machineId] || 'Нет данных'
       };
 
       log(`Сформированы данные для станка ${machineId}: ${JSON.stringify({
