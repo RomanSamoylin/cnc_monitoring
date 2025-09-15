@@ -297,6 +297,44 @@ async function getPartsCount(machineId) {
   }
 }
 
+// Получение последних ошибок для каждого станка
+async function getMachineErrors(machineIds) {
+  const connection = await pool.getConnection();
+  
+  try {
+    if (machineIds.length === 0) return {};
+    
+    const [errors] = await connection.query(`
+      SELECT e1.machine_id, e1.string_value, e1.timestamp, e1.event_type
+      FROM bit8_string_data e1
+      INNER JOIN (
+        SELECT machine_id, MAX(timestamp) as max_timestamp
+        FROM bit8_string_data
+        WHERE event_type = 8 AND machine_id IN (?)
+        GROUP BY machine_id
+      ) e2 ON e1.machine_id = e2.machine_id AND e1.timestamp = e2.max_timestamp
+      WHERE e1.event_type = 8
+      ORDER BY e1.timestamp DESC
+    `, [machineIds]);
+
+    const errorsMap = {};
+    errors.forEach(error => {
+      errorsMap[error.machine_id] = {
+        message: error.string_value || 'Нет описания ошибки',
+        timestamp: error.timestamp,
+        eventType: error.event_type
+      };
+    });
+    
+    return errorsMap;
+  } catch (error) {
+    console.error('Ошибка при получении данных об ошибках:', error);
+    return {};
+  } finally {
+    connection.release();
+  }
+}
+
 // Получение данных станков (исправленная версия)
 async function getMachineData() {
   // Проверка кэша
@@ -381,6 +419,12 @@ async function getMachineData() {
         AND DATE(timestamp) = CURDATE()
       GROUP BY machine_id
     `);
+    
+    // Получаем ID всех станков
+    const machineIds = machines.map(m => m.machine_id);
+    
+    // Получаем последние ошибки для всех станков
+    const errorsMap = await getMachineErrors(machineIds);
 
     // Группировка данных
     const statusMap = statusData.reduce((acc, row) => {
@@ -426,7 +470,7 @@ async function getMachineData() {
         statusText: status.statusText,
         systemState: statusMap[machineId]?.[7] || 0,
         currentProgram: programMap[machineId] || 'Нет данных',
-        partsCount: partsMap[machineId] || 0, // Добавлено количество деталей
+        partsCount: partsMap[machineId] || 0,
         currentPerformance: Math.min(100, Math.max(0, Math.round(spindlePower))),
         lastUpdate: new Date().toISOString(),
         params: {
@@ -437,7 +481,8 @@ async function getMachineData() {
           sSwitch: params[12] || 0,
           spindlePower: spindlePower
         },
-        workingTime: await getMachineWorkingTime(machineId)
+        workingTime: await getMachineWorkingTime(machineId),
+        lastError: errorsMap[machineId] || null
       };
 
       log(`Сформированы данные для станка ${machineId}: ${JSON.stringify({

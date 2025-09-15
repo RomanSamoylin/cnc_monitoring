@@ -625,6 +625,20 @@
         <span class="param-label">Количество деталей за сегодня:</span>
         <span class="param-value">${machine.partsCount}</span>
     </div>
+    <div class="machine-errors">
+    <div class="error-header">
+        <i class="fas fa-exclamation-triangle"></i>
+        Последняя ошибка:
+    </div>
+    ${machine.lastError ? `
+        <div class="error-item">
+            <span class="error-message">${machine.lastError.message}</span>
+            <span class="error-time">${new Date(machine.lastError.timestamp).toLocaleString()}</span>
+        </div>
+    ` : `
+        <div class="no-errors">Ошибок не обнаружено</div>
+    `}
+</div>
                         </div>
                     </div>
                 `;

@@ -574,6 +574,49 @@ h3 {
     font-size: 14px;
 }
 
+/* Стили для отображения ошибок */
+.machine-errors {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+    border-left: 4px solid #ffc107;
+}
 
+.error-header {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #856404;
+}
+
+.error-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.error-message {
+    color: #721c24;
+    font-weight: 500;
+}
+
+.error-time {
+    font-size: 0.85em;
+    color: #6c757d;
+}
+
+.no-errors {
+    color: #28a745;
+    font-style: italic;
+}
+
+/* Стиль для карточек с ошибками */
+.machine-card.has-error {
+    border-left: 4px solid #dc3545;
+}
+
+.machine-card.has-error .error-header {
+    color: #dc3545;
+}
 
 
