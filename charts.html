@@ -227,7 +227,7 @@
                     <canvas id="pieChart"></canvas>
                 </div>
                 <div class="chart-container">
-                    <h3 class="chart-title" id="partsChartTitle">Количество деталей по часам</h3>
+                    <h3 class="chart-title" id="partsChartTitle">Количество деталей по дням</h3>
                     <canvas id="partsChart"></canvas>
                     <div id="totalParts" class="total-parts">
                         Всего деталей за выбранный период: <span>0</span>
@@ -475,7 +475,7 @@
         }
 
         /**
-         * Загружает данные о количестве деталей
+         * Загружает данные о количестве деталей по дням
          */
         async function loadPartsData() {
             const startDate = DOM.startDate.value;
@@ -490,7 +490,7 @@
                 showLoadingIndicator('Загрузка данных о деталях...');
                 
                 const response = await fetch(
-                    `${API_BASE_URL}/api/workshops/parts-hourly?startDate=${startDate}&endDate=${endDate}&workshop=${workshop}`
+                    `${API_BASE_URL}/api/workshops/parts-daily?startDate=${startDate}&endDate=${endDate}&workshop=${workshop}`
                 );
                 const data = await handleApiResponse(response);
                 
@@ -508,28 +508,42 @@
         }
 
         /**
-         * Обновляет график количества деталей
+         * Обновляет график количества деталей по дням
          * @param {object} chartData - Данные для графика
          * @param {number} totalParts - Общее количество деталей
          */
         function updatePartsChart(chartData, totalParts) {
-            console.log('Обновление графика деталей', chartData, totalParts);
+            console.log('Обновление графика деталей по дням', chartData, totalParts);
             
             // Если нет данных, создаем тестовые данные для демонстрации
             if (!chartData || !chartData.datasets) {
                 console.warn('Нет данных для графика деталей, используем тестовые данные');
+                
+                // Генерируем тестовые данные для дней в выбранном периоде
+                const start = new Date(DOM.startDate.value);
+                const end = new Date(DOM.endDate.value);
+                const days = [];
+                const partsData = [];
+                
+                let currentDate = new Date(start);
+                while (currentDate <= end) {
+                    days.push(currentDate.toLocaleDateString('ru-RU'));
+                    partsData.push(Math.floor(Math.random() * 20));
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                
                 chartData = {
-                    labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                    labels: days,
                     datasets: [{
                         label: 'Количество деталей',
-                        data: Array(24).fill().map(() => Math.floor(Math.random() * 10)),
+                        data: partsData,
                         backgroundColor: 'rgba(54, 162, 235, 0.7)',
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1,
                         borderRadius: 3
                     }]
                 };
-                totalParts = chartData.datasets[0].data.reduce((sum, value) => sum + value, 0);
+                totalParts = partsData.reduce((sum, value) => sum + value, 0);
             }
 
             // Обновляем данные графика
@@ -540,7 +554,7 @@
             const workshopText = DOM.workshopFilter.value === 'all' ? 'Все цеха' : `Цех ${DOM.workshopFilter.value}`;
             
             document.getElementById('partsChartTitle').textContent = 
-                `Количество деталей (${workshopText}, ${periodText})`;
+                `Количество деталей по дням (${workshopText}, ${periodText})`;
             
             // Обновляем общее количество
             document.querySelector('#totalParts span').textContent = totalParts;
@@ -548,9 +562,9 @@
             // Обновляем график
             try {
                 partsChart.update();
-                console.log('График деталей успешно обновлен');
+                console.log('График деталей по дням успешно обновлен');
             } catch (e) {
-                console.error('Ошибка обновления графика деталей:', e);
+                console.error('Ошибка обновления графика деталей по дням:', e);
             }
         }
 
@@ -593,7 +607,7 @@
                 console.log('Данные цехов:', workshopData);
                 updateWorkshopCharts();
                 
-                // Загружаем данные о деталях
+                // Загружаем данные о деталях по дням
                 await loadPartsData();
                 
                 showNotification('Данные цехов успешно загружены', 'success');
@@ -840,7 +854,7 @@
                 }
             });
             
-            // 2. График количества деталей
+            // 2. График количества деталей по дням
             const partsCtx = document.getElementById('partsChart').getContext('2d');
             partsChart = new Chart(partsCtx, {
                 type: 'bar',
@@ -862,7 +876,7 @@
                         x: {
                             title: {
                                 display: true,
-                                text: 'Время',
+                                text: 'Дни',
                                 padding: {top: 10}
                             },
                             grid: {
