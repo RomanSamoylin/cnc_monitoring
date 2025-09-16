@@ -523,8 +523,8 @@ async function getMachineData() {
         },
         workingTime: await getMachineWorkingTime(machineId),
         lastError: errorsMap[machineId] || null,
-        toolNumber: toolMap[machineId] || 'Нет данных',
-        correctorNumber: correctorMap[machineId] || 'Нет данных'
+        toolNumber: toolMap[machineId] || 0,
+        correctorNumber: correctorMap[machineId] || 0
       };
 
       log(`Сформированы данные для станка ${machineId}: ${JSON.stringify({
