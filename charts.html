@@ -62,7 +62,7 @@
             background-color: #3498db;
         }
 
-        /* Анимация для уведомлений */
+        /* Анимаение для уведомлений */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -500,7 +500,7 @@
                 console.error('Ошибка загрузки данных о деталях:', error);
                 showNotification(`Ошибка загрузки данных о деталях: ${error.message}`, 'error');
                 
-                // Показываем тестовые данные при ошибке
+                // Показываем нулевые данные при ошибке
                 updatePartsChart(null, 0);
             } finally {
                 hideLoadingIndicator();
@@ -515,11 +515,11 @@
         function updatePartsChart(chartData, totalParts) {
             console.log('Обновление графика деталей по дням', chartData, totalParts);
             
-            // Если нет данных, создаем тестовые данные для демонстрации
+            // Если нет данных, показываем нулевые значения
             if (!chartData || !chartData.datasets) {
-                console.warn('Нет данных для графика деталей, используем тестовые данные');
+                console.warn('Нет данных для графика деталей, показываем нули');
                 
-                // Генерируем тестовые данные для дней в выбранном периоде
+                // Создаем данные для всех дней в выбранном периоде
                 const start = new Date(DOM.startDate.value);
                 const end = new Date(DOM.endDate.value);
                 const days = [];
@@ -528,7 +528,7 @@
                 let currentDate = new Date(start);
                 while (currentDate <= end) {
                     days.push(currentDate.toLocaleDateString('ru-RU'));
-                    partsData.push(Math.floor(Math.random() * 20));
+                    partsData.push(0);
                     currentDate.setDate(currentDate.getDate() + 1);
                 }
                 
@@ -543,7 +543,7 @@
                         borderRadius: 3
                     }]
                 };
-                totalParts = partsData.reduce((sum, value) => sum + value, 0);
+                totalParts = 0;
             }
 
             // Обновляем данные графика

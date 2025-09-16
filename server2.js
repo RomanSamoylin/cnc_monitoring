@@ -56,6 +56,7 @@ const cache = {
   machineHistory: {},
   workshopHourlyData: {},
   partsData: {},
+  partsDailyData: {},
   lastUpdate: {},
   ttl: {
     machines: 30000,
@@ -63,7 +64,8 @@ const cache = {
     hourlyData: 300000,
     history: 300000,
     workshopHourly: 300000,
-    partsData: 300000
+    partsData: 300000,
+    partsDailyData: 300000
   }
 };
 
@@ -731,6 +733,84 @@ async function getPartsData(connection, startDate, endDate, workshop = 'all') {
   }
 }
 
+/**
+ * Получает данные о количестве деталей по дням
+ */
+async function getPartsDailyData(connection, startDate, endDate, workshop = 'all') {
+  try {
+    const start = moment(startDate).startOf('day');
+    const end = moment(endDate).endOf('day');
+    
+    // Определяем условие WHERE в зависимости от параметра workshop
+    let whereClause = '';
+    let params = [start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')];
+    
+    if (workshop && workshop !== 'all') {
+      if (workshop === '1') {
+        whereClause = 'AND machine_id <= 16';
+      } else if (workshop === '2') {
+        whereClause = 'AND machine_id > 16';
+      }
+    }
+    
+    console.log(`Запрос данных о деталях по дням с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')} для цеха ${workshop}`);
+    
+    // Запрос для получения количества деталей по дням
+    const [rows] = await connection.execute(`
+      SELECT 
+        DATE(timestamp) as date,
+        COUNT(*) as parts_count
+      FROM bit8_data
+      WHERE 
+        timestamp BETWEEN ? AND ?
+        AND event_type = 29
+        AND value = 0
+        ${whereClause}
+      GROUP BY DATE(timestamp)
+      ORDER BY date
+    `, params);
+
+    // Запрос для получения общего количества деталей
+    const [totalRows] = await connection.execute(`
+      SELECT COUNT(*) as total_parts
+      FROM bit8_data
+      WHERE 
+        timestamp BETWEEN ? AND ?
+        AND event_type = 29
+        AND value = 0
+        ${whereClause}
+    `, params);
+
+    // Формируем данные для всех дней в периоде
+    const allDays = [];
+    let currentDate = start.clone();
+    while (currentDate <= end) {
+      allDays.push(currentDate.format('YYYY-MM-DD'));
+      currentDate.add(1, 'day');
+    }
+
+    const dailyData = allDays.map(day => {
+      const found = rows.find(row => row.date === day);
+      return found ? found.parts_count : 0;
+    });
+
+    return {
+      labels: allDays.map(day => moment(day).format('DD.MM')),
+      datasets: [{
+        label: 'Количество деталей',
+        data: dailyData,
+        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }],
+      total: totalRows[0].total_parts || 0
+    };
+  } catch (error) {
+    console.error('Ошибка получения данных о деталях по дням:', error);
+    throw new Error('Не удалось получить данные о деталях по дням');
+  }
+}
+
 function validateErrors(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -1026,6 +1106,66 @@ app.get('/api/workshops/parts-hourly',
         const partsData = await getPartsData(connection, startDate, endDate, workshop);
         
         cache.partsData[cacheKey] = {
+          chartData: {
+            labels: partsData.labels,
+            datasets: partsData.datasets
+          },
+          total: partsData.total
+        };
+        cache.lastUpdate[cacheKey] = Date.now();
+        
+        res.json({
+          success: true,
+          fromCache: false,
+          data: {
+            labels: partsData.labels,
+            datasets: partsData.datasets
+          },
+          total: partsData.total
+        });
+      } finally {
+        if (connection) await connection.release();
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * Получает данные о количестве деталей по дням
+ */
+app.get('/api/workshops/parts-daily', 
+  [
+    query('startDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
+    query('endDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
+    query('workshop').optional().isIn(['all', '1', '2']).withMessage('Неверный идентификатор цеха'),
+    query('startDate').isISO8601().withMessage('Неверный формат начальной даты'),
+    query('endDate').isISO8601().withMessage('Неверный формат конечной даты')
+  ],
+  validateErrors,
+  async (req, res, next) => {
+    let connection;
+    try {
+      const { startDate, endDate, workshop = 'all' } = req.query;
+      const cacheKey = `daily_${workshop}_${startDate}_${endDate}`;
+      
+      if (cache.partsDailyData[cacheKey] && 
+          Date.now() - cache.lastUpdate[cacheKey] < cache.ttl.partsDailyData) {
+        return res.json({
+          success: true,
+          fromCache: true,
+          data: cache.partsDailyData[cacheKey].chartData,
+          total: cache.partsDailyData[cacheKey].total
+        });
+      }
+
+      connection = await getConnection();
+      
+      try {
+        const partsData = await getPartsDailyData(connection, startDate, endDate, workshop);
+        
+        cache.partsDailyData[cacheKey] = {
           chartData: {
             labels: partsData.labels,
             datasets: partsData.datasets
