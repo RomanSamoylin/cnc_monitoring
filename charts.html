@@ -712,67 +712,66 @@
          * @param {string} period - Тип периода (day, week, month, year)
          */
         function setPeriod(period) {
-            console.log(`Установка периода: ${period}`);
-            
-            currentPeriod = period;
-            const today = new Date();
-            let startDate, endDate;
-            
-            // Обновляем активную кнопку периода
-            document.querySelectorAll('.period-buttons button').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.textContent.toLowerCase().includes(period)) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            // Устанавливаем даты в соответствии с периодом
-            switch (period) {
-                case 'day':
-                    // Для периода "День" используем только текущий день
-                    startDate = new Date(today);
-                    startDate.setHours(0, 0, 0, 0);
-                    endDate = new Date(today); // Используем тот же день
-                    endDate.setHours(23, 59, 59, 999);
-                    break;
-                    
-                case 'week':
-                    startDate = new Date(today);
-                    startDate.setDate(today.getDate() - today.getDay());
-                    startDate.setHours(0, 0, 0, 0);
-                    endDate = new Date(today);
-                    endDate.setDate(today.getDate() + (6 - today.getDay()));
-                    endDate.setHours(23, 59, 59, 999);
-                    break;
-                    
-                case 'month':
-                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                    endDate.setHours(23, 59, 59, 999);
-                    break;
-                    
-                case 'year':
-                    startDate = new Date(today.getFullYear(), 0, 1);
-                    endDate = new Date(today.getFullYear(), 11, 31);
-                    endDate.setHours(23, 59, 59, 999);
-                    break;
-            }
-            
-            // Устанавливаем даты в полях ввода
-            DOM.startDate.valueAsDate = startDate;
-            DOM.endDate.valueAsDate = endDate;
-            
-            // Загружаем данные для текущего режима просмотра
-            if (currentViewMode === 'workshop') {
-                loadWorkshopData();
-            } else {
-                const machineId = DOM.machineFilter.value;
-                if (machineId && machineId !== 'all') {
-                    loadMachineData(machineId);
-                }
-            }
+    console.log(`Установка периода: ${period}`);
+    
+    currentPeriod = period;
+    const today = new Date();
+    let startDate, endDate;
+    
+    // Обновляем активную кнопку периода
+    document.querySelectorAll('.period-buttons button').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.toLowerCase().includes(period)) {
+            btn.classList.add('active');
         }
-
+    });
+    
+    // Устанавливаем даты в соответствии с периодом
+    switch (period) {
+        case 'day':
+            // Для периода "День" используем текущие 24 часа
+            startDate = new Date(today);
+            startDate.setHours(0, 0, 0, 0);
+            endDate = new Date(today);
+            endDate.setHours(23, 59, 59, 999);
+            break;
+            
+        case 'week':
+            startDate = new Date(today);
+            startDate.setDate(today.getDate() - today.getDay());
+            startDate.setHours(0, 0, 0, 0);
+            endDate = new Date(today);
+            endDate.setDate(today.getDate() + (6 - today.getDay()));
+            endDate.setHours(23, 59, 59, 999);
+            break;
+            
+        case 'month':
+            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            endDate.setHours(23, 59, 59, 999);
+            break;
+            
+        case 'year':
+            startDate = new Date(today.getFullYear(), 0, 1);
+            endDate = new Date(today.getFullYear(), 11, 31);
+            endDate.setHours(23, 59, 59, 999);
+            break;
+    }
+    
+    // Устанавливаем даты в полях ввода
+    DOM.startDate.valueAsDate = startDate;
+    DOM.endDate.valueAsDate = endDate;
+    
+    // Загружаем данные для текущего режима просмотра
+    if (currentViewMode === 'workshop') {
+        loadWorkshopData();
+    } else {
+        const machineId = DOM.machineFilter.value;
+        if (machineId && machineId !== 'all') {
+            loadMachineData(machineId);
+        }
+    }
+}
         /**
          * Переключает режим просмотра на цеха
          */

@@ -737,78 +737,79 @@ async function getPartsData(connection, startDate, endDate, workshop = 'all') {
  * Получает данные о количестве деталей по дням
  */
 async function getPartsDailyData(connection, startDate, endDate, workshop = 'all') {
-  try {
-    const start = moment(startDate).startOf('day');
-    const end = moment(endDate).endOf('day');
-    
-    // Определяем условие WHERE в зависимости от параметра workshop
-    let whereClause = '';
-    let params = [start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')];
-    
-    if (workshop && workshop !== 'all') {
-      if (workshop === '1') {
-        whereClause = 'AND machine_id <= 16';
-      } else if (workshop === '2') {
-        whereClause = 'AND machine_id > 16';
-      }
+    try {
+        const start = moment(startDate).startOf('day');
+        const end = moment(endDate).endOf('day');
+        
+        // Определяем условие WHERE в зависимости от параметра workshop
+        let whereClause = '';
+        let params = [start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')];
+        
+        if (workshop && workshop !== 'all') {
+            if (workshop === '1') {
+                whereClause = 'AND machine_id <= 16';
+            } else if (workshop === '2') {
+                whereClause = 'AND machine_id > 16';
+            }
+        }
+        
+        console.log(`Запрос данных о деталях по дням с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')} для цеха ${workshop}`);
+        
+        // Запрос для получения количества деталей по дням
+        const [rows] = await connection.execute(`
+            SELECT 
+                DATE(timestamp) as date,
+                COUNT(*) as parts_count
+            FROM bit8_data
+            WHERE 
+                timestamp BETWEEN ? AND ?
+                AND event_type = 29
+                AND value = 0
+                ${whereClause}
+            GROUP BY DATE(timestamp)
+            ORDER BY date
+        `, params);
+
+        // Запрос для получения общего количества деталей
+        const [totalRows] = await connection.execute(`
+            SELECT COUNT(*) as total_parts
+            FROM bit8_data
+            WHERE 
+                timestamp BETWEEN ? AND ?
+                AND event_type = 29
+                AND value = 0
+                ${whereClause}
+        `, params);
+
+        // Формируем данные для всех дней в периоде
+        const allDays = [];
+        let currentDate = start.clone();
+        while (currentDate <= end) {
+            allDays.push(currentDate.format('YYYY-MM-DD'));
+            currentDate.add(1, 'day');
+        }
+
+        const dailyData = allDays.map(day => {
+            const found = rows.find(row => row.date === day);
+            return found ? found.parts_count : 0;
+        });
+
+        return {
+            labels: allDays.map(day => moment(day).format('DD.MM')),
+            datasets: [{
+                label: 'Количество деталей',
+                data: dailyData,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                borderRadius: 3
+            }],
+            total: totalRows[0].total_parts || 0
+        };
+    } catch (error) {
+        console.error('Ошибка получения данных о деталях по дням:', error);
+        throw new Error('Не удалось получить данные о деталях по дням');
     }
-    
-    console.log(`Запрос данных о деталях по дням с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')} для цеха ${workshop}`);
-    
-    // Запрос для получения количества деталей по дням
-    const [rows] = await connection.execute(`
-      SELECT 
-        DATE(timestamp) as date,
-        COUNT(*) as parts_count
-      FROM bit8_data
-      WHERE 
-        timestamp BETWEEN ? AND ?
-        AND event_type = 29
-        AND value = 0
-        ${whereClause}
-      GROUP BY DATE(timestamp)
-      ORDER BY date
-    `, params);
-
-    // Запрос для получения общего количества деталей
-    const [totalRows] = await connection.execute(`
-      SELECT COUNT(*) as total_parts
-      FROM bit8_data
-      WHERE 
-        timestamp BETWEEN ? AND ?
-        AND event_type = 29
-        AND value = 0
-        ${whereClause}
-    `, params);
-
-    // Формируем данные для всех дней в периоде
-    const allDays = [];
-    let currentDate = start.clone();
-    while (currentDate <= end) {
-      allDays.push(currentDate.format('YYYY-MM-DD'));
-      currentDate.add(1, 'day');
-    }
-
-    const dailyData = allDays.map(day => {
-      const found = rows.find(row => row.date === day);
-      return found ? found.parts_count : 0;
-    });
-
-    return {
-      labels: allDays.map(day => moment(day).format('DD.MM')),
-      datasets: [{
-        label: 'Количество деталей',
-        data: dailyData,
-        backgroundColor: 'rgba(54, 162, 235, 0.7)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }],
-      total: totalRows[0].total_parts || 0
-    };
-  } catch (error) {
-    console.error('Ошибка получения данных о деталях по дням:', error);
-    throw new Error('Не удалось получить данные о деталях по дням');
-  }
 }
 
 function validateErrors(req, res, next) {
