@@ -618,6 +618,10 @@
         <span class="program-value">${machine.currentProgram}</span>
     </div>
     <div class="param-item">
+    <span class="param-label">Режим работы:</span>
+    <span class="param-value">${machine.operationMode || 'Неизвестно'}</span>
+</div>
+    <div class="param-item">
     <span class="param-label">Состояние системы:</span>
     <span class="param-value">${getSystemStateText(machine.systemState)}</span>
 </div>

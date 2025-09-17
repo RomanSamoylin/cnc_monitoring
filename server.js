@@ -80,6 +80,21 @@ function determineMachineStatus(statusData) {
   return { status: 'shutdown', statusText: 'Неизвестный статус' };
 }
 
+// Функция для получения текстового описания режима работы
+function getOperationModeText(value) {
+  const modes = {
+    1: 'MDI',
+    2: 'AUTO',
+    3: 'STEP',
+    4: 'MANU',
+    5: 'MANJ',
+    6: 'PROF',
+    7: 'HOME',
+    8: 'RESET'
+  };
+  return modes[value] || 'Неизвестно';
+}
+
 // Генерация данных графика по умолчанию
 function generateDefaultChartData() {
   return {
@@ -381,14 +396,14 @@ async function getMachineData() {
       ORDER BY fd.id DESC
     `);
 
-    // Получаем статусы и дополнительные параметры
+    // Получаем статусы и дополнительные параметры (добавлен event_type 4 - режим работы)
     const [statusData] = await connection.query(`
       SELECT bd.machine_id, bd.event_type, bd.value
       FROM bit8_data bd
       JOIN (
         SELECT machine_id, event_type, MAX(timestamp) as max_ts
         FROM bit8_data
-        WHERE event_type IN (7, 21, 32, 19) /* SystemState, MUSP, CONP, COMU */
+        WHERE event_type IN (4, 7, 21, 32, 19) /* Добавлен режим работы (4) */
         GROUP BY machine_id, event_type
       ) latest ON bd.machine_id = latest.machine_id 
                 AND bd.event_type = latest.event_type
@@ -502,6 +517,10 @@ async function getMachineData() {
 
       const params = paramsMap[machineId] || {};
       const spindlePower = params[40] || 0;
+      
+      // Получаем режим работы станка
+      const operationModeValue = statusMap[machineId]?.[4];
+      const operationMode = getOperationModeText(operationModeValue);
 
       machinesData[machineId] = {
         internalId: machineId,
@@ -524,7 +543,8 @@ async function getMachineData() {
         workingTime: await getMachineWorkingTime(machineId),
         lastError: errorsMap[machineId] || null,
         toolNumber: toolMap[machineId] || 0,
-        correctorNumber: correctorMap[machineId] || 0
+        correctorNumber: correctorMap[machineId] || 0,
+        operationMode: operationMode // Добавлено поле режима работы
       };
 
       log(`Сформированы данные для станка ${machineId}: ${JSON.stringify({
