@@ -382,3 +382,2958 @@ Ignoring invalid configuration option passed to Connection: acquireTimeout. This
 Нет данных для станка 1 за период 2025-06-30 00:00:00 - 2025-07-31 23:59:59
 Нет данных для станка 1 за период 2025-07-29 00:00:00 - 2025-07-30 23:59:59
 Нет данных для станка 3 за период 2025-07-29 00:00:00 - 2025-07-30 23:59:59
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ошибка подключения к БД: Error: read ECONNRESET
+    at PromisePoolConnection.ping (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:98:22)
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:78:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:874:18 {
+  code: 'ECONNRESET',
+  errno: -4077,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:874:18
+Ошибка подключения к БД: Error: read ECONNRESET
+    at PromisePoolConnection.ping (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:98:22)
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:78:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1065:20 {
+  code: 'ECONNRESET',
+  errno: -4077,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1065:20
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Failed to connect to MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Failed to connect to MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNABORTED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4079,
+  code: 'ECONNABORTED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ошибка подключения к БД: Error: read ECONNRESET
+    at PromisePoolConnection.ping (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:98:22)
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:78:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:863:18 {
+  code: 'ECONNRESET',
+  errno: -4077,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:863:18
+Ошибка подключения к БД: Error: read ECONNRESET
+    at PromisePoolConnection.ping (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:98:22)
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:78:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1054:20 {
+  code: 'ECONNRESET',
+  errno: -4077,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1054:20
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1054:20
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:863:18
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1054:20
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:863:18
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1054:20
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1054:20
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ошибка получения соединения: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения списка станков: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения соединения: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения почасовых данных: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения соединения: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения почасовых данных: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения соединения: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения почасовых данных: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения соединения: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения почасовых данных: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения соединения: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения данных о деталях: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения соединения: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения почасовых данных: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения соединения: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения почасовых данных: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения соединения: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ошибка получения данных о деталях: AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1139:18)
+    at afterConnectMultiple (node:net:1714:7) {
+  code: 'ECONNREFUSED',
+  fatal: true,
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3306
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3306
+        at createConnectionError (node:net:1677:14)
+        at afterConnectMultiple (node:net:1707:16) {
+      errno: -4078,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3306
+    }
+  ]
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ошибка подключения к БД: Error: read ECONNRESET
+    at PromisePoolConnection.ping (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:98:22)
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:80:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1092:20 {
+  code: 'ECONNRESET',
+  errno: -4077,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Глобальная ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:85:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1092:20
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:85:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1092:20
+Ошибка подключения к БД: Error: read ECONNRESET
+    at PromisePoolConnection.ping (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:98:22)
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:80:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1397:20 {
+  code: 'ECONNRESET',
+  errno: -4077,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:85:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1397:20
+Ошибка подключения к БД: Error: read ECONNRESET
+    at PromisePoolConnection.ping (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:98:22)
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:80:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1227:20 {
+  code: 'ECONNRESET',
+  errno: -4077,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:85:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1227:20
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNABORTED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4079,
+  code: 'ECONNABORTED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
