@@ -734,7 +734,7 @@ async function getPartsData(connection, startDate, endDate, workshop = 'all') {
 }
 
 /**
- * Получает данные о количестве деталей по дням
+ * Получает данные о количестве деталей по дням - ИСПРАВЛЕННАЯ ВЕРСИЯ
  */
 async function getPartsDailyData(connection, startDate, endDate, workshop = 'all') {
     try {
@@ -789,13 +789,24 @@ async function getPartsDailyData(connection, startDate, endDate, workshop = 'all
             currentDate.add(1, 'day');
         }
 
-        const dailyData = allDays.map(day => {
-            const found = rows.find(row => row.date === day);
-            return found ? found.parts_count : 0;
+        // Создаем карту для быстрого доступа к данным по дням
+        const dataMap = new Map();
+        rows.forEach(row => {
+            dataMap.set(row.date, row.parts_count);
         });
 
+        // Заполняем данные для всех дней
+        const dailyData = allDays.map(day => {
+            return dataMap.get(day) || 0;
+        });
+
+        // Форматируем даты для отображения
+        const formattedLabels = allDays.map(day => 
+            moment(day).format('DD.MM')
+        );
+
         return {
-            labels: allDays.map(day => moment(day).format('DD.MM')),
+            labels: formattedLabels,
             datasets: [{
                 label: 'Количество деталей',
                 data: dailyData,
@@ -809,264 +820,6 @@ async function getPartsDailyData(connection, startDate, endDate, workshop = 'all
     } catch (error) {
         console.error('Ошибка получения данных о деталях по дням:', error);
         throw new Error('Не удалось получить данные о деталях по дням');
-    }
-}
-
-/**
- * Получает данные о количестве деталей по дням (совместимая логика с dashboard.html)
- */
-async function getPartsCountDaily(connection, startDate, endDate, workshop = 'all', machineId = null) {
-    try {
-        const start = moment(startDate).startOf('day');
-        const end = moment(endDate).endOf('day');
-        
-        // Определяем условие WHERE в зависимости от параметров
-        let whereClause = '';
-        let params = [start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')];
-        
-        if (workshop && workshop !== 'all') {
-            if (workshop === '1') {
-                whereClause = 'AND machine_id <= 16';
-            } else if (workshop === '2') {
-                whereClause = 'AND machine_id > 16';
-            }
-        }
-        
-        if (machineId && machineId !== 'all') {
-            whereClause += ` AND machine_id = ${parseInt(machineId)}`;
-        }
-        
-        console.log(`Запрос количества деталей по дням с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')} для цеха ${workshop}, станка ${machineId}`);
-        
-        // Используем ту же логику, что и в dashboard.html - подсчет событий event_type = 29 с value = 0
-        const [rows] = await connection.execute(`
-            SELECT 
-                DATE(timestamp) as date,
-                COUNT(*) as parts_count
-            FROM bit8_data
-            WHERE 
-                timestamp BETWEEN ? AND ?
-                AND event_type = 29
-                AND value = 0
-                ${whereClause}
-            GROUP BY DATE(timestamp)
-            ORDER BY date
-        `, params);
-
-        // Запрос для получения общего количества деталей за период
-        const [totalRows] = await connection.execute(`
-            SELECT COUNT(*) as total_parts
-            FROM bit8_data
-            WHERE 
-                timestamp BETWEEN ? AND ?
-                AND event_type = 29
-                AND value = 0
-                ${whereClause}
-        `, params);
-
-        // Формируем данные для всех дней в периоде
-        const allDays = [];
-        let currentDate = start.clone();
-        while (currentDate <= end) {
-            allDays.push(currentDate.format('YYYY-MM-DD'));
-            currentDate.add(1, 'day');
-        }
-
-        const dailyData = allDays.map(day => {
-            const found = rows.find(row => row.date === day);
-            return found ? found.parts_count : 0;
-        });
-
-        return {
-            labels: allDays.map(day => moment(day).format('DD.MM')),
-            datasets: [{
-                label: 'Количество деталей',
-                data: dailyData,
-                backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1,
-                borderRadius: 3
-            }],
-            total: totalRows[0]?.total_parts || 0
-        };
-    } catch (error) {
-        console.error('Ошибка получения количества деталей по дням:', error);
-        throw new Error('Не удалось получить количество деталей по дням');
-    }
-}
-
-/**
- * Получает данные о количестве деталей по дням с правильной логикой подсчета
- */
-async function getPartsDailyDataCorrect(connection, startDate, endDate, workshop = 'all', machine = null) {
-    try {
-        const start = moment(startDate).startOf('day');
-        const end = moment(endDate).endOf('day');
-        
-        // Определяем условие WHERE в зависимости от workshop и machine
-        let whereClause = '';
-        let params = [start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')];
-        
-        if (workshop && workshop !== 'all') {
-            if (workshop === '1') {
-                whereClause = 'AND machine_id <= 16';
-            } else if (workshop === '2') {
-                whereClause = 'AND machine_id > 16';
-            }
-        }
-        
-        if (machine && machine !== 'all') {
-            whereClause += ` AND machine_id = ${machine}`;
-        }
-        
-        console.log(`Запрос данных о деталях по дням (новая логика) с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')} для цеха ${workshop}, станка ${machine}`);
-        
-        // Запрос для получения количества деталей по новой логике
-        const [rows] = await connection.execute(`
-            SELECT 
-                DATE(timestamp) as date,
-                COUNT(DISTINCT completion_id) as parts_count
-            FROM (
-                SELECT 
-                    bd1.timestamp,
-                    bd1.machine_id,
-                    bd1.event_type,
-                    bd1.value,
-                    (
-                        SELECT MIN(bd2.id)
-                        FROM bit8_data bd2
-                        WHERE 
-                            bd2.machine_id = bd1.machine_id
-                            AND bd2.event_type = 29
-                            AND bd2.value = 0
-                            AND bd2.timestamp >= bd1.timestamp
-                            AND bd2.timestamp BETWEEN ? AND ?
-                            ${whereClause}
-                    ) as completion_id
-                FROM bit8_data bd1
-                WHERE 
-                    bd1.timestamp BETWEEN ? AND ?
-                    AND bd1.event_type = 7
-                    AND bd1.value = 2
-                    ${whereClause}
-            ) as parts_data
-            WHERE completion_id IS NOT NULL
-            GROUP BY DATE(timestamp)
-            ORDER BY date
-        `, [...params, ...params]);
-
-        // Альтернативный запрос для общего количества деталей
-        const [totalRows] = await connection.execute(`
-            SELECT COUNT(DISTINCT completion_id) as total_parts
-            FROM (
-                SELECT 
-                    bd1.timestamp,
-                    bd1.machine_id,
-                    (
-                        SELECT MIN(bd2.id)
-                        FROM bit8_data bd2
-                        WHERE 
-                            bd2.machine_id = bd1.machine_id
-                            AND bd2.event_type = 29
-                            AND bd2.value = 0
-                            AND bd2.timestamp >= bd1.timestamp
-                            AND bd2.timestamp BETWEEN ? AND ?
-                            ${whereClause}
-                    ) as completion_id
-                FROM bit8_data bd1
-                WHERE 
-                    bd1.timestamp BETWEEN ? AND ?
-                    AND bd1.event_type = 7
-                    AND bd1.value = 2
-                    ${whereClause}
-            ) as parts_data
-            WHERE completion_id IS NOT NULL
-        `, [...params, ...params]);
-
-        // Формируем данные для всех дней в периоде
-        const allDays = [];
-        let currentDate = start.clone();
-        while (currentDate <= end) {
-            allDays.push(currentDate.format('YYYY-MM-DD'));
-            currentDate.add(1, 'day');
-        }
-
-        const dailyData = allDays.map(day => {
-            const found = rows.find(row => row.date === day);
-            return found ? found.parts_count : 0;
-        });
-
-        return {
-            labels: allDays.map(day => moment(day).format('DD.MM')),
-            datasets: [{
-                label: 'Количество деталей',
-                data: dailyData,
-                backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1,
-                borderRadius: 3
-            }],
-            total: totalRows[0]?.total_parts || 0
-        };
-    } catch (error) {
-        console.error('Ошибка получения данных о деталях по дням (новая логика):', error);
-        
-        // Альтернативный упрощенный запрос в случае ошибки
-        try {
-            const [simpleRows] = await connection.execute(`
-                SELECT 
-                    DATE(timestamp) as date,
-                    COUNT(*) as parts_count
-                FROM bit8_data
-                WHERE 
-                    timestamp BETWEEN ? AND ?
-                    AND event_type = 29
-                    AND value = 0
-                    ${whereClause}
-                GROUP BY DATE(timestamp)
-                ORDER BY date
-            `, [start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')]);
-
-            const [simpleTotalRows] = await connection.execute(`
-                SELECT COUNT(*) as total_parts
-                FROM bit8_data
-                WHERE 
-                    timestamp BETWEEN ? AND ?
-                    AND event_type = 29
-                    AND value = 0
-                    ${whereClause}
-            `, [start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')]);
-
-            const allDays = [];
-            let currentDate = moment(startDate).startOf('day');
-            const endMoment = moment(endDate).endOf('day');
-            
-            while (currentDate <= endMoment) {
-                allDays.push(currentDate.format('YYYY-MM-DD'));
-                currentDate.add(1, 'day');
-            }
-
-            const dailyData = allDays.map(day => {
-                const found = simpleRows.find(row => row.date === day);
-                return found ? found.parts_count : 0;
-            });
-
-            return {
-                labels: allDays.map(day => moment(day).format('DD.MM')),
-                datasets: [{
-                    label: 'Количество деталей',
-                    data: dailyData,
-                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1,
-                    borderRadius: 3
-                }],
-                total: simpleTotalRows[0]?.total_parts || 0
-            };
-        } catch (fallbackError) {
-            console.error('Ошибка в альтернативном запросе:', fallbackError);
-            throw new Error('Не удалось получить данные о деталях по дням');
-        }
     }
 }
 
@@ -1392,7 +1145,7 @@ app.get('/api/workshops/parts-hourly',
 );
 
 /**
- * Получает данные о количестве деталей по дням
+ * Получает данные о количестве деталей по дням - ИСПРАВЛЕННЫЙ ЭНДПОИНТ
  */
 app.get('/api/workshops/parts-daily', 
   [
@@ -1414,7 +1167,7 @@ app.get('/api/workshops/parts-daily',
         return res.json({
           success: true,
           fromCache: true,
-          data: cache.partsDailyData[cacheKey].chartData,
+          data: cache.partsDailyData[cacheKey],
           total: cache.partsDailyData[cacheKey].total
         });
       }
@@ -1424,133 +1177,13 @@ app.get('/api/workshops/parts-daily',
       try {
         const partsData = await getPartsDailyData(connection, startDate, endDate, workshop);
         
-        cache.partsDailyData[cacheKey] = {
-          chartData: {
-            labels: partsData.labels,
-            datasets: partsData.datasets
-          },
-          total: partsData.total
-        };
-        cache.lastUpdate[cacheKey] = Date.now();
-        
-        res.json({
-          success: true,
-          fromCache: false,
-          data: {
-            labels: partsData.labels,
-            datasets: partsData.datasets
-          },
-          total: partsData.total
-        });
-      } finally {
-        if (connection) await connection.release();
-      }
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-/**
- * Получает данные о количестве деталей по дням (совместимая логика с dashboard.html)
- */
-app.get('/api/parts/daily', 
-  [
-    query('startDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
-    query('endDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
-    query('workshop').optional().isIn(['all', '1', '2']).withMessage('Неверный идентификатор цеха'),
-    query('machine').optional().isInt().toInt(),
-    query('startDate').isISO8601().withMessage('Неверный формат начальной даты'),
-    query('endDate').isISO8601().withMessage('Неверный формат конечной даты')
-  ],
-  validateErrors,
-  async (req, res, next) => {
-    let connection;
-    try {
-      const { startDate, endDate, workshop = 'all', machine = null } = req.query;
-      const cacheKey = `parts_daily_${workshop}_${machine}_${startDate}_${endDate}`;
-      
-      if (cache.partsDailyData[cacheKey] && 
-          Date.now() - cache.lastUpdate[cacheKey] < cache.ttl.partsDailyData) {
-        return res.json({
-          success: true,
-          fromCache: true,
-          data: cache.partsDailyData[cacheKey]
-        });
-      }
-
-      connection = await getConnection();
-      
-      try {
-        const partsData = await getPartsCountDaily(connection, startDate, endDate, workshop, machine);
-        
         cache.partsDailyData[cacheKey] = partsData;
         cache.lastUpdate[cacheKey] = Date.now();
         
         res.json({
           success: true,
           fromCache: false,
-          data: partsData
-        });
-      } finally {
-        if (connection) await connection.release();
-      }
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-/**
- * Получает данные о количестве деталей по дням с правильной логикой подсчета
- */
-app.get('/api/workshops/parts-daily-correct', 
-  [
-    query('startDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
-    query('endDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
-    query('workshop').optional().isIn(['all', '1', '2']).withMessage('Неверный идентификатор цеха'),
-    query('machine').optional().isInt().toInt(),
-    query('startDate').isISO8601().withMessage('Неверный формат начальной даты'),
-    query('endDate').isISO8601().withMessage('Неверный формат конечной даты')
-  ],
-  validateErrors,
-  async (req, res, next) => {
-    let connection;
-    try {
-      const { startDate, endDate, workshop = 'all', machine = null } = req.query;
-      const cacheKey = `daily_correct_${workshop}_${machine}_${startDate}_${endDate}`;
-      
-      if (cache.partsDailyData[cacheKey] && 
-          Date.now() - cache.lastUpdate[cacheKey] < cache.ttl.partsDailyData) {
-        return res.json({
-          success: true,
-          fromCache: true,
-          data: cache.partsDailyData[cacheKey].chartData,
-          total: cache.partsDailyData[cacheKey].total
-        });
-      }
-
-      connection = await getConnection();
-      
-      try {
-        const partsData = await getPartsDailyDataCorrect(connection, startDate, endDate, workshop, machine);
-        
-        cache.partsDailyData[cacheKey] = {
-          chartData: {
-            labels: partsData.labels,
-            datasets: partsData.datasets
-          },
-          total: partsData.total
-        };
-        cache.lastUpdate[cacheKey] = Date.now();
-        
-        res.json({
-          success: true,
-          fromCache: false,
-          data: {
-            labels: partsData.labels,
-            datasets: partsData.datasets
-          },
+          data: partsData,
           total: partsData.total
         });
       } finally {
