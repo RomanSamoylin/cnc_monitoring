@@ -347,13 +347,19 @@
                 showLoadingIndicator('Загрузка данных о деталях...');
                 console.log(`Загрузка данных о деталях для цеха ${workshop} с ${startDate} по ${endDate}`);
                 
-                const response = await fetch(
-                    `${API_BASE_URL}/api/workshops/parts-daily?startDate=${startDate}&endDate=${endDate}&workshop=${workshop}`
-                );
-                const data = await handleApiResponse(response);
-                
-                console.log('Получены данные о деталях:', data);
-                updatePartsChart(data.data, data.total);
+                // Для периода "День" используем специальный эндпоинт для почасовых данных
+                if (currentPeriod === 'day') {
+                    await loadPartsDataForDay(startDate, workshop);
+                } else {
+                    // Для других периодов используем стандартный эндпоинт
+                    const response = await fetch(
+                        `${API_BASE_URL}/api/workshops/parts-daily?startDate=${startDate}&endDate=${endDate}&workshop=${workshop}`
+                    );
+                    const data = await handleApiResponse(response);
+                    
+                    console.log('Получены данные о деталях:', data);
+                    updatePartsChart(data.data, data.total);
+                }
                 
             } catch (error) {
                 console.error('Ошибка загрузки данных о деталях:', error);
@@ -364,6 +370,68 @@
             } finally {
                 hideLoadingIndicator();
             }
+        }
+
+        /**
+         * Загружает данные о деталях для одного дня (почасовые данные)
+         */
+        async function loadPartsDataForDay(date, workshop) {
+            try {
+                console.log(`Загрузка почасовых данных о деталях за ${date} для цеха ${workshop}`);
+                
+                const response = await fetch(
+                    `${API_BASE_URL}/api/workshops/parts-hourly?startDate=${date}&endDate=${date}&workshop=${workshop}`
+                );
+                const data = await handleApiResponse(response);
+                
+                // Преобразуем почасовые данные в формат для дневного графика
+                const chartData = transformHourlyToDailyData(data.data, date);
+                const total = data.total || 0;
+                
+                updatePartsChart(chartData, total);
+                
+            } catch (error) {
+                console.error('Ошибка загрузки почасовых данных:', error);
+                throw error;
+            }
+        }
+
+        /**
+         * Преобразует почасовые данные в формат для дневного графика
+         */
+        function transformHourlyToDailyData(hourlyData, date) {
+            if (!hourlyData || !hourlyData.labels || !hourlyData.datasets) {
+                // Если нет данных, создаем пустой график для одного дня
+                return {
+                    labels: [date],
+                    datasets: [{
+                        label: 'Количество деталей',
+                        data: [0],
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        borderRadius: 3
+                    }]
+                };
+            }
+
+            // Суммируем данные по всем часам за день
+            const dailyTotal = hourlyData.datasets[0].data.reduce((sum, value) => sum + value, 0);
+            
+            return {
+                labels: [new Date(date).toLocaleDateString('ru-RU', { 
+                    day: '2-digit', 
+                    month: '2-digit' 
+                })],
+                datasets: [{
+                    label: 'Количество деталей',
+                    data: [dailyTotal],
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    borderRadius: 3
+                }]
+            };
         }
 
         /**
@@ -408,12 +476,17 @@
             // Обновляем данные графика
             partsChart.data = chartData;
             
-            // Обновляем заголовок
+            // Обновляем заголовок в зависимости от периода
             const periodText = formatPeriod(DOM.startDate.value, DOM.endDate.value);
             const workshopText = DOM.workshopFilter.value === 'all' ? 'Все цеха' : `Цех ${DOM.workshopFilter.value}`;
             
-            document.getElementById('partsChartTitle').textContent = 
-                `Количество деталей по дням (${workshopText}, ${periodText})`;
+            if (currentPeriod === 'day') {
+                document.getElementById('partsChartTitle').textContent = 
+                    `Количество деталей за ${periodText} (${workshopText})`;
+            } else {
+                document.getElementById('partsChartTitle').textContent = 
+                    `Количество деталей по дням (${workshopText}, ${periodText})`;
+            }
             
             // Обновляем общее количество
             document.querySelector('#totalParts span').textContent = totalParts;
@@ -442,31 +515,36 @@
             try {
                 showLoadingIndicator('Загрузка данных цехов...');
                 
-                const selectedWorkshop = DOM.workshopFilter.value;
-                
-                // Загружаем данные для каждого цеха отдельно
-                const workshop1Data = selectedWorkshop === 'all' || selectedWorkshop === '1' ? 
-                    await aggregateWorkshopDataFromHourly('1', startDate, endDate) : 
-                    { working: 0, stopped: 0, shutdown: 0 };
+                // Для периода "День" используем почасовые данные
+                if (currentPeriod === 'day') {
+                    await loadWorkshopDataForDay(startDate);
+                } else {
+                    // Для других периодов используем агрегацию данных
+                    const selectedWorkshop = DOM.workshopFilter.value;
                     
-                const workshop2Data = selectedWorkshop === 'all' || selectedWorkshop === '2' ? 
-                    await aggregateWorkshopDataFromHourly('2', startDate, endDate) : 
-                    { working: 0, stopped: 0, shutdown: 0 };
+                    const workshop1Data = selectedWorkshop === 'all' || selectedWorkshop === '1' ? 
+                        await aggregateWorkshopDataFromHourly('1', startDate, endDate) : 
+                        { working: 0, stopped: 0, shutdown: 0 };
+                        
+                    const workshop2Data = selectedWorkshop === 'all' || selectedWorkshop === '2' ? 
+                        await aggregateWorkshopDataFromHourly('2', startDate, endDate) : 
+                        { working: 0, stopped: 0, shutdown: 0 };
 
-                workshopData = {
-                    workshop1: workshop1Data,
-                    workshop2: workshop2Data,
-                    total: {
-                        working: workshop1Data.working + workshop2Data.working,
-                        stopped: workshop1Data.stopped + workshop2Data.stopped,
-                        shutdown: workshop1Data.shutdown + workshop2Data.shutdown
-                    }
-                };
+                    workshopData = {
+                        workshop1: workshop1Data,
+                        workshop2: workshop2Data,
+                        total: {
+                            working: workshop1Data.working + workshop2Data.working,
+                            stopped: workshop1Data.stopped + workshop2Data.stopped,
+                            shutdown: workshop1Data.shutdown + workshop2Data.shutdown
+                        }
+                    };
+                    
+                    console.log('Данные цехов:', workshopData);
+                    updateWorkshopCharts();
+                }
                 
-                console.log('Данные цехов:', workshopData);
-                updateWorkshopCharts();
-                
-                // Загружаем данные о деталях по дням
+                // Загружаем данные о деталях
                 await loadPartsData();
                 
                 showNotification('Данные цехов успешно загружены', 'success');
@@ -480,11 +558,76 @@
         }
 
         /**
+         * Загружает данные цехов для одного дня
+         */
+        async function loadWorkshopDataForDay(date) {
+            try {
+                const selectedWorkshop = DOM.workshopFilter.value;
+                
+                // Загружаем почасовые данные для цехов
+                const workshop1Data = selectedWorkshop === 'all' || selectedWorkshop === '1' ? 
+                    await getWorkshopHourlyData('1', date) : 
+                    { working: 0, stopped: 0, shutdown: 0 };
+                    
+                const workshop2Data = selectedWorkshop === 'all' || selectedWorkshop === '2' ? 
+                    await getWorkshopHourlyData('2', date) : 
+                    { working: 0, stopped: 0, shutdown: 0 };
+
+                // Агрегируем почасовые данные в общие за день
+                workshopData = {
+                    workshop1: aggregateHourlyToDaily(workshop1Data),
+                    workshop2: aggregateHourlyToDaily(workshop2Data),
+                    total: {
+                        working: aggregateHourlyToDaily(workshop1Data).working + aggregateHourlyToDaily(workshop2Data).working,
+                        stopped: aggregateHourlyToDaily(workshop1Data).stopped + aggregateHourlyToDaily(workshop2Data).stopped,
+                        shutdown: aggregateHourlyToDaily(workshop1Data).shutdown + aggregateHourlyToDaily(workshop2Data).shutdown
+                    }
+                };
+                
+                console.log('Данные цехов за день:', workshopData);
+                updateWorkshopCharts();
+                
+            } catch (error) {
+                console.error('Ошибка загрузки данных цехов за день:', error);
+                throw error;
+            }
+        }
+
+        /**
+         * Загружает почасовые данные для цеха за конкретный день
+         */
+        async function getWorkshopHourlyData(workshop, date) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/workshops/hourly?date=${date}&workshop=${workshop}`);
+                const data = await handleApiResponse(response);
+                return data.data;
+            } catch (error) {
+                console.error(`Ошибка загрузки почасовых данных для цеха ${workshop}:`, error);
+                return null;
+            }
+        }
+
+        /**
+         * Агрегирует почасовые данные в общие за день
+         */
+        function aggregateHourlyToDaily(hourlyData) {
+            if (!hourlyData || !hourlyData.datasets) {
+                return { working: 0, stopped: 0, shutdown: 0 };
+            }
+
+            const working = hourlyData.datasets[0].data.reduce((sum, val) => sum + val, 0) / 60; // минуты в часы
+            const stopped = hourlyData.datasets[1].data.reduce((sum, val) => sum + val, 0) / 60;
+            const shutdown = hourlyData.datasets[2].data.reduce((sum, val) => sum + val, 0) / 60;
+
+            return {
+                working: Math.round(working * 100) / 100,
+                stopped: Math.round(stopped * 100) / 100,
+                shutdown: Math.round(shutdown * 100) / 100
+            };
+        }
+
+        /**
          * Агрегирует данные цеха из почасовых отчетов
-         * @param {string} workshop - ID цеха
-         * @param {string} startDate - Начальная дата
-         * @param {string} endDate - Конечная дата
-         * @returns {object} - Агрегированные данные
          */
         async function aggregateWorkshopDataFromHourly(workshop, startDate, endDate) {
             let totalWorking = 0;
@@ -550,11 +693,18 @@
                 workshopData.workshop2.working
             ];
             
-            // Обновляем заголовки
-            document.getElementById('pieChartTitle').textContent = 
-                `Состояние станков всех цехов (${periodText})`;
-            document.getElementById('horizontalBarChartTitle').textContent = 
-                `Сравнение цехов (${periodText})`;
+            // Обновляем заголовки в зависимости от периода
+            if (currentPeriod === 'day') {
+                document.getElementById('pieChartTitle').textContent = 
+                    `Состояние станков всех цехов за ${periodText}`;
+                document.getElementById('horizontalBarChartTitle').textContent = 
+                    `Сравнение цехов за ${periodText}`;
+            } else {
+                document.getElementById('pieChartTitle').textContent = 
+                    `Состояние станков всех цехов (${periodText})`;
+                document.getElementById('horizontalBarChartTitle').textContent = 
+                    `Сравнение цехов (${periodText})`;
+            }
             
             // Обновляем все графики
             try {
@@ -588,32 +738,26 @@
             // Устанавливаем даты в соответствии с периодом
             switch (period) {
                 case 'day':
-                    // Для периода "День" используем текущие 24 часа
+                    // Для периода "День" используем только текущий день
                     startDate = new Date(today);
-                    startDate.setHours(0, 0, 0, 0);
                     endDate = new Date(today);
-                    endDate.setHours(23, 59, 59, 999);
                     break;
                     
                 case 'week':
                     startDate = new Date(today);
                     startDate.setDate(today.getDate() - today.getDay());
-                    startDate.setHours(0, 0, 0, 0);
                     endDate = new Date(today);
                     endDate.setDate(today.getDate() + (6 - today.getDay()));
-                    endDate.setHours(23, 59, 59, 999);
                     break;
                     
                 case 'month':
                     startDate = new Date(today.getFullYear(), today.getMonth(), 1);
                     endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-                    endDate.setHours(23, 59, 59, 999);
                     break;
                     
                 case 'year':
                     startDate = new Date(today.getFullYear(), 0, 1);
                     endDate = new Date(today.getFullYear(), 11, 31);
-                    endDate.setHours(23, 59, 59, 999);
                     break;
             }
             
@@ -994,7 +1138,7 @@
             // 3. Устанавливаем текущую дату по умолчанию
             const today = new Date();
             DOM.startDate.valueAsDate = today;
-            DOM.endDate.valueAsDate = today; // Устанавливаем ту же дату для конца периода
+            DOM.endDate.valueAsDate = today;
             
             // 4. Настраиваем обработчики событий
             DOM.workshopFilter.addEventListener('change', function() {
@@ -1024,7 +1168,7 @@
                 }
             });
             
-            // 5. Загружаем начальные данные
+            // 5. Загружаем начальные данные за сегодняшний день
             setTimeout(() => {
                 loadWorkshopData();
             }, 500);

@@ -3946,3 +3946,136 @@ Ignoring invalid configuration option passed to Connection: acquireTimeout. This
 Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
 Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
 Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ошибка подключения к БД: Error: read ECONNRESET
+    at PromisePoolConnection.ping (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:98:22)
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:78:22)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1015:18 {
+  code: 'ECONNRESET',
+  errno: -4077,
+  sqlState: undefined,
+  sqlMessage: undefined
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1015:18
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1206:20
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1206:20
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1206:20
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1206:20
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1206:20
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1316:20
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1316:20
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1206:20
+Ошибка подключения к БД: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ошибка: Error: Не удалось подключиться к базе данных
+    at getConnection (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:83:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1316:20
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
