@@ -734,7 +734,7 @@ async function getPartsData(connection, startDate, endDate, workshop = 'all') {
 }
 
 /**
- * Получает данные о количестве деталей по дням - УЛУЧШЕННАЯ ВЕРСИЯ
+ * Получает данные о количестве деталей по дням - ИСПРАВЛЕННАЯ ВЕРСИЯ
  */
 async function getPartsDailyData(connection, startDate, endDate, workshop = 'all') {
     try {
@@ -781,7 +781,7 @@ async function getPartsDailyData(connection, startDate, endDate, workshop = 'all
                 ${whereClause}
         `, params);
 
-        // Формируем данные для всех дней в периоде
+        // Формируем данные для всех дней в периоде (включая дни без данных)
         const allDays = [];
         let currentDate = start.clone();
         while (currentDate <= end) {
@@ -792,10 +792,10 @@ async function getPartsDailyData(connection, startDate, endDate, workshop = 'all
         // Создаем карту для быстрого доступа к данным по дням
         const dataMap = new Map();
         rows.forEach(row => {
-            dataMap.set(row.date, row.parts_count);
+            dataMap.set(moment(row.date).format('YYYY-MM-DD'), row.parts_count);
         });
 
-        // Заполняем данные для всех дней
+        // Заполняем данные для всех дней (включая дни без данных = 0)
         const dailyData = allDays.map(day => {
             return dataMap.get(day) || 0;
         });
@@ -1286,7 +1286,7 @@ app.get('/api/workshops/parts-hourly',
 );
 
 /**
- * Получает данные о количестве деталей по дням - ОСНОВНОЙ ЭНДПОИНТ ДЛЯ ГРАФИКА
+ * Получает данные о количестве деталей по дням - ОСНОВНОЙ ЭНДПОИНТ ДЛЯ ГРАФИКА (ИСПРАВЛЕННЫЙ)
  */
 app.get('/api/workshops/parts-daily', 
   [

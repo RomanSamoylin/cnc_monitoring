@@ -4269,3 +4269,84 @@ Ignoring invalid configuration option passed to Connection: acquireTimeout. This
     at getPartsData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:732:11)
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
     at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1259:27
+Ошибка получения данных о деталях: Error: Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'cnc_monitoring.bit8_data.timestamp' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getPartsData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:675:37)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1259:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_WRONG_FIELD_WITH_GROUP',
+  errno: 1055,
+  sql: '\n' +
+    '      SELECT \n' +
+    "        DATE_FORMAT(timestamp, '%Y-%m-%d %H:00:00') as hour,\n" +
+    '        COUNT(*) as parts_count\n' +
+    '      FROM bit8_data\n' +
+    '      WHERE \n' +
+    '        timestamp BETWEEN ? AND ?\n' +
+    '        AND event_type = 29\n' +
+    '        AND value = 0\n' +
+    '        \n' +
+    "      GROUP BY DATE_FORMAT(timestamp, '%Y-%m-%d %H')\n" +
+    '      ORDER BY hour\n' +
+    '    ',
+  sqlState: '42000',
+  sqlMessage: "Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'cnc_monitoring.bit8_data.timestamp' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by"
+}
+Ошибка: Error: Не удалось получить данные о деталях
+    at getPartsData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:732:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1259:27
+Ошибка получения данных о деталях: Error: Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'cnc_monitoring.bit8_data.timestamp' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getPartsData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:675:37)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1259:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_WRONG_FIELD_WITH_GROUP',
+  errno: 1055,
+  sql: '\n' +
+    '      SELECT \n' +
+    "        DATE_FORMAT(timestamp, '%Y-%m-%d %H:00:00') as hour,\n" +
+    '        COUNT(*) as parts_count\n' +
+    '      FROM bit8_data\n' +
+    '      WHERE \n' +
+    '        timestamp BETWEEN ? AND ?\n' +
+    '        AND event_type = 29\n' +
+    '        AND value = 0\n' +
+    '        \n' +
+    "      GROUP BY DATE_FORMAT(timestamp, '%Y-%m-%d %H')\n" +
+    '      ORDER BY hour\n' +
+    '    ',
+  sqlState: '42000',
+  sqlMessage: "Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'cnc_monitoring.bit8_data.timestamp' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by"
+}
+Ошибка: Error: Не удалось получить данные о деталях
+    at getPartsData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:732:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1259:27
+Ошибка получения данных о деталях: Error: Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'cnc_monitoring.bit8_data.timestamp' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getPartsData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:675:37)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1259:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_WRONG_FIELD_WITH_GROUP',
+  errno: 1055,
+  sql: '\n' +
+    '      SELECT \n' +
+    "        DATE_FORMAT(timestamp, '%Y-%m-%d %H:00:00') as hour,\n" +
+    '        COUNT(*) as parts_count\n' +
+    '      FROM bit8_data\n' +
+    '      WHERE \n' +
+    '        timestamp BETWEEN ? AND ?\n' +
+    '        AND event_type = 29\n' +
+    '        AND value = 0\n' +
+    '        \n' +
+    "      GROUP BY DATE_FORMAT(timestamp, '%Y-%m-%d %H')\n" +
+    '      ORDER BY hour\n' +
+    '    ',
+  sqlState: '42000',
+  sqlMessage: "Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'cnc_monitoring.bit8_data.timestamp' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by"
+}
+Ошибка: Error: Не удалось получить данные о деталях
+    at getPartsData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:732:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1259:27
