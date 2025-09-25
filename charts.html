@@ -339,17 +339,20 @@
             const workshop = DOM.workshopFilter.value;
 
             if (!startDate || !endDate) {
+                console.log('Даты не выбраны, пропускаем загрузку данных о деталях');
                 return;
             }
 
             try {
                 showLoadingIndicator('Загрузка данных о деталях...');
+                console.log(`Загрузка данных о деталях для цеха ${workshop} с ${startDate} по ${endDate}`);
                 
                 const response = await fetch(
                     `${API_BASE_URL}/api/workshops/parts-daily?startDate=${startDate}&endDate=${endDate}&workshop=${workshop}`
                 );
                 const data = await handleApiResponse(response);
                 
+                console.log('Получены данные о деталях:', data);
                 updatePartsChart(data.data, data.total);
                 
             } catch (error) {
@@ -372,7 +375,7 @@
             console.log('Обновление графика деталей по дням', chartData, totalParts);
             
             // Если нет данных, показываем нулевые значения
-            if (!chartData || !chartData.datasets) {
+            if (!chartData || !chartData.labels || !chartData.datasets) {
                 console.warn('Нет данных для графика деталей, показываем нули');
                 
                 // Создаем данные для всех дней в выбранном периоде
@@ -383,7 +386,7 @@
                 
                 let currentDate = new Date(start);
                 while (currentDate <= end) {
-                    days.push(currentDate.toLocaleDateString('ru-RU'));
+                    days.push(currentDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }));
                     partsData.push(0);
                     currentDate.setDate(currentDate.getDate() + 1);
                 }
@@ -568,66 +571,67 @@
          * @param {string} period - Тип периода (day, week, month, year)
          */
         function setPeriod(period) {
-    console.log(`Установка периода: ${period}`);
-    
-    currentPeriod = period;
-    const today = new Date();
-    let startDate, endDate;
-    
-    // Обновляем активную кнопку периода
-    document.querySelectorAll('.period-buttons button').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.textContent.toLowerCase().includes(period)) {
-            btn.classList.add('active');
+            console.log(`Установка периода: ${period}`);
+            
+            currentPeriod = period;
+            const today = new Date();
+            let startDate, endDate;
+            
+            // Обновляем активную кнопку периода
+            document.querySelectorAll('.period-buttons button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(period)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Устанавливаем даты в соответствии с периодом
+            switch (period) {
+                case 'day':
+                    // Для периода "День" используем текущие 24 часа
+                    startDate = new Date(today);
+                    startDate.setHours(0, 0, 0, 0);
+                    endDate = new Date(today);
+                    endDate.setHours(23, 59, 59, 999);
+                    break;
+                    
+                case 'week':
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - today.getDay());
+                    startDate.setHours(0, 0, 0, 0);
+                    endDate = new Date(today);
+                    endDate.setDate(today.getDate() + (6 - today.getDay()));
+                    endDate.setHours(23, 59, 59, 999);
+                    break;
+                    
+                case 'month':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    endDate.setHours(23, 59, 59, 999);
+                    break;
+                    
+                case 'year':
+                    startDate = new Date(today.getFullYear(), 0, 1);
+                    endDate = new Date(today.getFullYear(), 11, 31);
+                    endDate.setHours(23, 59, 59, 999);
+                    break;
+            }
+            
+            // Устанавливаем даты в полях ввода
+            DOM.startDate.valueAsDate = startDate;
+            DOM.endDate.valueAsDate = endDate;
+            
+            // Загружаем данные для текущего режима просмотра
+            if (currentViewMode === 'workshop') {
+                loadWorkshopData();
+            } else {
+                const machineId = DOM.machineFilter.value;
+                if (machineId && machineId !== 'all') {
+                    loadMachineData(machineId);
+                }
+            }
         }
-    });
-    
-    // Устанавливаем даты в соответствии с периодом
-    switch (period) {
-        case 'day':
-            // Для периода "День" используем текущие 24 часа
-            startDate = new Date(today);
-            startDate.setHours(0, 0, 0, 0);
-            endDate = new Date(today);
-            endDate.setHours(23, 59, 59, 999);
-            break;
-            
-        case 'week':
-            startDate = new Date(today);
-            startDate.setDate(today.getDate() - today.getDay());
-            startDate.setHours(0, 0, 0, 0);
-            endDate = new Date(today);
-            endDate.setDate(today.getDate() + (6 - today.getDay()));
-            endDate.setHours(23, 59, 59, 999);
-            break;
-            
-        case 'month':
-            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-            endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-            endDate.setHours(23, 59, 59, 999);
-            break;
-            
-        case 'year':
-            startDate = new Date(today.getFullYear(), 0, 1);
-            endDate = new Date(today.getFullYear(), 11, 31);
-            endDate.setHours(23, 59, 59, 999);
-            break;
-    }
-    
-    // Устанавливаем даты в полях ввода
-    DOM.startDate.valueAsDate = startDate;
-    DOM.endDate.valueAsDate = endDate;
-    
-    // Загружаем данные для текущего режима просмотра
-    if (currentViewMode === 'workshop') {
-        loadWorkshopData();
-    } else {
-        const machineId = DOM.machineFilter.value;
-        if (machineId && machineId !== 'all') {
-            loadMachineData(machineId);
-        }
-    }
-}
+
         /**
          * Переключает режим просмотра на цеха
          */
@@ -994,13 +998,13 @@
             
             // 4. Настраиваем обработчики событий
             DOM.workshopFilter.addEventListener('change', function() {
+                console.log('Изменен фильтр цеха:', this.value);
                 updateMachineFilter();
-                if (currentViewMode === 'workshop') {
-                    loadWorkshopData();
-                }
+                showWorkshopView();
             });
             
             DOM.machineFilter.addEventListener('change', function() {
+                console.log('Изменен фильтр станка:', this.value);
                 if (this.value === 'all') {
                     showWorkshopView();
                 } else {
@@ -1009,6 +1013,7 @@
             });
             
             DOM.applyFilters.addEventListener('click', function() {
+                console.log('Применение фильтров...');
                 if (currentViewMode === 'workshop') {
                     loadWorkshopData();
                 } else {
@@ -1019,23 +1024,23 @@
                 }
             });
             
-            // 5. Загружаем начальные данные за сегодняшний день
-            setPeriod('day');
+            // 5. Загружаем начальные данные
+            setTimeout(() => {
+                loadWorkshopData();
+            }, 500);
             
             console.log('Приложение инициализировано');
         });
 
-        // Функции для работы с отдельными станками (оставлены для совместимости, но не используются в новой версии)
+        // Функция для загрузки данных станка (заглушка)
         async function loadMachineData(machineId) {
-            // Реализация не изменилась, но не используется в новой версии
-        }
-
-        function updateMachineChart(machineId, data) {
-            // Реализация не изменилась, но не используется в новой версии
-        }
-        
-        function updateTimelineChart(machineId, data) {
-            // Реализация не изменилась, но не используется в новой версии
+            console.log(`Загрузка данных для станка ${machineId}`);
+            showNotification(`Загрузка данных для станка ${machineId}...`, 'loading');
+            
+            // Здесь будет реализация загрузки данных конкретного станка
+            setTimeout(() => {
+                showNotification('Функционал для отдельных станков в разработке', 'success');
+            }, 1000);
         }
     </script>
 </body>

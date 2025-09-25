@@ -734,7 +734,7 @@ async function getPartsData(connection, startDate, endDate, workshop = 'all') {
 }
 
 /**
- * Получает данные о количестве деталей по дням - ИСПРАВЛЕННАЯ ВЕРСИЯ
+ * Получает данные о количестве деталей по дням - УЛУЧШЕННАЯ ВЕРСИЯ
  */
 async function getPartsDailyData(connection, startDate, endDate, workshop = 'all') {
     try {
@@ -755,7 +755,7 @@ async function getPartsDailyData(connection, startDate, endDate, workshop = 'all
         
         console.log(`Запрос данных о деталях по дням с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')} для цеха ${workshop}`);
         
-        // Запрос для получения количества деталей по дням
+        // УЛУЧШЕННЫЙ ЗАПРОС: группировка по дням с правильным подсчетом деталей
         const [rows] = await connection.execute(`
             SELECT 
                 DATE(timestamp) as date,
@@ -820,6 +820,147 @@ async function getPartsDailyData(connection, startDate, endDate, workshop = 'all
     } catch (error) {
         console.error('Ошибка получения данных о деталях по дням:', error);
         throw new Error('Не удалось получить данные о деталях по дням');
+    }
+}
+
+/**
+ * НОВАЯ ФУНКЦИЯ: Получает расширенные данные о деталях по дням с дополнительной статистикой
+ */
+async function getEnhancedPartsDailyData(connection, startDate, endDate, workshop = 'all') {
+    try {
+        const start = moment(startDate).startOf('day');
+        const end = moment(endDate).endOf('day');
+        
+        // Определяем условие WHERE в зависимости от параметра workshop
+        let whereClause = '';
+        let params = [start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')];
+        
+        if (workshop && workshop !== 'all') {
+            if (workshop === '1') {
+                whereClause = 'AND machine_id <= 16';
+            } else if (workshop === '2') {
+                whereClause = 'AND machine_id > 16';
+            }
+        }
+        
+        console.log(`Запрос расширенных данных о деталях по дням с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')} для цеха ${workshop}`);
+        
+        // Запрос для получения детализированных данных по дням
+        const [dailyData] = await connection.execute(`
+            SELECT 
+                DATE(timestamp) as date,
+                COUNT(*) as parts_count,
+                HOUR(timestamp) as hour,
+                COUNT(CASE WHEN HOUR(timestamp) BETWEEN 6 AND 18 THEN 1 END) as day_parts,
+                COUNT(CASE WHEN HOUR(timestamp) < 6 OR HOUR(timestamp) > 18 THEN 1 END) as night_parts
+            FROM bit8_data
+            WHERE 
+                timestamp BETWEEN ? AND ?
+                AND event_type = 29
+                AND value = 0
+                ${whereClause}
+            GROUP BY DATE(timestamp), HOUR(timestamp)
+            ORDER BY date, hour
+        `, params);
+
+        // Запрос для получения общего количества деталей
+        const [totalRows] = await connection.execute(`
+            SELECT 
+                COUNT(*) as total_parts,
+                COUNT(CASE WHEN HOUR(timestamp) BETWEEN 6 AND 18 THEN 1 END) as day_parts,
+                COUNT(CASE WHEN HOUR(timestamp) < 6 OR HOUR(timestamp) > 18 THEN 1 END) as night_parts
+            FROM bit8_data
+            WHERE 
+                timestamp BETWEEN ? AND ?
+                AND event_type = 29
+                AND value = 0
+                ${whereClause}
+        `, params);
+
+        // Группируем данные по дням
+        const groupedData = {};
+        dailyData.forEach(row => {
+            if (!groupedData[row.date]) {
+                groupedData[row.date] = {
+                    total: 0,
+                    hours: Array(24).fill(0),
+                    day_parts: 0,
+                    night_parts: 0
+                };
+            }
+            groupedData[row.date].total += row.parts_count;
+            groupedData[row.date].hours[row.hour] = row.parts_count;
+            groupedData[row.date].day_parts += row.day_parts;
+            groupedData[row.date].night_parts += row.night_parts;
+        });
+
+        // Формируем данные для всех дней в периоде
+        const allDays = [];
+        let currentDate = start.clone();
+        while (currentDate <= end) {
+            allDays.push(currentDate.format('YYYY-MM-DD'));
+            currentDate.add(1, 'day');
+        }
+
+        // Заполняем данные для всех дней
+        const totalPartsData = allDays.map(day => {
+            return groupedData[day] ? groupedData[day].total : 0;
+        });
+
+        const dayPartsData = allDays.map(day => {
+            return groupedData[day] ? groupedData[day].day_parts : 0;
+        });
+
+        const nightPartsData = allDays.map(day => {
+            return groupedData[day] ? groupedData[day].night_parts : 0;
+        });
+
+        // Форматируем даты для отображения
+        const formattedLabels = allDays.map(day => 
+            moment(day).format('DD.MM')
+        );
+
+        return {
+            labels: formattedLabels,
+            datasets: [
+                {
+                    label: 'Всего деталей',
+                    data: totalPartsData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    borderRadius: 3
+                },
+                {
+                    label: 'Дневные (6:00-18:00)',
+                    data: dayPartsData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    borderRadius: 3
+                },
+                {
+                    label: 'Ночные (18:00-6:00)',
+                    data: nightPartsData,
+                    backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1,
+                    borderRadius: 3
+                }
+            ],
+            total: totalRows[0].total_parts || 0,
+            day_total: totalRows[0].day_parts || 0,
+            night_total: totalRows[0].night_parts || 0,
+            statistics: {
+                average_per_day: totalRows[0].total_parts / Math.max(1, allDays.length),
+                max_per_day: Math.max(...totalPartsData),
+                min_per_day: Math.min(...totalPartsData.filter(val => val > 0)),
+                day_night_ratio: totalRows[0].day_parts / Math.max(1, totalRows[0].night_parts)
+            }
+        };
+    } catch (error) {
+        console.error('Ошибка получения расширенных данных о деталях по дням:', error);
+        throw new Error('Не удалось получить расширенные данные о деталях по дням');
     }
 }
 
@@ -1145,7 +1286,7 @@ app.get('/api/workshops/parts-hourly',
 );
 
 /**
- * Получает данные о количестве деталей по дням - ИСПРАВЛЕННЫЙ ЭНДПОИНТ
+ * Получает данные о количестве деталей по дням - ОСНОВНОЙ ЭНДПОИНТ ДЛЯ ГРАФИКА
  */
 app.get('/api/workshops/parts-daily', 
   [
@@ -1185,6 +1326,55 @@ app.get('/api/workshops/parts-daily',
           fromCache: false,
           data: partsData,
           total: partsData.total
+        });
+      } finally {
+        if (connection) await connection.release();
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * НОВЫЙ ЭНДПОИНТ: Получает расширенные данные о деталях по дням
+ */
+app.get('/api/workshops/parts-daily-enhanced', 
+  [
+    query('startDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
+    query('endDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
+    query('workshop').optional().isIn(['all', '1', '2']).withMessage('Неверный идентификатор цеха'),
+    query('startDate').isISO8601().withMessage('Неверный формат начальной даты'),
+    query('endDate').isISO8601().withMessage('Неверный формат конечной даты')
+  ],
+  validateErrors,
+  async (req, res, next) => {
+    let connection;
+    try {
+      const { startDate, endDate, workshop = 'all' } = req.query;
+      const cacheKey = `daily_enhanced_${workshop}_${startDate}_${endDate}`;
+      
+      if (cache.partsDailyData[cacheKey] && 
+          Date.now() - cache.lastUpdate[cacheKey] < cache.ttl.partsDailyData) {
+        return res.json({
+          success: true,
+          fromCache: true,
+          data: cache.partsDailyData[cacheKey]
+        });
+      }
+
+      connection = await getConnection();
+      
+      try {
+        const partsData = await getEnhancedPartsDailyData(connection, startDate, endDate, workshop);
+        
+        cache.partsDailyData[cacheKey] = partsData;
+        cache.lastUpdate[cacheKey] = Date.now();
+        
+        res.json({
+          success: true,
+          fromCache: false,
+          data: partsData
         });
       } finally {
         if (connection) await connection.release();
