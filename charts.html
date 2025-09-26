@@ -96,14 +96,17 @@
             </div>
             
             <!-- Графики для режима просмотра отдельных станков -->
-            <div id="individualCharts" style="display: none;">
+            <div id="individualCharts" style="display: none;" class="charts-row">
                 <div class="chart-container">
-                    <h3 class="chart-title" id="chartTitle">Состояние станков</h3>
+                    <h3 class="chart-title" id="machineStatusTitle">Состояние станка</h3>
                     <canvas id="machineStatusChart"></canvas>
                 </div>
                 <div class="chart-container">
-                    <h3 class="chart-title" id="timelineChartTitle">График изменения состояния</h3>
-                    <canvas id="timelineChart"></canvas>
+                    <h3 class="chart-title" id="machinePartsTitle">Количество деталей</h3>
+                    <canvas id="machinePartsChart"></canvas>
+                    <div id="machineTotalParts" class="total-parts">
+                        Всего деталей за выбранный период: <span>0</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -150,7 +153,7 @@
         };
         
         // Объекты графиков
-        let pieChart, partsChart, horizontalBarChart, machineStatusChart, timelineChart;
+        let pieChart, partsChart, horizontalBarChart, machineStatusChart, machinePartsChart;
         
         // DOM элементы
         const DOM = {
@@ -742,11 +745,112 @@
             console.log('Переключение в режим просмотра станка');
             currentViewMode = 'individual';
             DOM.workshopCharts.style.display = 'none';
-            DOM.individualCharts.style.display = 'block';
+            DOM.individualCharts.style.display = 'grid';
             
             const machineId = DOM.machineFilter.value;
             if (machineId && machineId !== 'all') {
                 loadMachineData(machineId);
+            }
+        }
+
+        /**
+         * Загружает данные для отдельного станка
+         */
+        async function loadMachineData(machineId) {
+            try {
+                showLoadingIndicator(`Загрузка данных для станка ${machineId}...`);
+                
+                const startDate = DOM.startDate.value;
+                const endDate = DOM.endDate.value;
+                
+                if (!startDate || !endDate) {
+                    showNotification('Пожалуйста, выберите начальную и конечную дату', 'error');
+                    return;
+                }
+
+                // Загружаем данные о состоянии станка
+                const statusResponse = await fetch(
+                    `${API_BASE_URL}/api/machines/${machineId}/history/summary?startDate=${startDate}&endDate=${endDate}`
+                );
+                const statusData = await handleApiResponse(statusResponse);
+                
+                // Загружаем данные о деталях для станка
+                const partsResponse = await fetch(
+                    `${API_BASE_URL}/api/machines/${machineId}/parts-daily?startDate=${startDate}&endDate=${endDate}`
+                );
+                const partsData = await handleApiResponse(partsResponse);
+                
+                // Обновляем графики
+                updateMachineCharts(machineId, statusData.data, partsData.data, partsData.total);
+                
+                showNotification(`Данные для станка ${machineId} успешно загружены`, 'success');
+                
+            } catch (error) {
+                console.error(`Ошибка загрузки данных для станка ${machineId}:`, error);
+                showNotification(`Ошибка загрузки данных для станка: ${error.message}`, 'error');
+                
+                // Показываем нулевые данные при ошибке
+                updateMachineCharts(machineId, {working: 0, stopped: 0, shutdown: 0}, null, 0);
+            } finally {
+                hideLoadingIndicator();
+            }
+        }
+
+        /**
+         * Обновляет графики для отдельного станка
+         */
+        function updateMachineCharts(machineId, statusData, partsData, totalParts) {
+            console.log('Обновление графиков для станка', machineId, statusData, partsData);
+            
+            const machine = machinesList.find(m => m.id === machineId);
+            const machineName = machine ? machine.name : `Станок ${machineId}`;
+            const periodText = formatPeriod(DOM.startDate.value, DOM.endDate.value);
+            
+            // 1. График состояния станка
+            machineStatusChart.data.datasets[0].data = [
+                statusData.shutdown || 0,
+                statusData.stopped || 0,
+                statusData.working || 0
+            ];
+            
+            document.getElementById('machineStatusTitle').textContent = 
+                `Состояние станка ${machineName} (${periodText})`;
+            
+            // 2. График деталей
+            if (partsData && partsData.labels && partsData.datasets) {
+                machinePartsChart.data.labels = partsData.labels;
+                machinePartsChart.data.datasets[0].data = partsData.datasets[0].data;
+            } else {
+                // Если нет данных, показываем нулевые значения
+                const start = new Date(DOM.startDate.value);
+                const end = new Date(DOM.endDate.value);
+                const days = [];
+                const partsDataArray = [];
+                
+                let currentDate = new Date(start);
+                while (currentDate <= end) {
+                    days.push(currentDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }));
+                    partsDataArray.push(0);
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                
+                machinePartsChart.data.labels = days;
+                machinePartsChart.data.datasets[0].data = partsDataArray;
+            }
+            
+            document.getElementById('machinePartsTitle').textContent = 
+                `Количество деталей станка ${machineName} (${periodText})`;
+            
+            // Обновляем общее количество деталей
+            document.querySelector('#machineTotalParts span').textContent = totalParts || 0;
+            
+            // Обновляем графики
+            try {
+                machineStatusChart.update();
+                machinePartsChart.update();
+                console.log('Графики станка успешно обновлены');
+            } catch (e) {
+                console.error('Ошибка обновления графиков станка:', e);
             }
         }
 
@@ -793,19 +897,15 @@
                                     const value = context.raw || 0;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-                                    return `${label}: ${value.toFixed(1)} ч (${percentage}%)`;
+                                    return `${label}: ${value} ч (${percentage}%)`;
                                 }
                             }
                         }
-                    },
-                    animation: {
-                        animateScale: true,
-                        animateRotate: true
                     }
                 }
             });
-            
-            // 2. График количества деталей по дням - ВЕРТИКАЛЬНАЯ СТОЛБЧАТАЯ ДИАГРАММА
+
+            // 2. График деталей по дням (для цехов)
             const partsCtx = document.getElementById('partsChart').getContext('2d');
             partsChart = new Chart(partsCtx, {
                 type: 'bar',
@@ -824,77 +924,65 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Дни',
-                                padding: {top: 10}
-                            },
-                            grid: {
-                                display: false
-                            }
-                        },
                         y: {
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Количество деталей',
-                                padding: {bottom: 10}
+                                text: 'Количество деталей'
                             },
                             ticks: {
-                                stepSize: 1
+                                precision: 0
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Даты'
                             }
                         }
                     },
                     plugins: {
+                        legend: {
+                            display: false
+                        },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return `Деталей: ${context.raw}`;
+                                    return `Детали: ${context.parsed.y}`;
                                 }
-                            }
-                        },
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                boxWidth: 12,
-                                padding: 20
                             }
                         }
                     }
                 }
             });
-            
+
             // 3. Горизонтальная столбчатая диаграмма (сравнение цехов)
             const horizontalBarCtx = document.getElementById('horizontalBarChart').getContext('2d');
             horizontalBarChart = new Chart(horizontalBarCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['ЦЕХ-1', 'ЦЕХ-2'],
+                    labels: ['Цех 1', 'Цех 2'],
                     datasets: [
                         {
                             label: STATUS_LABELS[STATUS.SHUTDOWN],
                             data: [0, 0],
                             backgroundColor: STATUS_COLORS[STATUS.SHUTDOWN],
-                            borderColor: STATUS_COLORS[STATUS.SHUTDOWN],
-                            borderWidth: 1,
-                            borderRadius: 3
+                            borderColor: '#fff',
+                            borderWidth: 1
                         },
                         {
                             label: STATUS_LABELS[STATUS.STOPPED],
                             data: [0, 0],
                             backgroundColor: STATUS_COLORS[STATUS.STOPPED],
-                            borderColor: STATUS_COLORS[STATUS.STOPPED],
-                            borderWidth: 1,
-                            borderRadius: 3
+                            borderColor: '#fff',
+                            borderWidth: 1
                         },
                         {
                             label: STATUS_LABELS[STATUS.WORKING],
                             data: [0, 0],
                             backgroundColor: STATUS_COLORS[STATUS.WORKING],
-                            borderColor: STATUS_COLORS[STATUS.WORKING],
-                            borderWidth: 1,
-                            borderRadius: 3
+                            borderColor: '#fff',
+                            borderWidth: 1
                         }
                     ]
                 },
@@ -902,201 +990,167 @@
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        x: { 
-                            stacked: true,
-                            title: {
-                                display: true,
-                                text: 'Часы работы',
-                                padding: {top: 10}
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
                             }
                         },
-                        y: { 
-                            stacked: true,
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    plugins: {
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return `${context.dataset.label}: ${context.raw.toFixed(1)} ч`;
+                                    return `${context.dataset.label}: ${context.parsed.x} ч`;
                                 }
                             }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Время (часы)'
+                            }
                         },
-                        legend: {
-                            position: 'bottom',
+                        y: {
+                            stacked: true
+                        }
+                    }
+                }
+            });
+
+            // 4. График состояния отдельного станка
+            const machineStatusCtx = document.getElementById('machineStatusChart').getContext('2d');
+            machineStatusChart = new Chart(machineStatusCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.values(STATUS_LABELS),
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            STATUS_COLORS[STATUS.SHUTDOWN],
+                            STATUS_COLORS[STATUS.STOPPED],
+                            STATUS_COLORS[STATUS.WORKING]
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 1,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'top',
                             labels: {
-                                boxWidth: 12,
-                                padding: 20
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${label}: ${value} ч (${percentage}%)`;
+                                }
                             }
                         }
                     }
                 }
             });
-            
-            // 4. График статусов для отдельного станка
-            const machineCtx = document.getElementById('machineStatusChart').getContext('2d');
-            machineStatusChart = new Chart(machineCtx, {
+
+            // 5. График деталей для отдельного станка
+            const machinePartsCtx = document.getElementById('machinePartsChart').getContext('2d');
+            machinePartsChart = new Chart(machinePartsCtx, {
                 type: 'bar',
                 data: {
                     labels: [],
-                    datasets: [
-                        {
-                            label: STATUS_LABELS[STATUS.SHUTDOWN],
-                            data: [],
-                            backgroundColor: STATUS_COLORS[STATUS.SHUTDOWN],
-                            borderColor: STATUS_COLORS[STATUS.SHUTDOWN],
-                            borderWidth: 1,
-                            borderRadius: 3
-                        },
-                        {
-                            label: STATUS_LABELS[STATUS.STOPPED],
-                            data: [],
-                            backgroundColor: STATUS_COLORS[STATUS.STOPPED],
-                            borderColor: STATUS_COLORS[STATUS.STOPPED],
-                            borderWidth: 1,
-                            borderRadius: 3
-                        },
-                        {
-                            label: STATUS_LABELS[STATUS.WORKING],
-                            data: [],
-                            backgroundColor: STATUS_COLORS[STATUS.WORKING],
-                            borderColor: STATUS_COLORS[STATUS.WORKING],
-                            borderWidth: 1,
-                            borderRadius: 3
-                        }
-                    ]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { 
-                            stacked: true,
-                            title: {
-                                display: true,
-                                text: 'Часы работы',
-                                padding: {top: 10}
-                            }
-                        },
-                        y: { 
-                            stacked: true,
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.dataset.label}: ${context.raw.toFixed(1)} ч`;
-                                }
-                            }
-                        },
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                boxWidth: 12,
-                                padding: 20
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // 5. График временной шкалы для отдельного станка
-            const timelineCtx = document.getElementById('timelineChart').getContext('2d');
-            timelineChart = new Chart(timelineCtx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                        {
-                            label: 'Статус станка',
-                            data: [],
-                            borderColor: '#3498db',
-                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.1,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                            pointBackgroundColor: '#3498db'
-                        }
-                    ]
+                    datasets: [{
+                        label: 'Количество деталей',
+                        data: [],
+                        backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1,
+                        borderRadius: 3
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
                         y: {
-                            min: 0,
-                            max: 2,
-                            ticks: {
-                                callback: function(value) {
-                                    return STATUS_LABELS[Object.keys(STATUS_LABELS)[value]];
-                                },
-                                stepSize: 1
-                            },
+                            beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Статус'
+                                text: 'Количество деталей'
+                            },
+                            ticks: {
+                                precision: 0
                             }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Время'
+                                text: 'Даты'
                             }
                         }
                     },
                     plugins: {
+                        legend: {
+                            display: false
+                        },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return STATUS_LABELS[Object.keys(STATUS_LABELS)[context.raw]];
+                                    return `Детали: ${context.parsed.y}`;
                                 }
                             }
-                        },
-                        legend: {
-                            display: false
                         }
                     }
                 }
             });
-            
+
             console.log('Все графики инициализированы');
         }
 
-        // Инициализация приложения после загрузки DOM
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM загружен, инициализация приложения...');
+        /**
+         * Инициализирует страницу
+         */
+        function initPage() {
+            console.log('Инициализация страницы графиков...');
             
-            // 1. Инициализируем графики
-            initCharts();
-            
-            // 2. Загружаем список станков
-            loadMachineList();
-            
-            // 3. Устанавливаем текущую дату по умолчанию
+            // Устанавливаем сегодняшнюю дату по умолчанию
             const today = new Date();
             DOM.startDate.valueAsDate = today;
             DOM.endDate.valueAsDate = today;
             
-            // 4. Настраиваем обработчики событий
+            // Инициализируем графики
+            initCharts();
+            
+            // Загружаем список станков
+            loadMachineList();
+            
+            // Устанавливаем обработчики событий
             DOM.workshopFilter.addEventListener('change', function() {
                 console.log('Изменен фильтр цеха:', this.value);
                 updateMachineFilter();
-                showWorkshopView();
+                
+                if (currentViewMode === 'workshop') {
+                    loadWorkshopData();
+                }
             });
             
             DOM.machineFilter.addEventListener('change', function() {
                 console.log('Изменен фильтр станка:', this.value);
+                
                 if (this.value === 'all') {
                     showWorkshopView();
                 } else {
@@ -1105,7 +1159,8 @@
             });
             
             DOM.applyFilters.addEventListener('click', function() {
-                console.log('Применение фильтров...');
+                console.log('Применение фильтров');
+                
                 if (currentViewMode === 'workshop') {
                     loadWorkshopData();
                 } else {
@@ -1116,24 +1171,14 @@
                 }
             });
             
-            // 5. Загружаем начальные данные за сегодняшний день
-            setTimeout(() => {
-                loadWorkshopData();
-            }, 500);
+            // Устанавливаем период по умолчанию
+            setPeriod('day');
             
-            console.log('Приложение инициализировано');
-        });
-
-        // Функция для загрузки данных станка (заглушка)
-        async function loadMachineData(machineId) {
-            console.log(`Загрузка данных для станка ${machineId}`);
-            showNotification(`Загрузка данных для станка ${machineId}...`, 'loading');
-            
-            // Здесь будет реализация загрузки данных конкретного станка
-            setTimeout(() => {
-                showNotification('Функционал для отдельных станков в разработке', 'success');
-            }, 1000);
+            console.log('Страница графиков инициализирована');
         }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', initPage);
     </script>
 </body>
 </html>

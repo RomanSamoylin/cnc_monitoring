@@ -57,6 +57,8 @@ const cache = {
   workshopHourlyData: {},
   partsData: {},
   partsDailyData: {},
+  machinePartsData: {},
+  machineSummaryData: {},
   lastUpdate: {},
   ttl: {
     machines: 30000,
@@ -65,7 +67,9 @@ const cache = {
     history: 300000,
     workshopHourly: 300000,
     partsData: 300000,
-    partsDailyData: 300000
+    partsDailyData: 300000,
+    machinePartsData: 300000,
+    machineSummaryData: 300000
   }
 };
 
@@ -167,7 +171,7 @@ function distributeTimeToHours(startTime, endTime, status, hourlyData) {
 }
 
 /**
- * Рассчитывает время в разных статусах для станка (исправленная версия)
+ * Рассчитывает время в разных статусах для станка
  */
 async function calculateMachineStatusTime(connection, machineId, startDate, endDate) {
   try {
@@ -259,7 +263,7 @@ async function calculateMachineStatusTime(connection, machineId, startDate, endD
 }
 
 /**
- * Генерирует данные для почасового графика (исправленная версия)
+ * Генерирует данные для почасового графика
  */
 async function generateHourlyChartData(connection, machineId, date) {
   try {
@@ -734,7 +738,7 @@ async function getPartsData(connection, startDate, endDate, workshop = 'all') {
 }
 
 /**
- * Получает данные о количестве деталей по дням - ИСПРАВЛЕННАЯ ВЕРСИЯ
+ * Получает данные о количестве деталей по дням
  */
 async function getPartsDailyData(connection, startDate, endDate, workshop = 'all') {
     try {
@@ -755,7 +759,7 @@ async function getPartsDailyData(connection, startDate, endDate, workshop = 'all
         
         console.log(`Запрос данных о деталях по дням с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')} для цеха ${workshop}`);
         
-        // УЛУЧШЕННЫЙ ЗАПРОС: группировка по дням с правильным подсчетом деталей
+        // Запрос для группировки по дням
         const [rows] = await connection.execute(`
             SELECT 
                 DATE(timestamp) as date,
@@ -824,77 +828,42 @@ async function getPartsDailyData(connection, startDate, endDate, workshop = 'all
 }
 
 /**
- * НОВАЯ ФУНКЦИЯ: Получает расширенные данные о деталях по дням с дополнительной статистикой
+ * НОВАЯ ФУНКЦИЯ: Получает данные о деталях по дням для конкретного станка
  */
-async function getEnhancedPartsDailyData(connection, startDate, endDate, workshop = 'all') {
+async function getMachinePartsDailyData(connection, machineId, startDate, endDate) {
     try {
         const start = moment(startDate).startOf('day');
         const end = moment(endDate).endOf('day');
         
-        // Определяем условие WHERE в зависимости от параметра workshop
-        let whereClause = '';
-        let params = [start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')];
+        console.log(`Запрос данных о деталях для станка ${machineId} с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')}`);
         
-        if (workshop && workshop !== 'all') {
-            if (workshop === '1') {
-                whereClause = 'AND machine_id <= 16';
-            } else if (workshop === '2') {
-                whereClause = 'AND machine_id > 16';
-            }
-        }
-        
-        console.log(`Запрос расширенных данных о деталях по дням с ${start.format('YYYY-MM-DD')} по ${end.format('YYYY-MM-DD')} для цеха ${workshop}`);
-        
-        // Запрос для получения детализированных данных по дням
-        const [dailyData] = await connection.execute(`
+        // Запрос для группировки по дням для конкретного станка
+        const [rows] = await connection.execute(`
             SELECT 
                 DATE(timestamp) as date,
-                COUNT(*) as parts_count,
-                HOUR(timestamp) as hour,
-                COUNT(CASE WHEN HOUR(timestamp) BETWEEN 6 AND 18 THEN 1 END) as day_parts,
-                COUNT(CASE WHEN HOUR(timestamp) < 6 OR HOUR(timestamp) > 18 THEN 1 END) as night_parts
+                COUNT(*) as parts_count
             FROM bit8_data
             WHERE 
-                timestamp BETWEEN ? AND ?
+                machine_id = ?
+                AND timestamp BETWEEN ? AND ?
                 AND event_type = 29
                 AND value = 0
-                ${whereClause}
-            GROUP BY DATE(timestamp), HOUR(timestamp)
-            ORDER BY date, hour
-        `, params);
+            GROUP BY DATE(timestamp)
+            ORDER BY date
+        `, [machineId, start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')]);
 
-        // Запрос для получения общего количества деталей
+        // Запрос для получения общего количества деталей для станка
         const [totalRows] = await connection.execute(`
-            SELECT 
-                COUNT(*) as total_parts,
-                COUNT(CASE WHEN HOUR(timestamp) BETWEEN 6 AND 18 THEN 1 END) as day_parts,
-                COUNT(CASE WHEN HOUR(timestamp) < 6 OR HOUR(timestamp) > 18 THEN 1 END) as night_parts
+            SELECT COUNT(*) as total_parts
             FROM bit8_data
             WHERE 
-                timestamp BETWEEN ? AND ?
+                machine_id = ?
+                AND timestamp BETWEEN ? AND ?
                 AND event_type = 29
                 AND value = 0
-                ${whereClause}
-        `, params);
+        `, [machineId, start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')]);
 
-        // Группируем данные по дням
-        const groupedData = {};
-        dailyData.forEach(row => {
-            if (!groupedData[row.date]) {
-                groupedData[row.date] = {
-                    total: 0,
-                    hours: Array(24).fill(0),
-                    day_parts: 0,
-                    night_parts: 0
-                };
-            }
-            groupedData[row.date].total += row.parts_count;
-            groupedData[row.date].hours[row.hour] = row.parts_count;
-            groupedData[row.date].day_parts += row.day_parts;
-            groupedData[row.date].night_parts += row.night_parts;
-        });
-
-        // Формируем данные для всех дней в периоде
+        // Формируем данные для всех дней в периоде (включая дни без данных)
         const allDays = [];
         let currentDate = start.clone();
         while (currentDate <= end) {
@@ -902,17 +871,15 @@ async function getEnhancedPartsDailyData(connection, startDate, endDate, worksho
             currentDate.add(1, 'day');
         }
 
-        // Заполняем данные для всех дней
-        const totalPartsData = allDays.map(day => {
-            return groupedData[day] ? groupedData[day].total : 0;
+        // Создаем карту для быстрого доступа к данным по дням
+        const dataMap = new Map();
+        rows.forEach(row => {
+            dataMap.set(moment(row.date).format('YYYY-MM-DD'), row.parts_count);
         });
 
-        const dayPartsData = allDays.map(day => {
-            return groupedData[day] ? groupedData[day].day_parts : 0;
-        });
-
-        const nightPartsData = allDays.map(day => {
-            return groupedData[day] ? groupedData[day].night_parts : 0;
+        // Заполняем данные для всех дней (включая дни без данных = 0)
+        const dailyData = allDays.map(day => {
+            return dataMap.get(day) || 0;
         });
 
         // Форматируем даты для отображения
@@ -922,45 +889,41 @@ async function getEnhancedPartsDailyData(connection, startDate, endDate, worksho
 
         return {
             labels: formattedLabels,
-            datasets: [
-                {
-                    label: 'Всего деталей',
-                    data: totalPartsData,
-                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1,
-                    borderRadius: 3
-                },
-                {
-                    label: 'Дневные (6:00-18:00)',
-                    data: dayPartsData,
-                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                    borderRadius: 3
-                },
-                {
-                    label: 'Ночные (18:00-6:00)',
-                    data: nightPartsData,
-                    backgroundColor: 'rgba(153, 102, 255, 0.7)',
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    borderWidth: 1,
-                    borderRadius: 3
-                }
-            ],
-            total: totalRows[0].total_parts || 0,
-            day_total: totalRows[0].day_parts || 0,
-            night_total: totalRows[0].night_parts || 0,
-            statistics: {
-                average_per_day: totalRows[0].total_parts / Math.max(1, allDays.length),
-                max_per_day: Math.max(...totalPartsData),
-                min_per_day: Math.min(...totalPartsData.filter(val => val > 0)),
-                day_night_ratio: totalRows[0].day_parts / Math.max(1, totalRows[0].night_parts)
-            }
+            datasets: [{
+                label: 'Количество деталей',
+                data: dailyData,
+                backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                borderColor: 'rgba(255, 159, 64, 1)',
+                borderWidth: 1,
+                borderRadius: 3
+            }],
+            total: totalRows[0].total_parts || 0
         };
     } catch (error) {
-        console.error('Ошибка получения расширенных данных о деталях по дням:', error);
-        throw new Error('Не удалось получить расширенные данные о деталях по дням');
+        console.error(`Ошибка получения данных о деталях для станка ${machineId}:`, error);
+        throw new Error(`Не удалось получить данные о деталях для станка ${machineId}`);
+    }
+}
+
+/**
+ * НОВАЯ ФУНКЦИЯ: Получает сводку по работе станка за период
+ */
+async function getMachineSummaryData(connection, machineId, startDate, endDate) {
+    try {
+        console.log(`Запрос сводки для станка ${machineId} с ${startDate} по ${endDate}`);
+        
+        // Используем существующую функцию расчета времени статусов
+        const stats = await calculateMachineStatusTime(connection, machineId, startDate, endDate);
+        
+        // Переводим минуты в часы для отдачи клиенту
+        return {
+            working: Math.round((stats.working / 60) * 100) / 100,
+            stopped: Math.round((stats.stopped / 60) * 100) / 100,
+            shutdown: Math.round((stats.shutdown / 60) * 100) / 100
+        };
+    } catch (error) {
+        console.error(`Ошибка получения сводки для станка ${machineId}:`, error);
+        throw new Error(`Не удалось получить сводку для станка ${machineId}`);
     }
 }
 
@@ -1286,7 +1249,7 @@ app.get('/api/workshops/parts-hourly',
 );
 
 /**
- * Получает данные о количестве деталей по дням - ОСНОВНОЙ ЭНДПОИНТ ДЛЯ ГРАФИКА (ИСПРАВЛЕННЫЙ)
+ * Получает данные о количестве деталей по дням
  */
 app.get('/api/workshops/parts-daily', 
   [
@@ -1337,13 +1300,13 @@ app.get('/api/workshops/parts-daily',
 );
 
 /**
- * НОВЫЙ ЭНДПОИНТ: Получает расширенные данные о деталях по дням
+ * НОВЫЙ ЭНДПОИНТ: Получает данные о деталях по дням для конкретного станка
  */
-app.get('/api/workshops/parts-daily-enhanced', 
+app.get('/api/machines/:id/parts-daily', 
   [
+    param('id').isInt().toInt(),
     query('startDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
     query('endDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
-    query('workshop').optional().isIn(['all', '1', '2']).withMessage('Неверный идентификатор цеха'),
     query('startDate').isISO8601().withMessage('Неверный формат начальной даты'),
     query('endDate').isISO8601().withMessage('Неверный формат конечной даты')
   ],
@@ -1351,30 +1314,83 @@ app.get('/api/workshops/parts-daily-enhanced',
   async (req, res, next) => {
     let connection;
     try {
-      const { startDate, endDate, workshop = 'all' } = req.query;
-      const cacheKey = `daily_enhanced_${workshop}_${startDate}_${endDate}`;
+      const { id } = req.params;
+      const { startDate, endDate } = req.query;
+      const cacheKey = `machine_parts_${id}_${startDate}_${endDate}`;
       
-      if (cache.partsDailyData[cacheKey] && 
-          Date.now() - cache.lastUpdate[cacheKey] < cache.ttl.partsDailyData) {
+      if (cache.machinePartsData[cacheKey] && 
+          Date.now() - cache.lastUpdate[cacheKey] < cache.ttl.machinePartsData) {
         return res.json({
           success: true,
           fromCache: true,
-          data: cache.partsDailyData[cacheKey]
+          data: cache.machinePartsData[cacheKey],
+          total: cache.machinePartsData[cacheKey].total
         });
       }
 
       connection = await getConnection();
       
       try {
-        const partsData = await getEnhancedPartsDailyData(connection, startDate, endDate, workshop);
+        const partsData = await getMachinePartsDailyData(connection, id, startDate, endDate);
         
-        cache.partsDailyData[cacheKey] = partsData;
+        cache.machinePartsData[cacheKey] = partsData;
         cache.lastUpdate[cacheKey] = Date.now();
         
         res.json({
           success: true,
           fromCache: false,
-          data: partsData
+          data: partsData,
+          total: partsData.total
+        });
+      } finally {
+        if (connection) await connection.release();
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * НОВЫЙ ЭНДПОИНТ: Получает сводку по работе станка за период
+ */
+app.get('/api/machines/:id/history/summary', 
+  [
+    param('id').isInt().toInt(),
+    query('startDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
+    query('endDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
+    query('startDate').isISO8601().withMessage('Неверный формат начальной даты'),
+    query('endDate').isISO8601().withMessage('Неверный формат конечной даты')
+  ],
+  validateErrors,
+  async (req, res, next) => {
+    let connection;
+    try {
+      const { id } = req.params;
+      const { startDate, endDate } = req.query;
+      const cacheKey = `machine_summary_${id}_${startDate}_${endDate}`;
+      
+      if (cache.machineSummaryData[cacheKey] && 
+          Date.now() - cache.lastUpdate[cacheKey] < cache.ttl.machineSummaryData) {
+        return res.json({
+          success: true,
+          fromCache: true,
+          data: cache.machineSummaryData[cacheKey]
+        });
+      }
+
+      connection = await getConnection();
+      
+      try {
+        const summaryData = await getMachineSummaryData(connection, id, startDate, endDate);
+        
+        cache.machineSummaryData[cacheKey] = summaryData;
+        cache.lastUpdate[cacheKey] = Date.now();
+        
+        res.json({
+          success: true,
+          fromCache: false,
+          data: summaryData
         });
       } finally {
         if (connection) await connection.release();
@@ -1431,51 +1447,6 @@ app.get('/api/machines/:id/history/detailed',
         if (connection) await connection.release();
       }
     } catch (error) {
-      next(error);
-    }
-  }
-);
-
-/**
- * Получает сводку по работе станка за период
- */
-app.get('/api/machines/:id/history/summary', 
-  [
-    param('id').isInt().toInt(),
-    query('startDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
-    query('endDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
-    query('startDate').isISO8601().withMessage('Неверный формат начальной дата'),
-    query('endDate').isISO8601().withMessage('Неверный формат конечной даты')
-  ],
-  validateErrors,
-  async (req, res, next) => {
-    let connection;
-    try {
-      const { id } = req.params;
-      const startDate = moment(req.query.startDate).startOf('day').format('YYYY-MM-DD HH:mm:ss');
-      const endDate = moment(req.query.endDate).endOf('day').format('YYYY-MM-DD HH:mm:ss');
-      
-      connection = await getConnection();
-      
-      try {
-        console.log(`Загрузка сводки для станка ${id} с ${startDate} по ${endDate}`);
-        
-        const stats = await calculateMachineStatusTime(connection, id, startDate, endDate);
-        
-        // Переводим минуты в часы для отдачи клиенту
-        res.json({
-          success: true,
-          data: {
-            working: stats.working / 60,
-            stopped: stats.stopped / 60,
-            shutdown: stats.shutdown / 60
-          }
-        });
-      } finally {
-        if (connection) await connection.release();
-      }
-    } catch (error) {
-      console.error('Ошибка получения сводки:', error);
       next(error);
     }
   }
