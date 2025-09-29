@@ -892,8 +892,8 @@ async function getMachinePartsDailyData(connection, machineId, startDate, endDat
             datasets: [{
                 label: 'Количество деталей',
                 data: dailyData,
-                backgroundColor: 'rgba(255, 159, 64, 0.7)',
-                borderColor: 'rgba(255, 159, 64, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1,
                 borderRadius: 3
             }],

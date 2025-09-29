@@ -54,3 +54,8 @@ body {
     margin-top: 10px;
     display: none;
 }
+.login-container img {
+    max-width: 200px;
+    margin-bottom: 20px;
+    height: auto;
+}
