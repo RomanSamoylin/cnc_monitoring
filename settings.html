@@ -138,6 +138,14 @@
             DOM.machinesCount.value = state.machines.length;
         }
 
+        // Функция для обновления количества станков в цехах
+        function updateWorkshopsMachinesCount() {
+            // Используем данные из state.machines для подсчета
+            state.workshops.forEach(workshop => {
+                workshop.machinesCount = state.machines.filter(m => m.workshopId === workshop.id).length;
+            });
+        }
+
         // Функция для обновления состояния приложения и интерфейса
         function updateApplicationState(newSettings) {
             // Обновляем состояние
@@ -210,13 +218,6 @@
                 showNotification('Ошибка сохранения настроек: ' + error.message, 'error');
                 return false;
             }
-        }
-        
-        // Обновление количества станков в цехах
-        function updateWorkshopsMachinesCount() {
-            state.workshops.forEach(workshop => {
-                workshop.machinesCount = state.machines.filter(m => m.workshopId === workshop.id).length;
-            });
         }
         
         // Отрисовка настроек цехов

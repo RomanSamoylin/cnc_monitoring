@@ -1,4 +1,4 @@
-// server4.js
+// server4.js - Полностью обновленная версия
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
@@ -32,6 +32,41 @@ const pool = mysql.createPool(dbConfig);
 // Функция для получения соединения из пула
 async function getConnection() {
   return await pool.getConnection();
+}
+
+// Инициализация таблиц настроек при запуске
+async function initializeSettingsTables() {
+  let connection;
+  try {
+    connection = await getConnection();
+    
+    // Создаем таблицу settings если не существует
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS settings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        data JSON NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    
+    // Создаем таблицу machine_workshop_distribution если не существует
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS machine_workshop_distribution (
+        machine_id INT PRIMARY KEY,
+        workshop_id INT NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    
+    console.log('Таблицы настроек инициализированы');
+    
+  } catch (error) {
+    console.error('Ошибка инициализации таблиц настроек:', error);
+  } finally {
+    if (connection) {
+      connection.release();
+    }
+  }
 }
 
 // API для получения настроек
@@ -99,6 +134,72 @@ app.get('/api/settings', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Ошибка загрузки настроек'
+        });
+    } finally {
+        if (connection) {
+            connection.release();
+        }
+    }
+});
+
+// НОВЫЙ ЭНДПОИНТ: API для получения текущего распределения станков (для других серверов)
+app.get('/api/settings/distribution', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        
+        // Получаем текущее распределение станков по цехам
+        const [distributionRows] = await connection.execute(
+            'SELECT machine_id, workshop_id FROM machine_workshop_distribution'
+        );
+
+        // Получаем список всех станков
+        const [machinesRows] = await connection.execute(
+            'SELECT machine_id, cnc_name FROM cnc_id_mapping ORDER BY machine_id'
+        );
+
+        // Получаем настройки цехов
+        const [settingsRows] = await connection.execute(
+            'SELECT data FROM settings ORDER BY created_at DESC LIMIT 1'
+        );
+
+        let workshops = [{ id: 1, name: "ЦЕХ-1" }];
+        if (settingsRows.length > 0) {
+            try {
+                const savedSettings = JSON.parse(settingsRows[0].data);
+                if (savedSettings.workshops) {
+                    workshops = savedSettings.workshops;
+                }
+            } catch (e) {
+                console.error('Error parsing saved settings:', e);
+            }
+        }
+
+        // Формируем распределение
+        const distribution = {};
+        distributionRows.forEach(row => {
+            distribution[row.machine_id] = row.workshop_id;
+        });
+
+        // Формируем список станков
+        const machines = machinesRows.map(row => ({
+            id: row.machine_id,
+            name: row.cnc_name,
+            workshop: distribution[row.machine_id] || 1
+        }));
+
+        res.json({
+            success: true,
+            workshops: workshops,
+            machines: machines,
+            distribution: distribution
+        });
+
+    } catch (error) {
+        console.error('Error getting distribution:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Ошибка получения распределения'
         });
     } finally {
         if (connection) {
@@ -396,7 +497,7 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
-// API для получения текущих настроек для экспорта (опционально)
+// API для получения текущих настроек для экспорта
 app.get('/api/settings/current', async (req, res) => {
     let connection;
     try {
@@ -448,7 +549,7 @@ app.get('/api/settings/current', async (req, res) => {
         // Обновляем данные станков
         settings.machines = machinesFromDB;
 
-        // Обновляем счетчики станков в цехах
+        // Обновляем счетчики станков в цехам
         updateWorkshopsMachinesCount(settings);
 
         const exportData = {
@@ -467,6 +568,83 @@ app.get('/api/settings/current', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Ошибка получения текущих настроек'
+        });
+    } finally {
+        if (connection) {
+            connection.release();
+        }
+    }
+});
+
+// НОВЫЙ ЭНДПОИНТ: API для быстрой проверки распределения станков
+app.get('/api/settings/quick-distribution', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        
+        // Получаем только распределение станков по цехам
+        const [distributionRows] = await connection.execute(
+            'SELECT machine_id, workshop_id FROM machine_workshop_distribution ORDER BY machine_id'
+        );
+
+        const distribution = {};
+        distributionRows.forEach(row => {
+            distribution[row.machine_id] = row.workshop_id;
+        });
+
+        res.json({
+            success: true,
+            distribution: distribution,
+            totalMachines: distributionRows.length,
+            lastUpdate: new Date().toISOString()
+        });
+
+    } catch (error) {
+        console.error('Error getting quick distribution:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Ошибка получения распределения'
+        });
+    } finally {
+        if (connection) {
+            connection.release();
+        }
+    }
+});
+
+// НОВЫЙ ЭНДПОИНТ: API для получения списка цехов
+app.get('/api/settings/workshops', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        
+        // Получаем настройки цехов
+        const [settingsRows] = await connection.execute(
+            'SELECT data FROM settings ORDER BY created_at DESC LIMIT 1'
+        );
+
+        let workshops = [{ id: 1, name: "ЦЕХ-1" }];
+        if (settingsRows.length > 0) {
+            try {
+                const savedSettings = JSON.parse(settingsRows[0].data);
+                if (savedSettings.workshops) {
+                    workshops = savedSettings.workshops;
+                }
+            } catch (e) {
+                console.error('Error parsing saved settings:', e);
+            }
+        }
+
+        res.json({
+            success: true,
+            workshops: workshops
+        });
+
+    } catch (error) {
+        console.error('Error getting workshops:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Ошибка получения списка цехов'
         });
     } finally {
         if (connection) {
@@ -535,14 +713,40 @@ app.use('*', (req, res) => {
 });
 
 // Запуск сервера
-app.listen(PORT, () => {
-    console.log(`=== Settings Server Started ===`);
-    console.log(`Server running on port: ${PORT}`);
-    console.log(`Database host: ${dbConfig.host}`);
-    console.log(`Database: ${dbConfig.database}`);
-    console.log(`Timezone: ${dbConfig.timezone}`);
-    console.log(`================================`);
-});
+async function startServer() {
+    try {
+        // Инициализируем таблицы настроек
+        await initializeSettingsTables();
+        
+        // Запускаем сервер
+        app.listen(PORT, () => {
+            console.log(`=== Settings Server Started ===`);
+            console.log(`Server running on port: ${PORT}`);
+            console.log(`Database host: ${dbConfig.host}`);
+            console.log(`Database: ${dbConfig.database}`);
+            console.log(`Timezone: ${dbConfig.timezone}`);
+            console.log(`================================`);
+            
+            // Выводим информацию о доступных эндпоинтах
+            console.log('\nAvailable endpoints:');
+            console.log('GET  /api/settings                 - Получить все настройки');
+            console.log('GET  /api/settings/distribution    - Получить распределение станков');
+            console.log('GET  /api/settings/quick-distribution - Быстрое получение распределения');
+            console.log('GET  /api/settings/workshops       - Получить список цехов');
+            console.log('POST /api/settings/save            - Сохранить настройки');
+            console.log('POST /api/settings/import          - Импортировать настройки');
+            console.log('GET  /api/settings/backups         - Получить список резервных копий');
+            console.log('POST /api/settings/restore         - Восстановить из резервной копии');
+            console.log('GET  /api/health                   - Проверка здоровья сервера');
+            console.log('================================\n');
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+}
+
+startServer();
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
@@ -568,3 +772,5 @@ process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
     process.exit(1);
 });
+
+module.exports = { app, pool };

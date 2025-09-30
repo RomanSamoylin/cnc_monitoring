@@ -6985,3 +6985,89 @@ Ignoring invalid configuration option passed to Connection: acquireTimeout. This
 Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
 Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
 Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:576:30)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1325:27
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getPartsDailyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:873:34)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1435:27
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:576:30)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1325:27
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getPartsDailyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:873:34)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1435:27
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:576:30)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1325:27
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:576:30)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1325:27
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:576:30)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1325:27
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:576:30)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1325:27
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:576:30)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1325:27
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:576:30)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1325:27
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getPartsDailyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:873:34)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1435:27
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:163:30)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1126:24
+Error parsing saved settings: SyntaxError: "[object Object]" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at getMachineDistribution (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:117:36)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:576:30)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1325:27
