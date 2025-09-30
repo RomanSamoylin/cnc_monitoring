@@ -110,9 +110,7 @@
     <script>
         // Состояние приложения
         const state = {
-            workshops: [
-                { id: 1, name: "ЦЕХ-1", machinesCount: 0 }
-            ],
+            workshops: [],
             machines: []
         };
         
@@ -131,6 +129,43 @@
         // Убираем кнопки управления станками
         document.getElementById('addMachineBtn').style.display = 'none';
         document.getElementById('removeMachineBtn').style.display = 'none';
+
+        // Функция для сохранения состояния в localStorage
+        function saveStateToLocalStorage() {
+            try {
+                const stateToSave = {
+                    workshops: state.workshops,
+                    machines: state.machines,
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('cnc_settings_state', JSON.stringify(stateToSave));
+            } catch (e) {
+                console.error('Ошибка сохранения состояния в localStorage:', e);
+            }
+        }
+
+        // Функция для загрузки состояния из localStorage
+        function loadStateFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('cnc_settings_state');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    // Проверяем, что данные не устарели (например, старше 1 часа)
+                    const savedTime = new Date(parsed.timestamp);
+                    const currentTime = new Date();
+                    const hoursDiff = (currentTime - savedTime) / (1000 * 60 * 60);
+                    
+                    if (hoursDiff < 24) { // Используем данные если им меньше 24 часов
+                        state.workshops = parsed.workshops || [];
+                        state.machines = parsed.machines || [];
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки состояния из localStorage:', e);
+            }
+            return false;
+        }
 
         // Функция для обновления сайдбара
         function updateSidebar() {
@@ -161,6 +196,8 @@
             renderWorkshopsSettings();
             renderMachinesList();
             updateButtonsState();
+            // Сохраняем состояние после каждого обновления интерфейса
+            saveStateToLocalStorage();
         }
 
         // Функция для обновления состояния приложения и интерфейса
@@ -168,6 +205,11 @@
             // Обновляем состояние
             state.workshops = newSettings.workshops || [];
             state.machines = newSettings.machines || [];
+            
+            // Если цехов нет, создаем цех по умолчанию
+            if (state.workshops.length === 0) {
+                state.workshops = [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }];
+            }
             
             // Полностью обновляем интерфейс
             refreshInterface();
@@ -192,11 +234,17 @@
                 console.error('Ошибка загрузки настроек:', error);
                 showNotification('Ошибка загрузки настроек: ' + error.message, 'error');
                 
-                // Используем данные по умолчанию
-                updateApplicationState({
-                    workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
-                    machines: []
-                });
+                // Пробуем загрузить из localStorage
+                if (loadStateFromLocalStorage()) {
+                    refreshInterface();
+                    showNotification('Настройки загружены из локального хранилища', 'info');
+                } else {
+                    // Используем данные по умолчанию
+                    updateApplicationState({
+                        workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
+                        machines: []
+                    });
+                }
             }
         }
         
@@ -220,6 +268,9 @@
                 
                 const data = await response.json();
                 if (!data.success) throw new Error('Ошибка сохранения');
+                
+                // Сохраняем состояние в localStorage после успешного сохранения на сервере
+                saveStateToLocalStorage();
                 
                 return true;
             } catch (error) {

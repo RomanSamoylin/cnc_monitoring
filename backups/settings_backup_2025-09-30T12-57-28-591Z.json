@@ -3,12 +3,12 @@
     {
       "id": 1,
       "name": "ЦЕХ-1",
-      "machinesCount": 3
+      "machinesCount": 2
     },
     {
       "id": 2,
       "name": "ЦЕХ-2",
-      "machinesCount": 1
+      "machinesCount": 2
     }
   ],
   "machines": [
@@ -30,7 +30,7 @@
     {
       "id": 4,
       "name": "StanoK129",
-      "workshopId": 1
+      "workshopId": 2
     }
   ]
 }
