@@ -41,7 +41,7 @@
             </div>
             <div class="form-group">
                 <label for="machinesCount">Количество станков:</label>
-                <input type="number" id="machinesCount" min="1" max="50" value="16" readonly>
+                <input type="number" id="machinesCount" min="1" max="50" value="0" readonly>
             </div>
             <button class="btn btn-success" onclick="applySettings()">
                 <i class="fas fa-save"></i> Применить настройки
@@ -132,6 +132,30 @@
         document.getElementById('addMachineBtn').style.display = 'none';
         document.getElementById('removeMachineBtn').style.display = 'none';
 
+        // Функция для обновления сайдбара
+        function updateSidebar() {
+            DOM.workshopsCount.value = state.workshops.length;
+            DOM.machinesCount.value = state.machines.length;
+        }
+
+        // Функция для обновления состояния приложения и интерфейса
+        function updateApplicationState(newSettings) {
+            // Обновляем состояние
+            state.workshops = newSettings.workshops || [];
+            state.machines = newSettings.machines || [];
+            
+            // Обновляем счетчики станков в цехах
+            updateWorkshopsMachinesCount();
+            
+            // Обновляем сайдбар
+            updateSidebar();
+            
+            // Перерисовываем интерфейс
+            renderWorkshopsSettings();
+            renderMachinesList();
+            updateButtonsState();
+        }
+
         // Функция для загрузки настроек с сервера
         async function loadSettings() {
             try {
@@ -143,17 +167,8 @@
                 const data = await response.json();
                 if (!data.success) throw new Error('Ошибка в данных');
                 
-                // Обновляем состояние
-                if (data.settings.workshops) state.workshops = data.settings.workshops;
-                if (data.settings.machines) state.machines = data.settings.machines;
-                
-                // Обновляем интерфейс
-                DOM.workshopsCount.value = state.workshops.length;
-                DOM.machinesCount.value = state.machines.length;
-                
-                renderWorkshopsSettings();
-                renderMachinesList();
-                updateButtonsState();
+                // Используем новую функцию для обновления состояния
+                updateApplicationState(data.settings);
                 
                 showNotification('Настройки успешно загружены', 'success');
             } catch (error) {
@@ -161,9 +176,10 @@
                 showNotification('Ошибка загрузки настроек: ' + error.message, 'error');
                 
                 // Используем данные по умолчанию
-                renderWorkshopsSettings();
-                renderMachinesList();
-                updateButtonsState();
+                updateApplicationState({
+                    workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
+                    machines: []
+                });
             }
         }
         
@@ -365,10 +381,12 @@
                 machinesCount: 0
             });
             
-            DOM.workshopsCount.value = state.workshops.length;
-            saveSettings();
+            // Обновляем сайдбар и интерфейс
+            updateSidebar();
             renderWorkshopsSettings();
             updateButtonsState();
+            saveSettings();
+            
             showNotification(`Добавлен новый цех: ЦЕХ-${newId}`, 'success');
         }
         
@@ -388,11 +406,14 @@
                 }
             });
             
-            DOM.workshopsCount.value = state.workshops.length;
-            saveSettings();
+            // Обновляем сайдбар и интерфейс
+            updateSidebar();
+            updateWorkshopsMachinesCount();
             renderWorkshopsSettings();
             renderMachinesList();
             updateButtonsState();
+            saveSettings();
+            
             showNotification(`Удален цех: ${removedWorkshop.name}`, 'success');
         }
         
@@ -534,8 +555,14 @@
                     const data = await response.json();
                     if (!data.success) throw new Error(data.message || 'Ошибка импорта');
                     
-                    // Перезагружаем настройки
-                    await loadSettings();
+                    // Обновляем состояние приложения полученными настройками
+                    if (data.settings) {
+                        updateApplicationState(data.settings);
+                    } else {
+                        // Если настройки не пришли в ответе, загружаем их с сервера
+                        await loadSettings();
+                    }
+                    
                     showNotification('Настройки успешно импортированы', 'success');
                 } catch (error) {
                     console.error('Ошибка импорта:', error);
@@ -612,13 +639,22 @@
                     body: JSON.stringify({ filename })
                 });
                 
-                if (!response.ok) throw new Error('Ошибка восстановления');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Ошибка восстановления');
+                }
                 
                 const data = await response.json();
                 if (!data.success) throw new Error(data.message || 'Ошибка восстановления');
                 
-                // Перезагружаем настройки
-                await loadSettings();
+                // Обновляем состояние приложения полученными настройками
+                if (data.settings) {
+                    updateApplicationState(data.settings);
+                } else {
+                    // Если настройки не пришли в ответе, загружаем их с сервера
+                    await loadSettings();
+                }
+                
                 showNotification('Настройки успешно восстановлены из резервной копии', 'success');
             } catch (error) {
                 console.error('Ошибка восстановления:', error);
@@ -645,19 +681,21 @@
                 return;
             }
             
-            state.workshops = [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }];
-            state.machines.forEach(m => m.workshopId = 1);
-            updateWorkshopsMachinesCount();
-            DOM.workshopsCount.value = state.workshops.length;
+            // Используем новую функцию для обновления состояния
+            updateApplicationState({
+                workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
+                machines: state.machines.map(m => ({ ...m, workshopId: 1 })) // Все станки в первый цех
+            });
+            
             saveSettings();
-            renderWorkshopsSettings();
-            renderMachinesList();
-            updateButtonsState();
             showNotification('Настройки сброшены к значениям по умолчанию', 'success');
         }
         
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
+            // Сначала устанавливаем значения по умолчанию в сайдбар
+            updateSidebar();
+            // Затем загружаем настройки с сервера
             loadSettings();
             loadBackupsList();
         });

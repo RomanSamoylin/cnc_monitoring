@@ -223,9 +223,11 @@ app.post('/api/settings/import', async (req, res) => {
             // Сохраняем резервную копию
             await saveBackup(settings);
 
+            // Возвращаем импортированные настройки для обновления интерфейса
             res.json({
                 success: true,
-                message: 'Настройки успешно импортированы'
+                message: 'Настройки успешно импортированы',
+                settings: settings // Добавляем настройки в ответ
             });
 
         } catch (error) {
@@ -336,9 +338,11 @@ app.post('/api/settings/restore', async (req, res) => {
             // Фиксируем транзакцию
             await connection.commit();
 
+            // Возвращаем восстановленные настройки для обновления интерфейса
             res.json({
                 success: true,
-                message: 'Настройки успешно восстановлены из резервной копии'
+                message: 'Настройки успешно восстановлены из резервной копии',
+                settings: backupData // Добавляем настройки в ответ
             });
 
         } catch (error) {
