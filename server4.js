@@ -172,47 +172,6 @@ app.post('/api/settings/save', async (req, res) => {
     }
 });
 
-// API для экспорта настроек
-app.get('/api/settings/export', async (req, res) => {
-    let connection;
-    try {
-        connection = await getConnection();
-        
-        const [settingsRows] = await connection.execute(
-            'SELECT data FROM settings ORDER BY created_at DESC LIMIT 1'
-        );
-
-        if (settingsRows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'Настройки не найдены'
-            });
-        }
-
-        const settings = JSON.parse(settingsRows[0].data);
-        const exportData = {
-            exportDate: new Date().toISOString(),
-            version: '1.0',
-            settings: settings
-        };
-
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Content-Disposition', 'attachment; filename="cnc_settings_export.json"');
-        res.send(JSON.stringify(exportData, null, 2));
-
-    } catch (error) {
-        console.error('Error exporting settings:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Ошибка экспорта настроек'
-        });
-    } finally {
-        if (connection) {
-            connection.release();
-        }
-    }
-});
-
 // API для импорта настроек
 app.post('/api/settings/import', async (req, res) => {
     let connection;
@@ -401,6 +360,117 @@ app.post('/api/settings/restore', async (req, res) => {
     }
 });
 
+// API для проверки здоровья сервера
+app.get('/api/health', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        
+        // Простой запрос для проверки соединения с БД
+        await connection.execute('SELECT 1');
+        
+        res.json({
+            success: true,
+            status: 'OK',
+            timestamp: new Date().toISOString(),
+            database: 'connected'
+        });
+
+    } catch (error) {
+        console.error('Health check failed:', error);
+        res.status(500).json({
+            success: false,
+            status: 'ERROR',
+            timestamp: new Date().toISOString(),
+            database: 'disconnected',
+            error: error.message
+        });
+    } finally {
+        if (connection) {
+            connection.release();
+        }
+    }
+});
+
+// API для получения текущих настроек для экспорта (опционально)
+app.get('/api/settings/current', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        
+        // Получаем настройки из таблицы settings
+        const [settingsRows] = await connection.execute(
+            'SELECT data FROM settings ORDER BY created_at DESC LIMIT 1'
+        );
+        
+        // Получаем маппинг станков из cnc_id_mapping
+        const [mappingRows] = await connection.execute(
+            'SELECT machine_id, cnc_name FROM cnc_id_mapping ORDER BY machine_id'
+        );
+
+        let settings = {
+            workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
+            machines: []
+        };
+
+        // Если есть сохраненные настройки
+        if (settingsRows.length > 0) {
+            try {
+                const savedSettings = JSON.parse(settingsRows[0].data);
+                if (savedSettings.workshops) settings.workshops = savedSettings.workshops;
+                if (savedSettings.machines) settings.machines = savedSettings.machines;
+            } catch (e) {
+                console.error('Error parsing saved settings:', e);
+            }
+        }
+
+        // Получаем текущее распределение станков по цехам
+        const [distributionRows] = await connection.execute(
+            'SELECT machine_id, workshop_id FROM machine_workshop_distribution'
+        );
+
+        const currentDistribution = {};
+        distributionRows.forEach(row => {
+            currentDistribution[row.machine_id] = row.workshop_id;
+        });
+
+        // Создаем массив станков из cnc_id_mapping
+        const machinesFromDB = mappingRows.map(row => ({
+            id: row.machine_id,
+            name: row.cnc_name,
+            workshopId: currentDistribution[row.machine_id] || 1
+        }));
+
+        // Обновляем данные станков
+        settings.machines = machinesFromDB;
+
+        // Обновляем счетчики станков в цехах
+        updateWorkshopsMachinesCount(settings);
+
+        const exportData = {
+            exportDate: new Date().toISOString(),
+            version: '1.0',
+            settings: settings
+        };
+
+        res.json({
+            success: true,
+            data: exportData
+        });
+
+    } catch (error) {
+        console.error('Error getting current settings:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Ошибка получения текущих настроек'
+        });
+    } finally {
+        if (connection) {
+            connection.release();
+        }
+    }
+});
+
 // Функция для сохранения резервной копии
 async function saveBackup(settings) {
     try {
@@ -413,18 +483,22 @@ async function saveBackup(settings) {
         const backupFile = path.join(backupDir, `settings_backup_${timestamp}.json`);
         fs.writeFileSync(backupFile, JSON.stringify(settings, null, 2));
 
+        console.log(`Backup saved: ${backupFile}`);
+
         // Удаляем старые резервные копии (оставляем только последние 20)
         const files = fs.readdirSync(backupDir)
             .filter(file => file.endsWith('.json'))
             .map(file => ({
                 name: file,
-                path: path.join(backupDir, file)
+                path: path.join(backupDir, file),
+                time: fs.statSync(path.join(backupDir, file)).mtime.getTime()
             }))
-            .sort((a, b) => fs.statSync(b.path).mtime - fs.statSync(a.path).mtime);
+            .sort((a, b) => b.time - a.time);
 
         if (files.length > 20) {
             for (let i = 20; i < files.length; i++) {
                 fs.unlinkSync(files[i].path);
+                console.log(`Old backup deleted: ${files[i].name}`);
             }
         }
     } catch (error) {
@@ -448,22 +522,45 @@ app.use((error, req, res, next) => {
     });
 });
 
+// Обработка несуществующих маршрутов
+app.use('*', (req, res) => {
+    res.status(404).json({
+        success: false,
+        message: 'Маршрут не найден'
+    });
+});
+
 // Запуск сервера
 app.listen(PORT, () => {
-    console.log(`Settings server running on port ${PORT}`);
+    console.log(`=== Settings Server Started ===`);
+    console.log(`Server running on port: ${PORT}`);
     console.log(`Database host: ${dbConfig.host}`);
     console.log(`Database: ${dbConfig.database}`);
+    console.log(`Timezone: ${dbConfig.timezone}`);
+    console.log(`================================`);
 });
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
     console.log('Shutting down settings server...');
     await pool.end();
+    console.log('Database connections closed');
     process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
     console.log('Shutting down settings server...');
     await pool.end();
+    console.log('Database connections closed');
     process.exit(0);
+});
+
+// Обработка необработанных исключений
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    process.exit(1);
 });

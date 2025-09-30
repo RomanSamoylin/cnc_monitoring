@@ -3,24 +3,29 @@
     {
       "id": 1,
       "name": "ЦЕХ-1",
-      "machinesCount": 4
+      "machinesCount": 1
+    },
+    {
+      "id": 2,
+      "name": "ЦЕХ-2",
+      "machinesCount": 3
     }
   ],
   "machines": [
     {
       "id": 1,
       "name": "CNCMisha",
-      "workshopId": 1
+      "workshopId": 2
     },
     {
       "id": 2,
       "name": "StanoK1",
-      "workshopId": 1
+      "workshopId": 2
     },
     {
       "id": 3,
       "name": "stanok12",
-      "workshopId": 1
+      "workshopId": 2
     },
     {
       "id": 4,
