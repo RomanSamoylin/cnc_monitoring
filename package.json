@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "start-analytics": "node server2.js",
-    "start-all": "concurrently \"npm run start\" \"npm run start-analytics\""
+    "start-settings": "node server4.js",
+    "start-all": "concurrently \"npm run start\" \"npm run start-analytics\" \"npm run start-settings\""
   },
   "keywords": [],
   "author": "",
