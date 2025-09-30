@@ -8,11 +8,6 @@
     {
       "id": 2,
       "name": "ЦЕХ-2",
-      "machinesCount": 0
-    },
-    {
-      "id": 3,
-      "name": "ЦЕХ-3",
       "machinesCount": 1
     }
   ],
@@ -30,12 +25,12 @@
     {
       "id": 3,
       "name": "stanok12",
-      "workshopId": 3
+      "workshopId": 1
     },
     {
       "id": 4,
       "name": "StanoK129",
-      "workshopId": 1
+      "workshopId": 2
     }
   ]
 }

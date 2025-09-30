@@ -140,10 +140,27 @@
 
         // Функция для обновления количества станков в цехах
         function updateWorkshopsMachinesCount() {
-            // Используем данные из state.machines для подсчета
+            // Сбрасываем счетчики
             state.workshops.forEach(workshop => {
-                workshop.machinesCount = state.machines.filter(m => m.workshopId === workshop.id).length;
+                workshop.machinesCount = 0;
             });
+            
+            // Пересчитываем станки для каждого цеха
+            state.machines.forEach(machine => {
+                const workshop = state.workshops.find(w => w.id === machine.workshopId);
+                if (workshop) {
+                    workshop.machinesCount++;
+                }
+            });
+        }
+
+        // Функция для полного обновления интерфейса
+        function refreshInterface() {
+            updateWorkshopsMachinesCount();
+            updateSidebar();
+            renderWorkshopsSettings();
+            renderMachinesList();
+            updateButtonsState();
         }
 
         // Функция для обновления состояния приложения и интерфейса
@@ -152,16 +169,8 @@
             state.workshops = newSettings.workshops || [];
             state.machines = newSettings.machines || [];
             
-            // Обновляем счетчики станков в цехах
-            updateWorkshopsMachinesCount();
-            
-            // Обновляем сайдбар
-            updateSidebar();
-            
-            // Перерисовываем интерфейс
-            renderWorkshopsSettings();
-            renderMachinesList();
-            updateButtonsState();
+            // Полностью обновляем интерфейс
+            refreshInterface();
         }
 
         // Функция для загрузки настроек с сервера
@@ -229,19 +238,27 @@
                 workshopDiv.className = 'form-group workshop-dropzone';
                 workshopDiv.dataset.workshopId = workshop.id;
                 
+                // Получаем станки для этого цеха
+                const workshopMachines = state.machines.filter(m => m.workshopId === workshop.id);
+                
                 workshopDiv.innerHTML = `
                     <label for="workshopName${workshop.id}">Название цеха ${workshop.id}:</label>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <input type="text" id="workshopName${workshop.id}" value="${workshop.name}" style="flex: 1;">
-                        <span style="white-space: nowrap;">Станков: ${workshop.machinesCount}</span>
+                        <span style="white-space: nowrap; font-weight: bold; color: #2c3e50;">
+                            Станков: ${workshop.machinesCount}
+                        </span>
                     </div>
                     <div style="margin-top: 5px;">
-                        <select id="workshopMachines${workshop.id}" multiple style="height: auto; min-height: 80px;">
+                        <select id="workshopMachines${workshop.id}" multiple style="height: auto; min-height: 80px; width: 100%;">
                             ${state.machines
-                                .filter(m => m.workshopId === workshop.id)
-                                .map(m => `<option value="${m.id}">${m.name}</option>`)
+                                .map(m => `<option value="${m.id}" ${m.workshopId === workshop.id ? 'selected' : ''}>${m.name} (ID: ${m.id})</option>`)
                                 .join('')}
                         </select>
+                        ${workshopMachines.length === 0 ? 
+                            '<small style="color: #7f8c8d;">В цехе нет станков</small>' : 
+                            '<small style="color: #7f8c8d;">Для выбора нескольких станков используйте Ctrl+Click</small>'
+                        }
                     </div>
                 `;
                 
@@ -254,12 +271,6 @@
                 // Обработчик изменения списка станков
                 workshopDiv.querySelector(`#workshopMachines${workshop.id}`).addEventListener('change', function() {
                     const selectedOptions = Array.from(this.selectedOptions).map(opt => parseInt(opt.value));
-                    
-                    // Проверяем, были ли изменения
-                    const currentMachines = state.machines.filter(m => m.workshopId === workshop.id).map(m => m.id);
-                    if (JSON.stringify(currentMachines.sort()) === JSON.stringify(selectedOptions.sort())) {
-                        return; // Изменений нет, выходим
-                    }
                     
                     // Сбрасываем все станки этого цеха
                     state.machines.forEach(m => {
@@ -274,9 +285,8 @@
                         if (machine) machine.workshopId = workshop.id;
                     });
                     
-                    updateWorkshopsMachinesCount();
-                    renderWorkshopsSettings(); // Перерисовываем для обновления счетчиков
-                    renderMachinesList();
+                    // Полностью обновляем интерфейс
+                    refreshInterface();
                     saveSettings(); // Сохраняем изменения
                 });
                 
@@ -360,9 +370,8 @@
                     const machine = state.machines.find(m => m.id === machineId);
                     if (machine) {
                         machine.workshopId = workshopId;
-                        updateWorkshopsMachinesCount();
-                        renderWorkshopsSettings();
-                        renderMachinesList();
+                        // Полностью обновляем интерфейс
+                        refreshInterface();
                         saveSettings();
                         showNotification(`Станок перемещен в ${state.workshops.find(w => w.id === workshopId).name}`, 'success');
                     }
@@ -382,10 +391,8 @@
                 machinesCount: 0
             });
             
-            // Обновляем сайдбар и интерфейс
-            updateSidebar();
-            renderWorkshopsSettings();
-            updateButtonsState();
+            // Полностью обновляем интерфейс
+            refreshInterface();
             saveSettings();
             
             showNotification(`Добавлен новый цех: ЦЕХ-${newId}`, 'success');
@@ -407,12 +414,8 @@
                 }
             });
             
-            // Обновляем сайдбар и интерфейс
-            updateSidebar();
-            updateWorkshopsMachinesCount();
-            renderWorkshopsSettings();
-            renderMachinesList();
-            updateButtonsState();
+            // Полностью обновляем интерфейс
+            refreshInterface();
             saveSettings();
             
             showNotification(`Удален цех: ${removedWorkshop.name}`, 'success');
