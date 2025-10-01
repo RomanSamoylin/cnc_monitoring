@@ -69,15 +69,16 @@ module.exports = {
     {
       name: "settings-server",
       script: "./server4.js",
-      instances: 1,
+      instances: 1, // Меняем на 1 инстанса для cluster режима
+      exec_mode: "cluster", // Меняем с "fork" на "cluster"
       autorestart: true,
       watch: false,
-      max_memory_restart: "400M", // Меньше памяти, так как простая логика
-      min_uptime: "10s",
-      max_restarts: 5,
-      restart_delay: 5000,
-      kill_timeout: 8000,
-      listen_timeout: 5000,
+      max_memory_restart: "500M", // Увеличиваем память для cluster
+      min_uptime: "30s",
+      max_restarts: 10,
+      restart_delay: 10000,
+      kill_timeout: 15000, // Увеличиваем для graceful shutdown
+      listen_timeout: 10000,
       env: {
         NODE_ENV: "production",
         PORT: 3004,
@@ -86,34 +87,26 @@ module.exports = {
         MYSQL_PASSWORD: "victoria123",
         MYSQL_DATABASE: "cnc_monitoring",
         MYSQL_TIMEZONE: "+03:00",
-        MYSQL_CONNECTION_LIMIT: 15,
+        MYSQL_CONNECTION_LIMIT: 20, // Увеличиваем для cluster
         MYSQL_CONNECT_TIMEOUT: 30000,
-        MYSQL_ACQUIRE_TIMEOUT: 30000
+        MYSQL_ACQUIRE_TIMEOUT: 30000,
+        CLUSTER_MODE: "true" // Добавляем флаг cluster режима
       },
       env_production: {
         NODE_ENV: "production",
-        PM2_GRACEFUL_LISTEN_TIMEOUT: 8000
+        PM2_GRACEFUL_LISTEN_TIMEOUT: 15000
       },
       node_args: [
-        "--max-old-space-size=300", // Минимальные требования к памяти
-        "--optimize-for-size",
-        "--gc-interval=2000"
+        "--max-old-space-size=400", // Увеличиваем лимит памяти
+        "--optimize-for-size"
       ],
       error_file: "./logs/settings-error.log",
       out_file: "./logs/settings-out.log",
-      pid_file: "./pids/settings.pid",
       merge_logs: true,
       log_date_format: "YYYY-MM-DD HH:mm:ss.SSS",
-      // Дополнительные настройки для стабильности
-      exec_mode: "fork", // Режим fork для простых серверов
-      cron_restart: "0 3 * * *", // Перезапуск каждый день в 3:00 для очистки памяти
-      // Мониторинг здоровья
-      health_check: {
-        url: "http://localhost:3004/api/settings",
-        max_failures: 3,
-        timeout: 5000,
-        interval: 30000
-      }
+      // Cluster-specific settings
+      instance_var: 'INSTANCE_ID', // Для идентификации инстансов
+      combine_logs: true // Объединять логи всех инстансов
     }
   ],
 
