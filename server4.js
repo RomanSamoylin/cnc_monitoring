@@ -1,4 +1,4 @@
-// server4.js - ПОЛНОСТЬЮ ОБНОВЛЕННАЯ ВЕРСИЯ
+// server4.js - ПОЛНОСТЬЮ ИСПРАВЛЕННАЯ ВЕРСИЯ
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
@@ -103,7 +103,7 @@ async function initializeSettingsTables() {
   }
 }
 
-// ОСНОВНОЙ ЭНДПОИНТ: Получение настроек с объединением данных из всех таблиц
+// ОСНОВНОЙ ЭНДПОИНТ: Получение настроек с объединением данных из всех таблиц - ИСПРАВЛЕННАЯ ВЕРСИЯ
 app.get('/api/settings', async (req, res) => {
     let connection;
     try {
@@ -111,7 +111,7 @@ app.get('/api/settings', async (req, res) => {
         
         // Получаем ПОСЛЕДНИЕ настройки (включая все цехи)
         const [settingsRows] = await connection.execute(
-            'SELECT data FROM settings ORDER BY created_at DESC LIMIT 1'
+            'SELECT data FROM settings ORDER BY id DESC LIMIT 1'
         );
         
         // Получаем все станки из cnc_id_mapping
@@ -130,21 +130,35 @@ app.get('/api/settings', async (req, res) => {
             machines: []
         };
 
-        // ЗАГРУЖАЕМ ВСЕ СОХРАНЕННЫЕ ЦЕХИ
+        // ВАЖНОЕ ИСПРАВЛЕНИЕ: Правильно загружаем все цехи
         if (settingsRows.length > 0) {
             try {
                 const savedSettings = JSON.parse(settingsRows[0].data);
+                console.log('🔍 Содержимое сохраненных настроек:', {
+                    hasWorkshops: !!savedSettings.workshops,
+                    workshopsCount: savedSettings.workshops ? savedSettings.workshops.length : 0,
+                    workshops: savedSettings.workshops ? savedSettings.workshops.map(w => w.name) : []
+                });
                 
-                // ГАРАНТИРУЕМ, что workshops всегда массив
+                // ГАРАНТИРУЕМ, что workshops всегда массив и загружаем ВСЕ цехи
                 if (savedSettings.workshops && Array.isArray(savedSettings.workshops)) {
                     settings.workshops = savedSettings.workshops;
+                    console.log('✅ Загружено цехов из БД:', settings.workshops.length);
+                } else {
+                    console.log('⚠️ В сохраненных настройках нет массива workshops, используем по умолчанию');
+                    // Если в сохраненных настройках нет workshops, но мы знаем что они есть,
+                    // проверяем альтернативные места
+                    if (savedSettings.workshopList) {
+                        settings.workshops = savedSettings.workshopList;
+                        console.log('✅ Загружено цехов из workshopList:', settings.workshops.length);
+                    }
                 }
                 
-                console.log('Загружено цехов из БД:', settings.workshops.length);
-                
             } catch (e) {
-                console.error('Error parsing saved settings:', e);
+                console.error('❌ Ошибка парсинга сохраненных настроек:', e);
             }
+        } else {
+            console.log('ℹ️ В БД нет записей настроек, используем настройки по умолчанию');
         }
 
         // Создаем объект распределения для быстрого доступа
@@ -164,9 +178,9 @@ app.get('/api/settings', async (req, res) => {
         updateWorkshopsMachinesCount(settings);
 
         // ЛОГИРУЕМ ДЛЯ ОТЛАДКИ
-        console.log('Отправляем настройки:', {
-            workshops: settings.workshops.length,
-            machines: settings.machines.length,
+        console.log('📤 Отправляем настройки клиенту:', {
+            workshopsCount: settings.workshops.length,
+            machinesCount: settings.machines.length,
             workshopsList: settings.workshops.map(w => ({id: w.id, name: w.name, count: w.machinesCount}))
         });
 
@@ -176,7 +190,7 @@ app.get('/api/settings', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching settings:', error);
+        console.error('❌ Error fetching settings:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка загрузки настроек'
@@ -209,6 +223,12 @@ app.post('/api/settings/save', async (req, res) => {
                 machines: settings.machines // Сохраняем для истории
             };
             
+            console.log('💾 Сохранение настроек в БД:', {
+                workshops: settings.workshops.length,
+                machines: settings.machines.length,
+                workshopsList: settings.workshops.map(w => w.name)
+            });
+            
             await connection.execute(
                 'INSERT INTO settings (data, created_at) VALUES (?, NOW())',
                 [JSON.stringify(settingsToSave)]
@@ -231,7 +251,7 @@ app.post('/api/settings/save', async (req, res) => {
             // Сохраняем резервную копию
             await saveBackup(settings);
 
-            console.log('Настройки сохранены:', {
+            console.log('✅ Настройки сохранены:', {
                 workshops: settings.workshops.length,
                 machines: settings.machines.length
             });
@@ -248,7 +268,7 @@ app.post('/api/settings/save', async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Error saving settings:', error);
+        console.error('❌ Error saving settings:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка сохранения настроек'
@@ -283,9 +303,10 @@ app.get('/api/settings/distribution', async (req, res) => {
                 const savedSettings = JSON.parse(settingsRows[0].data);
                 if (savedSettings.workshops) {
                     workshops = savedSettings.workshops;
+                    console.log('✅ Загружено цехов для распределения:', workshops.length);
                 }
             } catch (e) {
-                console.error('Error parsing saved settings:', e);
+                console.error('❌ Error parsing saved settings:', e);
             }
         }
 
@@ -308,7 +329,7 @@ app.get('/api/settings/distribution', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error getting distribution:', error);
+        console.error('❌ Error getting distribution:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка получения распределения'
@@ -384,7 +405,7 @@ app.post('/api/settings/import', async (req, res) => {
 
             await saveBackup(actualSettings);
 
-            console.log('Настройки импортированы:', {
+            console.log('✅ Настройки импортированы:', {
                 workshops: actualSettings.workshops.length,
                 machines: actualSettings.machines.length
             });
@@ -401,7 +422,7 @@ app.post('/api/settings/import', async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Error importing settings:', error);
+        console.error('❌ Error importing settings:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка импорта настроек'
@@ -444,7 +465,7 @@ app.post('/api/settings/save-workshops', async (req, res) => {
                     settingsData.machines = saved.machines;
                 }
             } catch (e) {
-                console.error('Error parsing current settings:', e);
+                console.error('❌ Error parsing current settings:', e);
             }
         }
 
@@ -454,7 +475,7 @@ app.post('/api/settings/save-workshops', async (req, res) => {
             [JSON.stringify(settingsData)]
         );
 
-        console.log('Цехи сохранены:', workshops.length, 'цехов');
+        console.log('✅ Цехи сохранены:', workshops.length, 'цехов:', workshops.map(w => w.name));
 
         res.json({
             success: true,
@@ -463,7 +484,7 @@ app.post('/api/settings/save-workshops', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error saving workshops:', error);
+        console.error('❌ Error saving workshops:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка сохранения цехов'
@@ -504,7 +525,7 @@ app.get('/api/settings/backups', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error getting backups list:', error);
+        console.error('❌ Error getting backups list:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка получения списка резервных копий'
@@ -560,7 +581,7 @@ app.post('/api/settings/restore', async (req, res) => {
 
             await connection.commit();
 
-            console.log('Настройки восстановлены из резервной копии:', {
+            console.log('✅ Настройки восстановлены из резервной копии:', {
                 workshops: backupData.settings.workshops.length,
                 machines: backupData.settings.machines.length
             });
@@ -577,7 +598,7 @@ app.post('/api/settings/restore', async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Error restoring from backup:', error);
+        console.error('❌ Error restoring from backup:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка восстановления из резервной копии'
@@ -603,7 +624,7 @@ app.get('/api/health', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Health check failed:', error);
+        console.error('❌ Health check failed:', error);
         res.status(500).json({
             success: false,
             status: 'ERROR',
@@ -641,7 +662,7 @@ app.get('/api/settings/current', async (req, res) => {
                 if (savedSettings.workshops) settings.workshops = savedSettings.workshops;
                 if (savedSettings.machines) settings.machines = savedSettings.machines;
             } catch (e) {
-                console.error('Error parsing saved settings:', e);
+                console.error('❌ Error parsing saved settings:', e);
             }
         }
 
@@ -675,7 +696,7 @@ app.get('/api/settings/current', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error getting current settings:', error);
+        console.error('❌ Error getting current settings:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка получения текущих настроек'
@@ -708,7 +729,7 @@ app.get('/api/settings/quick-distribution', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error getting quick distribution:', error);
+        console.error('❌ Error getting quick distribution:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка получения распределения'
@@ -734,9 +755,10 @@ app.get('/api/settings/workshops', async (req, res) => {
                 const savedSettings = JSON.parse(settingsRows[0].data);
                 if (savedSettings.workshops) {
                     workshops = savedSettings.workshops;
+                    console.log('✅ Загружено цехов из БД:', workshops.length);
                 }
             } catch (e) {
-                console.error('Error parsing saved settings:', e);
+                console.error('❌ Error parsing saved settings:', e);
             }
         }
 
@@ -746,7 +768,7 @@ app.get('/api/settings/workshops', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error getting workshops:', error);
+        console.error('❌ Error getting workshops:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка получения списка цехов'
@@ -785,7 +807,7 @@ app.post('/api/settings/refresh', async (req, res) => {
                 if (savedSettings.workshops) settings.workshops = savedSettings.workshops;
                 if (savedSettings.machines) settings.machines = savedSettings.machines;
             } catch (e) {
-                console.error('Error parsing saved settings:', e);
+                console.error('❌ Error parsing saved settings:', e);
             }
         }
 
@@ -803,7 +825,7 @@ app.post('/api/settings/refresh', async (req, res) => {
         settings.machines = machinesFromDB;
         updateWorkshopsMachinesCount(settings);
 
-        console.log('Данные обновлены:', {
+        console.log('✅ Данные обновлены:', {
             workshops: settings.workshops.length,
             machines: settings.machines.length
         });
@@ -815,7 +837,7 @@ app.post('/api/settings/refresh', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error refreshing data:', error);
+        console.error('❌ Error refreshing data:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка обновления данных'
@@ -844,7 +866,7 @@ app.get('/api/settings/stats', async (req, res) => {
                 if (savedSettings.workshops) workshopsCount = savedSettings.workshops.length;
                 if (savedSettings.machines) machinesCount = savedSettings.machines.length;
             } catch (e) {
-                console.error('Error parsing saved settings:', e);
+                console.error('❌ Error parsing saved settings:', e);
             }
         }
 
@@ -868,7 +890,7 @@ app.get('/api/settings/stats', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error getting stats:', error);
+        console.error('❌ Error getting stats:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка получения статистики'
@@ -931,10 +953,55 @@ app.get('/api/settings/debug', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error in debug endpoint:', error);
+        console.error('❌ Error in debug endpoint:', error);
         res.status(500).json({
             success: false,
             message: 'Ошибка диагностики'
+        });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// НОВЫЙ ЭНДПОИНТ: Проверка сохраненных данных
+app.get('/api/settings/verify', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        
+        // Получаем все записи настроек
+        const [allSettings] = await connection.execute(
+            'SELECT id, data, created_at FROM settings ORDER BY id DESC LIMIT 10'
+        );
+        
+        const analysis = allSettings.map(row => {
+            try {
+                const data = JSON.parse(row.data);
+                return {
+                    id: row.id,
+                    created_at: row.created_at,
+                    workshops_count: data.workshops ? data.workshops.length : 0,
+                    workshops: data.workshops ? data.workshops.map(w => w.name) : [],
+                    has_workshops: !!data.workshops,
+                    machines_count: data.machines ? data.machines.length : 0
+                };
+            } catch (e) {
+                return { id: row.id, error: 'Parse error' };
+            }
+        });
+
+        res.json({
+            success: true,
+            analysis: analysis,
+            latest: analysis[0],
+            total_records: analysis.length
+        });
+
+    } catch (error) {
+        console.error('❌ Error in verify endpoint:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
         });
     } finally {
         if (connection) connection.release();
@@ -959,11 +1026,11 @@ async function saveBackup(settings) {
         };
         
         fs.writeFileSync(backupFile, JSON.stringify(backupData, null, 2));
-        console.log(`Backup saved: ${backupFile}`);
+        console.log(`✅ Backup saved: ${backupFile}`);
 
         cleanupOldBackups(backupDir);
     } catch (error) {
-        console.error('Error saving backup:', error);
+        console.error('❌ Error saving backup:', error);
     }
 }
 
@@ -981,11 +1048,11 @@ function cleanupOldBackups(backupDir) {
         if (files.length > 20) {
             for (let i = 20; i < files.length; i++) {
                 fs.unlinkSync(files[i].path);
-                console.log(`Old backup deleted: ${files[i].name}`);
+                console.log(`🗑️ Old backup deleted: ${files[i].name}`);
             }
         }
     } catch (error) {
-        console.error('Error cleaning up old backups:', error);
+        console.error('❌ Error cleaning up old backups:', error);
     }
 }
 
@@ -998,7 +1065,7 @@ function updateWorkshopsMachinesCount(settings) {
 
 // Middleware для обработки ошибок
 app.use((error, req, res, next) => {
-    console.error('Unhandled error:', error);
+    console.error('❌ Unhandled error:', error);
     res.status(500).json({
         success: false,
         message: 'Внутренняя ошибка сервера'
@@ -1020,8 +1087,8 @@ async function startServer() {
         
         app.listen(PORT, () => {
             console.log(`=== Settings Server Started ===`);
-            console.log(`Server running on port: ${PORT}`);
-            console.log(`Database: ${dbConfig.database}@${dbConfig.host}`);
+            console.log(`✅ Server running on port: ${PORT}`);
+            console.log(`✅ Database: ${dbConfig.database}@${dbConfig.host}`);
             console.log(`================================`);
             
             console.log('\nAvailable endpoints:');
@@ -1031,6 +1098,7 @@ async function startServer() {
             console.log('GET  /api/settings/workshops       - Получить список цехов');
             console.log('GET  /api/settings/stats           - Получить статистику');
             console.log('GET  /api/settings/debug           - Диагностика');
+            console.log('GET  /api/settings/verify          - Проверка сохраненных данных');
             console.log('POST /api/settings/save            - Сохранить настройки');
             console.log('POST /api/settings/save-workshops  - Сохранить только цехи');
             console.log('POST /api/settings/import          - Импортировать настройки');
@@ -1041,7 +1109,7 @@ async function startServer() {
             console.log('================================\n');
         });
     } catch (error) {
-        console.error('Failed to start server:', error);
+        console.error('❌ Failed to start server:', error);
         process.exit(1);
     }
 }
@@ -1065,11 +1133,11 @@ process.on('SIGTERM', async () => {
 
 // Обработка необработанных исключений
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
 process.on('uncaughtException', (error) => {
-    console.error('Uncaught Exception:', error);
+    console.error('❌ Uncaught Exception:', error);
     process.exit(1);
 });
 

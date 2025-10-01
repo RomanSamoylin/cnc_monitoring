@@ -1,5 +1,5 @@
 {
-  "exportDate": "2025-10-01T09:29:37.760Z",
+  "exportDate": "2025-10-01T10:34:01.246Z",
   "version": "2.0",
   "settings": {
     "workshops": [
@@ -18,12 +18,12 @@
       {
         "id": 1,
         "name": "CNCMisha",
-        "workshopId": 2
+        "workshopId": 1
       },
       {
         "id": 2,
         "name": "StanoK1",
-        "workshopId": 1
+        "workshopId": 2
       },
       {
         "id": 3,
