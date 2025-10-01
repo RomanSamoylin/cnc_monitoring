@@ -1,4 +1,4 @@
-// settings-manager.js - ПОЛНОСТЬЮ ОБНОВЛЕННАЯ ВЕРСИЯ
+// settings-manager.js - ИСПРАВЛЕННАЯ ВЕРСИЯ С ЕДИНЫМ МЕТОДОМ СОХРАНЕНИЯ
 class SettingsManager {
     constructor() {
         this.settings = {
@@ -122,9 +122,14 @@ class SettingsManager {
         }
     }
 
-    // Сохранение настроек на сервер
+    // ЕДИНЫЙ МЕТОД СОХРАНЕНИЯ: Сохраняет ВСЕ настройки на сервер
     async saveSettings(settings) {
         try {
+            console.log('💾 Сохранение ВСЕХ настроек на сервер:', {
+                workshops: settings.workshops.length,
+                machines: settings.machines.length
+            });
+            
             const response = await fetch(`${this.SERVER_URL}/api/settings/save`, {
                 method: 'POST',
                 headers: {
@@ -151,7 +156,7 @@ class SettingsManager {
             }
             
             this.saveToLocalStorage();
-            console.log('💾 Настройки сохранены на сервер');
+            console.log('💾 Все настройки сохранены на сервер');
             
             this.dispatchSettingsUpdated();
             return true;
@@ -163,35 +168,7 @@ class SettingsManager {
         }
     }
 
-    // Сохранение только цехов
-    async saveWorkshops(workshops) {
-        try {
-            const response = await fetch(`${this.SERVER_URL}/api/settings/save-workshops`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ workshops })
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            if (!data.success) {
-                throw new Error('Server response indicates failure');
-            }
-            
-            console.log('💾 Цехи сохранены на сервер:', workshops.length, 'цехов');
-            return true;
-            
-        } catch (error) {
-            console.error('❌ Ошибка сохранения цехов:', error);
-            throw error;
-        }
-    }
+    // УДАЛЕН МЕТОД saveWorkshops() - больше не нужен!
 
     // Сохранение в localStorage
     saveToLocalStorage() {
@@ -307,7 +284,7 @@ class SettingsManager {
                 this.settings.distribution[machineId] = workshopId;
             }
 
-            // Сохраняем на сервер
+            // Сохраняем на сервер ВСЕ настройки
             const settingsToSave = {
                 workshops: this.settings.workshops,
                 machines: this.settings.machines

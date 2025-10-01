@@ -1,5 +1,5 @@
-// localStorage.js - ОБНОВЛЕННАЯ ВЕРСИЯ для системы мониторинга станков
-// Версия 3.0 - Адаптировано для работы с server4.js
+// localStorage.js - ИСПРАВЛЕННАЯ ВЕРСИЯ для системы мониторинга станков
+// Версия 3.1 - Адаптировано для работы с единым методом сохранения
 
 // Конфигурация приложения
 const APP_CONFIG = {
@@ -7,7 +7,7 @@ const APP_CONFIG = {
     API_BASE_URL: 'http://localhost:3004/api',
     ENDPOINTS: {
         SETTINGS: '/settings',
-        SAVE_SETTINGS: '/settings/save',
+        SAVE_SETTINGS: '/settings/save', // ЕДИНЫЙ метод сохранения
         IMPORT_SETTINGS: '/settings/import',
         BACKUPS: '/settings/backups',
         RESTORE: '/settings/restore',
@@ -15,7 +15,8 @@ const APP_CONFIG = {
         DISTRIBUTION: '/settings/distribution',
         WORKSHOPS: '/settings/workshops',
         STATS: '/settings/stats',
-        DEBUG: '/settings/debug'
+        DEBUG: '/settings/debug',
+        VERIFY: '/settings/verify'
     },
     SESSION_TIMEOUT: 24 * 60 * 60 * 1000, // 24 часа
     MAX_LOGIN_ATTEMPTS: 5,
@@ -89,7 +90,7 @@ const StorageManager = {
                     localStorage.removeItem(key);
                 }
             });
-            console.log('Все данные приложения очищены из localStorage');
+            console.log('✅ Все данные приложения очищены из localStorage');
             return true;
         } catch (e) {
             console.error('StorageManager.clearAll error:', e);
@@ -162,15 +163,12 @@ const SettingsApiClient = {
         return await this.request(APP_CONFIG.ENDPOINTS.SETTINGS);
     },
 
-    // Сохранить настройки
+    // ЕДИНЫЙ МЕТОД: Сохранить ВСЕ настройки
     saveSettings: async function(settings) {
         return await this.request(APP_CONFIG.ENDPOINTS.SAVE_SETTINGS, 'POST', { settings });
     },
 
-    // Сохранить только цехи
-    saveWorkshops: async function(workshops) {
-        return await this.request('/settings/save-workshops', 'POST', { workshops });
-    },
+    // УДАЛЕН МЕТОД saveWorkshops() - больше не нужен!
 
     // Импорт настроек
     importSettings: async function(settings) {
@@ -210,6 +208,11 @@ const SettingsApiClient = {
     // Диагностика
     debugDatabase: async function() {
         return await this.request(APP_CONFIG.ENDPOINTS.DEBUG);
+    },
+
+    // Проверка сохраненных данных
+    verifyData: async function() {
+        return await this.request(APP_CONFIG.ENDPOINTS.VERIFY);
     }
 };
 
@@ -228,7 +231,8 @@ const SettingsManager = {
                 
                 console.log('✅ Настройки загружены с сервера:', {
                     workshops: response.settings.workshops.length,
-                    machines: response.settings.machines.length
+                    machines: response.settings.machines.length,
+                    workshopsList: response.settings.workshops.map(w => w.name)
                 });
                 
                 return response.settings;
@@ -251,9 +255,14 @@ const SettingsManager = {
         }
     },
 
-    // Сохранить настройки
+    // ЕДИНЫЙ МЕТОД: Сохранить ВСЕ настройки
     saveSettings: async function(settings) {
         try {
+            console.log('💾 Сохранение ВСЕХ настроек:', {
+                workshops: settings.workshops.length,
+                machines: settings.machines.length
+            });
+            
             const response = await SettingsApiClient.saveSettings(settings);
             
             if (response.success) {
@@ -261,7 +270,7 @@ const SettingsManager = {
                 StorageManager.setItem('settings', settings, APP_CONFIG.SESSION_TIMEOUT);
                 StorageManager.setItem('lastUpdate', new Date().toISOString());
                 
-                console.log('💾 Настройки сохранены:', {
+                console.log('✅ Все настройки сохранены:', {
                     workshops: settings.workshops.length,
                     machines: settings.machines.length
                 });
@@ -305,6 +314,23 @@ const SettingsManager = {
         StorageManager.removeItem('settings');
         StorageManager.removeItem('lastUpdate');
         console.log('🧹 Кэш настроек очищен');
+    },
+
+    // Проверить целостность данных
+    verifyDataIntegrity: async function() {
+        try {
+            const response = await SettingsApiClient.verifyData();
+            
+            if (response.success) {
+                console.log('🔍 Проверка целостности данных:', response.analysis);
+                return response;
+            } else {
+                throw new Error('Data verification failed');
+            }
+        } catch (error) {
+            console.error('❌ Ошибка проверки целостности данных:', error);
+            throw error;
+        }
     }
 };
 
@@ -416,7 +442,7 @@ const AppInitializer = {
 
             if (!isServerHealthy) {
                 console.warn('⚠️ Сервер недоступен, работаем в оффлайн режиме');
-                UIManager.showWarning('Сервер недоступен. Работаем в оффлайн режиме.');
+                UIManager.showInfo('Сервер недоступен. Работаем в оффлайн режиме.');
             }
 
             // Загружаем настройки
@@ -502,6 +528,9 @@ window.CNCMonitoring = {
     
     // Проверка БД
     checkDB: AppInitializer.checkDatabaseState,
+    
+    // Проверка целостности данных
+    verifyData: SettingsManager.verifyDataIntegrity,
     
     // Вспомогательные функции
     utils: {

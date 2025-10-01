@@ -1,4 +1,4 @@
-// server4.js - ПОЛНОСТЬЮ ИСПРАВЛЕННАЯ ВЕРСИЯ
+// server4.js - ИСПРАВЛЕННАЯ ВЕРСИЯ С ЕДИНЫМ МЕТОДОМ СОХРАНЕНИЯ
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
@@ -65,7 +65,7 @@ async function initializeSettingsTables() {
         'INSERT INTO settings (data, created_at) VALUES (?, NOW())',
         [JSON.stringify(initialSettings)]
       );
-      console.log('Созданы начальные настройки');
+      console.log('✅ Созданы начальные настройки');
     }
 
     // ПРОВЕРЯЕМ СТРУКТУРУ СОХРАНЕННЫХ НАСТРОЕК
@@ -78,7 +78,7 @@ async function initializeSettingsTables() {
         const savedData = JSON.parse(latestSettings[0].data);
         // Если в сохраненных данных нет workshops, обновляем структуру
         if (!savedData.workshops || !Array.isArray(savedData.workshops)) {
-          console.log('Обновление структуры настроек...');
+          console.log('🔄 Обновление структуры настроек...');
           const updatedSettings = {
             workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
             machines: savedData.machines || []
@@ -87,23 +87,23 @@ async function initializeSettingsTables() {
             'INSERT INTO settings (data, created_at) VALUES (?, NOW())',
             [JSON.stringify(updatedSettings)]
           );
-          console.log('Структура настроек обновлена');
+          console.log('✅ Структура настроек обновлена');
         }
       } catch (e) {
-        console.error('Ошибка проверки структуры настроек:', e);
+        console.error('❌ Ошибка проверки структуры настроек:', e);
       }
     }
     
-    console.log('Таблицы настроек инициализированы');
+    console.log('✅ Таблицы настроек инициализированы');
     
   } catch (error) {
-    console.error('Ошибка инициализации таблиц настроек:', error);
+    console.error('❌ Ошибка инициализации таблиц настроек:', error);
   } finally {
     if (connection) connection.release();
   }
 }
 
-// ОСНОВНОЙ ЭНДПОИНТ: Получение настроек с объединением данных из всех таблиц - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// ОСНОВНОЙ ЭНДПОИНТ: Получение настроек с объединением данных из всех таблиц
 app.get('/api/settings', async (req, res) => {
     let connection;
     try {
@@ -130,35 +130,22 @@ app.get('/api/settings', async (req, res) => {
             machines: []
         };
 
-        // ВАЖНОЕ ИСПРАВЛЕНИЕ: Правильно загружаем все цехи
+        // ЗАГРУЖАЕМ ВСЕ СОХРАНЕННЫЕ ЦЕХИ
         if (settingsRows.length > 0) {
             try {
                 const savedSettings = JSON.parse(settingsRows[0].data);
-                console.log('🔍 Содержимое сохраненных настроек:', {
-                    hasWorkshops: !!savedSettings.workshops,
-                    workshopsCount: savedSettings.workshops ? savedSettings.workshops.length : 0,
-                    workshops: savedSettings.workshops ? savedSettings.workshops.map(w => w.name) : []
-                });
                 
-                // ГАРАНТИРУЕМ, что workshops всегда массив и загружаем ВСЕ цехи
+                // ГАРАНТИРУЕМ, что workshops всегда массив
                 if (savedSettings.workshops && Array.isArray(savedSettings.workshops)) {
                     settings.workshops = savedSettings.workshops;
                     console.log('✅ Загружено цехов из БД:', settings.workshops.length);
                 } else {
-                    console.log('⚠️ В сохраненных настройках нет массива workshops, используем по умолчанию');
-                    // Если в сохраненных настройках нет workshops, но мы знаем что они есть,
-                    // проверяем альтернативные места
-                    if (savedSettings.workshopList) {
-                        settings.workshops = savedSettings.workshopList;
-                        console.log('✅ Загружено цехов из workshopList:', settings.workshops.length);
-                    }
+                    console.log('⚠️ В сохраненных настройках нет массива workshops');
                 }
                 
             } catch (e) {
-                console.error('❌ Ошибка парсинга сохраненных настроек:', e);
+                console.error('❌ Error parsing saved settings:', e);
             }
-        } else {
-            console.log('ℹ️ В БД нет записей настроек, используем настройки по умолчанию');
         }
 
         // Создаем объект распределения для быстрого доступа
@@ -200,7 +187,7 @@ app.get('/api/settings', async (req, res) => {
     }
 });
 
-// ЭНДПОИНТ СОХРАНЕНИЯ: Сохраняет настройки цехов и распределение станков
+// ЕДИНЫЙ ЭНДПОИНТ СОХРАНЕНИЯ: Сохраняет ВСЕ настройки (цехи и распределение станков)
 app.post('/api/settings/save', async (req, res) => {
     let connection;
     try {
@@ -213,17 +200,25 @@ app.post('/api/settings/save', async (req, res) => {
             });
         }
 
+        // Валидация данных
+        if (!Array.isArray(settings.workshops) || !Array.isArray(settings.machines)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Неверный формат данных настроек'
+            });
+        }
+
         connection = await getConnection();
         await connection.beginTransaction();
 
         try {
-            // 1. Сохраняем настройки цехов в таблицу settings
+            // 1. Сохраняем ВСЕ настройки в таблицу settings
             const settingsToSave = {
                 workshops: settings.workshops,
-                machines: settings.machines // Сохраняем для истории
+                machines: settings.machines
             };
             
-            console.log('💾 Сохранение настроек в БД:', {
+            console.log('💾 Сохранение ВСЕХ настроек в БД:', {
                 workshops: settings.workshops.length,
                 machines: settings.machines.length,
                 workshopsList: settings.workshops.map(w => w.name)
@@ -251,14 +246,14 @@ app.post('/api/settings/save', async (req, res) => {
             // Сохраняем резервную копию
             await saveBackup(settings);
 
-            console.log('✅ Настройки сохранены:', {
+            console.log('✅ Все настройки сохранены:', {
                 workshops: settings.workshops.length,
                 machines: settings.machines.length
             });
 
             res.json({
                 success: true,
-                message: 'Настройки успешно сохранены',
+                message: 'Все настройки успешно сохранены',
                 settings: settings
             });
 
@@ -277,6 +272,8 @@ app.post('/api/settings/save', async (req, res) => {
         if (connection) connection.release();
     }
 });
+
+// УДАЛЕН ЭНДПОИНТ save-workshops - больше не нужен!
 
 // ЭНДПОИНТ ДЛЯ БЫСТРОГО ПОЛУЧЕНИЯ РАСПРЕДЕЛЕНИЯ (для других серверов)
 app.get('/api/settings/distribution', async (req, res) => {
@@ -375,7 +372,7 @@ app.post('/api/settings/import', async (req, res) => {
                 availableMachineIds.includes(machine.id)
             );
 
-            // 3. Сохраняем настройки цехов
+            // 3. Сохраняем ВСЕ настройки
             await connection.execute(
                 'INSERT INTO settings (data, created_at) VALUES (?, NOW())',
                 [JSON.stringify({
@@ -426,68 +423,6 @@ app.post('/api/settings/import', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Ошибка импорта настроек'
-        });
-    } finally {
-        if (connection) connection.release();
-    }
-});
-
-// ЭНДПОИНТ ДЛЯ СОХРАНЕНИЯ ТОЛЬКО ЦЕХОВ
-app.post('/api/settings/save-workshops', async (req, res) => {
-    let connection;
-    try {
-        const { workshops } = req.body;
-        
-        if (!workshops || !Array.isArray(workshops)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Отсутствуют данные цехов'
-            });
-        }
-
-        connection = await getConnection();
-        
-        // Получаем текущие настройки
-        const [currentSettings] = await connection.execute(
-            'SELECT data FROM settings ORDER BY created_at DESC LIMIT 1'
-        );
-
-        let settingsData = {
-            workshops: workshops,
-            machines: []
-        };
-
-        // Сохраняем существующие станки если есть
-        if (currentSettings.length > 0) {
-            try {
-                const saved = JSON.parse(currentSettings[0].data);
-                if (saved.machines) {
-                    settingsData.machines = saved.machines;
-                }
-            } catch (e) {
-                console.error('❌ Error parsing current settings:', e);
-            }
-        }
-
-        // Сохраняем обновленные настройки
-        await connection.execute(
-            'INSERT INTO settings (data, created_at) VALUES (?, NOW())',
-            [JSON.stringify(settingsData)]
-        );
-
-        console.log('✅ Цехи сохранены:', workshops.length, 'цехов:', workshops.map(w => w.name));
-
-        res.json({
-            success: true,
-            message: 'Настройки цехов успешно сохранены',
-            workshops: workshops
-        });
-
-    } catch (error) {
-        console.error('❌ Error saving workshops:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Ошибка сохранения цехов'
         });
     } finally {
         if (connection) connection.release();
@@ -1099,8 +1034,7 @@ async function startServer() {
             console.log('GET  /api/settings/stats           - Получить статистику');
             console.log('GET  /api/settings/debug           - Диагностика');
             console.log('GET  /api/settings/verify          - Проверка сохраненных данных');
-            console.log('POST /api/settings/save            - Сохранить настройки');
-            console.log('POST /api/settings/save-workshops  - Сохранить только цехи');
+            console.log('POST /api/settings/save            - Сохранить ВСЕ настройки');
             console.log('POST /api/settings/import          - Импортировать настройки');
             console.log('POST /api/settings/refresh         - Принудительно обновить данные');
             console.log('GET  /api/settings/backups         - Получить список резервных копий');

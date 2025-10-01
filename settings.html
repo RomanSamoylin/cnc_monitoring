@@ -222,113 +222,20 @@
             refreshInterface();
         }
 
-        // Функция для сохранения цехов отдельно
-        async function saveWorkshops() {
-            try {
-                console.log('💾 Сохранение цехов:', state.workshops.length, 'цехов');
-                
-                const response = await fetch('http://localhost:3004/api/settings/save-workshops', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ 
-                        workshops: state.workshops 
-                    })
-                });
-                
-                if (!response.ok) throw new Error('Ошибка сети');
-                
-                const data = await response.json();
-                if (!data.success) throw new Error('Ошибка сохранения цехов');
-                
-                console.log('✅ Цехи сохранены в БД:', state.workshops.length, 'цехов');
-                return true;
-                
-            } catch (error) {
-                console.error('❌ Ошибка сохранения цехов:', error);
-                showNotification('Ошибка сохранения цехов: ' + error.message, 'error');
-                return false;
-            }
-        }
-
-        // Загрузка настроек с сервера - ИСПРАВЛЕННАЯ ВЕРСИЯ
-        async function loadSettings() {
-            try {
-                showNotification('Загрузка настроек...', 'info');
-                
-                const response = await fetch('http://localhost:3004/api/settings');
-                if (!response.ok) throw new Error('Ошибка сети');
-                
-                const data = await response.json();
-                if (!data.success) throw new Error('Ошибка в данных');
-                
-                console.log('✅ Получены настройки с сервера:', {
-                    workshops: data.settings.workshops.length,
-                    machines: data.settings.machines.length,
-                    workshopsList: data.settings.workshops.map(w => w.name)
-                });
-                
-                // ОСНОВНОЕ ИСПРАВЛЕНИЕ: Полностью заменяем состояние
-                updateApplicationState(data.settings);
-                
-                // ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА: Если сервер вернул только 1 цех, но у нас должно быть больше
-                if (data.settings.workshops.length === 1 && state.workshops.length === 1) {
-                    console.log('🔄 Проверяем наличие дополнительных цехов...');
-                    await loadWorkshopsSeparately();
-                }
-                
-                state.serverStatus = 'connected';
-                updateSidebarStats();
-                
-                showNotification(`Загружено ${state.workshops.length} цехов, ${state.machines.length} станков`, 'success');
-                
-            } catch (error) {
-                console.error('❌ Ошибка загрузки настроек:', error);
-                showNotification('Ошибка загрузки настроек: ' + error.message, 'error');
-                state.serverStatus = 'disconnected';
-                updateSidebarStats();
-                
-                // Используем данные по умолчанию
-                updateApplicationState({
-                    workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
-                    machines: []
-                });
-            }
-        }
-
-        // Дополнительная загрузка цехов отдельно
-        async function loadWorkshopsSeparately() {
-            try {
-                console.log('🔄 Дополнительная загрузка цехов...');
-                const response = await fetch('http://localhost:3004/api/settings/workshops');
-                const data = await response.json();
-                
-                if (data.success && data.workshops && data.workshops.length > 1) {
-                    console.log('✅ Найдены дополнительные цехи:', data.workshops.length);
-                    state.workshops = data.workshops;
-                    updateWorkshopsMachinesCount();
-                    refreshInterface();
-                    showNotification(`Обнаружено ${data.workshops.length} цехов`, 'info');
-                }
-            } catch (error) {
-                console.error('❌ Ошибка дополнительной загрузки цехов:', error);
-            }
-        }
-
-        // Сохранение всех настроек на сервер
+        // ЕДИНЫЙ МЕТОД СОХРАНЕНИЯ: Сохранение ВСЕХ настроек на сервер
         async function saveAllSettings() {
             try {
-                showNotification('Сохранение настроек...', 'info');
+                showNotification('Сохранение всех настроек...', 'info');
                 
                 const settings = {
                     workshops: state.workshops,
                     machines: state.machines
                 };
                 
-                console.log('💾 Отправка настроек на сервер:', {
+                console.log('💾 Отправка ВСЕХ настроек на сервер:', {
                     workshops: settings.workshops.length,
-                    machines: settings.machines.length
+                    machines: settings.machines.length,
+                    workshopsList: settings.workshops.map(w => w.name)
                 });
                 
                 const response = await fetch('http://localhost:3004/api/settings/save', {
@@ -348,8 +255,12 @@
                 state.serverStatus = 'connected';
                 updateSidebarStats();
                 
-                console.log('✅ Настройки успешно сохранены на сервер');
-                showNotification('Настройки успешно сохранены', 'success');
+                console.log('✅ Все настройки успешно сохранены на сервер:', {
+                    workshops: data.settings.workshops.length,
+                    machines: data.settings.machines.length
+                });
+                
+                showNotification(`Сохранено ${data.settings.workshops.length} цехов, ${data.settings.machines.length} станков`, 'success');
                 return true;
                 
             } catch (error) {
@@ -361,6 +272,44 @@
             }
         }
 
+        // Загрузка настроек с сервера
+        async function loadSettings() {
+            try {
+                showNotification('Загрузка настроек...', 'info');
+                
+                const response = await fetch('http://localhost:3004/api/settings');
+                if (!response.ok) throw new Error('Ошибка сети');
+                
+                const data = await response.json();
+                if (!data.success) throw new Error('Ошибка в данных');
+                
+                console.log('✅ Получены настройки с сервера:', {
+                    workshops: data.settings.workshops.length,
+                    machines: data.settings.machines.length,
+                    workshopsList: data.settings.workshops.map(w => w.name)
+                });
+                
+                // Полностью заменяем состояние
+                updateApplicationState(data.settings);
+                state.serverStatus = 'connected';
+                updateSidebarStats();
+                
+                showNotification(`Загружено ${state.workshops.length} цехов, ${state.machines.length} станков`, 'success');
+                
+            } catch (error) {
+                console.error('❌ Ошибка загрузки настроек:', error);
+                showNotification('Ошибка загрузки настроек: ' + error.message, 'error');
+                state.serverStatus = 'disconnected';
+                updateSidebarStats();
+                
+                // Используем данные по умолчанию
+                updateApplicationState({
+                    workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
+                    machines: []
+                });
+            }
+        }
+
         // Отрисовка настроек цехов
         function renderWorkshopsSettings() {
             const fragment = document.createDocumentFragment();
@@ -369,8 +318,6 @@
                 const workshopDiv = document.createElement('div');
                 workshopDiv.className = 'workshop-card';
                 workshopDiv.dataset.workshopId = workshop.id;
-                
-                const workshopMachines = state.machines.filter(m => m.workshopId === workshop.id);
                 
                 workshopDiv.innerHTML = `
                     <div class="workshop-header">
@@ -500,8 +447,8 @@
                 workshop.name = newName.trim();
                 refreshInterface();
                 
-                // СОХРАНЯЕМ ЦЕХИ В БД
-                await saveWorkshops();
+                // СОХРАНЯЕМ ВСЕ НАСТРОЙКИ
+                await saveAllSettings();
                 showNotification(`Цех переименован: "${oldName}" → "${workshop.name}"`, 'success');
             }
         }
@@ -544,9 +491,8 @@
             
             refreshInterface();
             
-            // СОХРАНЯЕМ ЦЕХИ В БД
-            await saveWorkshops();
-            await saveAllSettings(); // также сохраняем полные настройки
+            // СОХРАНЯЕМ ВСЕ НАСТРОЙКИ
+            await saveAllSettings();
             
             showNotification(`Добавлен новый цех: ЦЕХ-${newId}`, 'success');
         }
@@ -569,9 +515,8 @@
             
             refreshInterface();
             
-            // СОХРАНЯЕМ ЦЕХИ В БД
-            await saveWorkshops();
-            await saveAllSettings(); // также сохраняем полные настройки
+            // СОХРАНЯЕМ ВСЕ НАСТРОКИ
+            await saveAllSettings();
             
             showNotification(`Удален цех: ${removedWorkshop.name}`, 'success');
         }
