@@ -1,0 +1,40 @@
+{
+  "exportDate": "2025-10-01T09:29:58.770Z",
+  "version": "2.0",
+  "settings": {
+    "workshops": [
+      {
+        "id": 1,
+        "name": "ЦЕХ-1",
+        "machinesCount": 4
+      },
+      {
+        "id": 2,
+        "name": "ЦЕХ-2",
+        "machinesCount": 0
+      }
+    ],
+    "machines": [
+      {
+        "id": 1,
+        "name": "CNCMisha",
+        "workshopId": 1
+      },
+      {
+        "id": 2,
+        "name": "StanoK1",
+        "workshopId": 1
+      },
+      {
+        "id": 3,
+        "name": "stanok12",
+        "workshopId": 1
+      },
+      {
+        "id": 4,
+        "name": "StanoK129",
+        "workshopId": 1
+      }
+    ]
+  }
+}

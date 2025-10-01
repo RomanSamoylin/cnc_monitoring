@@ -1,50 +1,25 @@
-// Пример с использованием localStorage для "Запомнить меня"
-document.getElementById("loginForm").addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-    const rememberMe = document.getElementById("rememberMe").checked; // Добавьте чекбокс "Запомнить меня"
-
-    if (username === "admin" && password === "victoria123") {
-        if (rememberMe) {
-            localStorage.setItem("username", username); // Сохраняем логин
-        } else {
-            localStorage.removeItem("username"); // Удаляем логин
-        }
-        window.location.href = "dashboard.html";
-    } else {
-        document.getElementById("errorMessage").style.display = "block";
-    }
-});
-
-// При загрузке страницы проверяем сохраненный логин
-window.onload = function () {
-    const savedUsername = localStorage.getItem("username");
-    if (savedUsername) {
-        document.getElementById("username").value = savedUsername;
-    }
-};
-// Модуль для работы с localStorage и взаимодействия с сервером
-// Версия 2.1 - Адаптировано для системы мониторинга станков
+// localStorage.js - ОБНОВЛЕННАЯ ВЕРСИЯ для системы мониторинга станков
+// Версия 3.0 - Адаптировано для работы с server4.js
 
 // Конфигурация приложения
 const APP_CONFIG = {
-    APP_NAME: 'MachineMonitoring',
-    API_BASE_URL: 'http://localhost:3000/api',
+    APP_NAME: 'CNCMonitoring',
+    API_BASE_URL: 'http://localhost:3004/api',
     ENDPOINTS: {
-        LOGIN: '/auth/login',
-        LOGOUT: '/auth/logout',
-        VERIFY_SESSION: '/auth/verify',
-        GET_MACHINES: '/machines',
-        UPDATE_MACHINES: '/machines/update',
-        GET_SETTINGS: '/settings',
-        UPDATE_SETTINGS: '/settings/update'
+        SETTINGS: '/settings',
+        SAVE_SETTINGS: '/settings/save',
+        IMPORT_SETTINGS: '/settings/import',
+        BACKUPS: '/settings/backups',
+        RESTORE: '/settings/restore',
+        HEALTH: '/health',
+        DISTRIBUTION: '/settings/distribution',
+        WORKSHOPS: '/settings/workshops',
+        STATS: '/settings/stats',
+        DEBUG: '/settings/debug'
     },
-    SESSION_TIMEOUT: 30 * 60 * 1000, // 30 минут
+    SESSION_TIMEOUT: 24 * 60 * 60 * 1000, // 24 часа
     MAX_LOGIN_ATTEMPTS: 5,
     LOCKOUT_TIME: 15 * 60 * 1000, // 15 минут блокировки
-    ENCRYPTION_PREFIX: 'ENC_',
     DEFAULT_REQUEST_HEADERS: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -70,6 +45,7 @@ const StorageManager = {
             return data.value;
         } catch (e) {
             console.error('StorageManager.getItem error:', e);
+            this.removeItem(key); // Удаляем поврежденные данные
             return null;
         }
     },
@@ -96,366 +72,487 @@ const StorageManager = {
 
     // Удалить данные
     removeItem: function(key) {
-        localStorage.removeItem(`${APP_CONFIG.APP_NAME}_${key}`);
+        try {
+            localStorage.removeItem(`${APP_CONFIG.APP_NAME}_${key}`);
+            return true;
+        } catch (e) {
+            console.error('StorageManager.removeItem error:', e);
+            return false;
+        }
     },
 
     // Очистить все данные приложения
     clearAll: function() {
-        Object.keys(localStorage).forEach(key => {
-            if (key.startsWith(APP_CONFIG.APP_NAME)) {
-                localStorage.removeItem(key);
-            }
-        });
-    },
-
-    // Базовое "шифрование" (не для production!)
-    encrypt: function(data) {
-        if (!data) return data;
-        return APP_CONFIG.ENCRYPTION_PREFIX + btoa(unescape(encodeURIComponent(data)));
-    },
-
-    decrypt: function(data) {
-        if (!data || !data.startsWith(APP_CONFIG.ENCRYPTION_PREFIX)) return data;
         try {
-            return decodeURIComponent(escape(atob(data.substring(APP_CONFIG.ENCRYPTION_PREFIX.length))));
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith(APP_CONFIG.APP_NAME)) {
+                    localStorage.removeItem(key);
+                }
+            });
+            console.log('Все данные приложения очищены из localStorage');
+            return true;
         } catch (e) {
-            return data;
+            console.error('StorageManager.clearAll error:', e);
+            return false;
         }
+    },
+
+    // Получить все ключи приложения
+    getAllKeys: function() {
+        try {
+            return Object.keys(localStorage).filter(key => 
+                key.startsWith(APP_CONFIG.APP_NAME)
+            );
+        } catch (e) {
+            console.error('StorageManager.getAllKeys error:', e);
+            return [];
+        }
+    },
+
+    // Проверить существование ключа
+    hasItem: function(key) {
+        return localStorage.getItem(`${APP_CONFIG.APP_NAME}_${key}`) !== null;
     }
 };
 
-// API клиент для взаимодействия с сервером
-const ApiClient = {
-    // Отправить запрос к API
-    request: async function(endpoint, method = 'GET', data = null, headers = {}) {
+// API клиент для взаимодействия с сервером настроек
+const SettingsApiClient = {
+    // Базовый метод для отправки запросов
+    request: async function(endpoint, method = 'GET', data = null, options = {}) {
         const url = APP_CONFIG.API_BASE_URL + endpoint;
         const requestOptions = {
             method: method,
-            headers: { ...APP_CONFIG.DEFAULT_REQUEST_HEADERS, ...headers },
-            credentials: 'include'
+            headers: { ...APP_CONFIG.DEFAULT_REQUEST_HEADERS, ...options.headers },
+            credentials: 'include',
+            timeout: options.timeout || 30000
         };
 
-        if (data) {
+        if (data && (method === 'POST' || method === 'PUT')) {
             requestOptions.body = JSON.stringify(data);
         }
 
         try {
+            console.log(`🌐 API Request: ${method} ${endpoint}`);
+            
             const response = await fetch(url, requestOptions);
             
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
+                const errorText = await response.text();
+                let errorData;
+                try {
+                    errorData = JSON.parse(errorText);
+                } catch {
+                    errorData = { message: errorText || `HTTP error! status: ${response.status}` };
+                }
                 throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
 
-            return await response.json();
+            const responseData = await response.json();
+            console.log(`✅ API Response: ${endpoint}`, responseData.success);
+            return responseData;
+
         } catch (error) {
-            console.error('API request failed:', error);
+            console.error(`❌ API Request failed: ${method} ${endpoint}`, error);
             throw error;
         }
     },
 
-    // Авторизация пользователя
-    login: async function(username, password) {
+    // Получить настройки
+    getSettings: async function() {
+        return await this.request(APP_CONFIG.ENDPOINTS.SETTINGS);
+    },
+
+    // Сохранить настройки
+    saveSettings: async function(settings) {
+        return await this.request(APP_CONFIG.ENDPOINTS.SAVE_SETTINGS, 'POST', { settings });
+    },
+
+    // Сохранить только цехи
+    saveWorkshops: async function(workshops) {
+        return await this.request('/settings/save-workshops', 'POST', { workshops });
+    },
+
+    // Импорт настроек
+    importSettings: async function(settings) {
+        return await this.request(APP_CONFIG.ENDPOINTS.IMPORT_SETTINGS, 'POST', { settings });
+    },
+
+    // Получить список резервных копий
+    getBackups: async function() {
+        return await this.request(APP_CONFIG.ENDPOINTS.BACKUPS);
+    },
+
+    // Восстановить из резервной копии
+    restoreFromBackup: async function(filename) {
+        return await this.request(APP_CONFIG.ENDPOINTS.RESTORE, 'POST', { filename });
+    },
+
+    // Проверить здоровье сервера
+    checkHealth: async function() {
+        return await this.request(APP_CONFIG.ENDPOINTS.HEALTH);
+    },
+
+    // Получить распределение
+    getDistribution: async function() {
+        return await this.request(APP_CONFIG.ENDPOINTS.DISTRIBUTION);
+    },
+
+    // Получить список цехов
+    getWorkshops: async function() {
+        return await this.request(APP_CONFIG.ENDPOINTS.WORKSHOPS);
+    },
+
+    // Получить статистику
+    getStats: async function() {
+        return await this.request(APP_CONFIG.ENDPOINTS.STATS);
+    },
+
+    // Диагностика
+    debugDatabase: async function() {
+        return await this.request(APP_CONFIG.ENDPOINTS.DEBUG);
+    }
+};
+
+// Менеджер настроек для работы с данными
+const SettingsManager = {
+    // Загрузить настройки с сервера или из кэша
+    loadSettings: async function() {
         try {
-            const response = await this.request(APP_CONFIG.ENDPOINTS.LOGIN, 'POST', {
-                username: username,
-                password: password
+            // Сначала пробуем загрузить с сервера
+            const response = await SettingsApiClient.getSettings();
+            
+            if (response.success && response.settings) {
+                // Сохраняем в localStorage
+                StorageManager.setItem('settings', response.settings, APP_CONFIG.SESSION_TIMEOUT);
+                StorageManager.setItem('lastUpdate', new Date().toISOString());
+                
+                console.log('✅ Настройки загружены с сервера:', {
+                    workshops: response.settings.workshops.length,
+                    machines: response.settings.machines.length
+                });
+                
+                return response.settings;
+            } else {
+                throw new Error('Invalid server response');
+            }
+        } catch (error) {
+            console.error('❌ Ошибка загрузки настроек с сервера:', error);
+            
+            // Пробуем загрузить из кэша
+            const cachedSettings = StorageManager.getItem('settings');
+            if (cachedSettings) {
+                console.log('📦 Настройки загружены из кэша');
+                return cachedSettings;
+            }
+            
+            // Используем настройки по умолчанию
+            console.log('⚙️ Используем настройки по умолчанию');
+            return this.getDefaultSettings();
+        }
+    },
+
+    // Сохранить настройки
+    saveSettings: async function(settings) {
+        try {
+            const response = await SettingsApiClient.saveSettings(settings);
+            
+            if (response.success) {
+                // Обновляем кэш
+                StorageManager.setItem('settings', settings, APP_CONFIG.SESSION_TIMEOUT);
+                StorageManager.setItem('lastUpdate', new Date().toISOString());
+                
+                console.log('💾 Настройки сохранены:', {
+                    workshops: settings.workshops.length,
+                    machines: settings.machines.length
+                });
+                
+                return true;
+            } else {
+                throw new Error(response.message || 'Save failed');
+            }
+        } catch (error) {
+            console.error('❌ Ошибка сохранения настроек:', error);
+            
+            // Сохраняем в кэш даже при ошибке сети
+            StorageManager.setItem('settings', settings, APP_CONFIG.SESSION_TIMEOUT);
+            StorageManager.setItem('lastUpdate', new Date().toISOString());
+            
+            throw error;
+        }
+    },
+
+    // Получить настройки по умолчанию
+    getDefaultSettings: function() {
+        return {
+            workshops: [
+                { 
+                    id: 1, 
+                    name: "ЦЕХ-1", 
+                    machinesCount: 0 
+                }
+            ],
+            machines: []
+        };
+    },
+
+    // Получить последнее время обновления
+    getLastUpdate: function() {
+        return StorageManager.getItem('lastUpdate');
+    },
+
+    // Очистить кэш настроек
+    clearCache: function() {
+        StorageManager.removeItem('settings');
+        StorageManager.removeItem('lastUpdate');
+        console.log('🧹 Кэш настроек очищен');
+    }
+};
+
+// Функции для работы с интерфейсом
+const UIManager = {
+    // Показать уведомление
+    showNotification: function(message, type = 'info', duration = 4000) {
+        // Создаем или находим контейнер для уведомлений
+        let notificationContainer = document.getElementById('notificationContainer');
+        if (!notificationContainer) {
+            notificationContainer = document.createElement('div');
+            notificationContainer.id = 'notificationContainer';
+            notificationContainer.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+                max-width: 400px;
+            `;
+            document.body.appendChild(notificationContainer);
+        }
+
+        const notification = document.createElement('div');
+        const types = {
+            success: { bg: '#2ecc71', icon: 'fa-check' },
+            error: { bg: '#e74c3c', icon: 'fa-exclamation-circle' },
+            warning: { bg: '#f39c12', icon: 'fa-exclamation-triangle' },
+            info: { bg: '#3498db', icon: 'fa-info-circle' }
+        };
+
+        const config = types[type] || types.info;
+
+        notification.innerHTML = `
+            <div style="
+                background: ${config.bg};
+                color: white;
+                padding: 12px 16px;
+                margin-bottom: 10px;
+                border-radius: 4px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                animation: slideIn 0.3s ease-out;
+            ">
+                <i class="fas ${config.icon}" style="font-size: 16px;"></i>
+                <span>${message}</span>
+            </div>
+        `;
+
+        notificationContainer.appendChild(notification);
+
+        // Автоматическое скрытие
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
+        }, duration);
+
+        // Добавляем CSS анимации
+        if (!document.getElementById('notificationStyles')) {
+            const style = document.createElement('style');
+            style.id = 'notificationStyles';
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    },
+
+    // Показать ошибку
+    showError: function(message, duration = 5000) {
+        this.showNotification(message, 'error', duration);
+    },
+
+    // Показать успех
+    showSuccess: function(message, duration = 3000) {
+        this.showNotification(message, 'success', duration);
+    },
+
+    // Показать информацию
+    showInfo: function(message, duration = 4000) {
+        this.showNotification(message, 'info', duration);
+    }
+};
+
+// Инициализация приложения
+const AppInitializer = {
+    // Инициализировать приложение
+    initialize: async function() {
+        try {
+            console.log('🚀 Инициализация приложения...');
+
+            // Проверяем здоровье сервера
+            const healthResponse = await SettingsApiClient.checkHealth();
+            const isServerHealthy = healthResponse.success && healthResponse.database === 'connected';
+
+            if (!isServerHealthy) {
+                console.warn('⚠️ Сервер недоступен, работаем в оффлайн режиме');
+                UIManager.showWarning('Сервер недоступен. Работаем в оффлайн режиме.');
+            }
+
+            // Загружаем настройки
+            const settings = await SettingsManager.loadSettings();
+            
+            console.log('✅ Приложение инициализировано:', {
+                server: isServerHealthy ? 'online' : 'offline',
+                workshops: settings.workshops.length,
+                machines: settings.machines.length
             });
 
-            if (response.success) {
-                // Сохраняем токен и данные пользователя
-                StorageManager.setItem('authToken', response.data.token, APP_CONFIG.SESSION_TIMEOUT);
-                StorageManager.setItem('userData', response.data.user);
-                return true;
+            return {
+                settings: settings,
+                serverStatus: isServerHealthy ? 'online' : 'offline',
+                lastUpdate: SettingsManager.getLastUpdate()
+            };
+
+        } catch (error) {
+            console.error('❌ Ошибка инициализации приложения:', error);
+            UIManager.showError('Ошибка инициализации приложения');
+            
+            // Возвращаем настройки по умолчанию
+            return {
+                settings: SettingsManager.getDefaultSettings(),
+                serverStatus: 'error',
+                lastUpdate: null
+            };
+        }
+    },
+
+    // Проверить состояние БД
+    checkDatabaseState: async function() {
+        try {
+            console.log('🔍 Проверка состояния БД...');
+            
+            const debugResponse = await SettingsApiClient.debugDatabase();
+            
+            if (debugResponse.success) {
+                const debugInfo = debugResponse.debug;
+                const latest = debugInfo.latest_settings;
+                
+                console.log('📊 Состояние БД:', debugInfo);
+                
+                return {
+                    success: true,
+                    workshops: latest.workshops_count,
+                    machines: latest.machines_count,
+                    distribution: debugInfo.distribution_count,
+                    totalMachines: debugInfo.machines_count,
+                    workshopsList: latest.workshops_list
+                };
+            } else {
+                throw new Error(debugResponse.message || 'Debug request failed');
             }
-            return false;
         } catch (error) {
-            console.error('Login failed:', error);
-            return false;
-        }
-    },
-
-    // Выход из системы
-    logout: async function() {
-        try {
-            await this.request(APP_CONFIG.ENDPOINTS.LOGOUT, 'POST');
-        } catch (error) {
-            console.error('Logout API call failed:', error);
-        } finally {
-            StorageManager.clearAll();
-            return true;
-        }
-    },
-
-    // Проверка активной сессии
-    verifySession: async function() {
-        try {
-            const token = StorageManager.getItem('authToken');
-            if (!token) return false;
-
-            const response = await this.request(
-                APP_CONFIG.ENDPOINTS.VERIFY_SESSION, 
-                'GET',
-                null,
-                { 'Authorization': `Bearer ${token}` }
-            );
-
-            return response.success;
-        } catch (error) {
-            console.error('Session verification failed:', error);
-            return false;
-        }
-    },
-
-    // Получить данные о станках с сервера
-    getMachines: async function() {
-        try {
-            const token = StorageManager.getItem('authToken');
-            if (!token) throw new Error('Not authenticated');
-
-            const response = await this.request(
-                APP_CONFIG.ENDPOINTS.GET_MACHINES,
-                'GET',
-                null,
-                { 'Authorization': `Bearer ${token}` }
-            );
-
-            if (response.success) {
-                return response.machines;
-            }
-            return null;
-        } catch (error) {
-            console.error('Failed to get machines:', error);
-            throw error;
-        }
-    },
-
-    // Обновить данные о станках на сервере
-    updateMachines: async function(machinesData) {
-        try {
-            const token = StorageManager.getItem('authToken');
-            if (!token) throw new Error('Not authenticated');
-
-            const response = await this.request(
-                APP_CONFIG.ENDPOINTS.UPDATE_MACHINES,
-                'POST',
-                machinesData,
-                { 'Authorization': `Bearer ${token}` }
-            );
-
-            return response.success;
-        } catch (error) {
-            console.error('Failed to update machines:', error);
-            throw error;
-        }
-    },
-
-    // Получить настройки с сервера
-    getSettings: async function() {
-        try {
-            const token = StorageManager.getItem('authToken');
-            if (!token) throw new Error('Not authenticated');
-
-            const response = await this.request(
-                APP_CONFIG.ENDPOINTS.GET_SETTINGS,
-                'GET',
-                null,
-                { 'Authorization': `Bearer ${token}` }
-            );
-
-            if (response.success) {
-                StorageManager.setItem('appSettings', response.data.settings);
-                return response.data.settings;
-            }
-            return null;
-        } catch (error) {
-            console.error('Failed to get settings:', error);
-            throw error;
-        }
-    },
-
-    // Обновить настройки на сервере
-    updateSettings: async function(settings) {
-        try {
-            const token = StorageManager.getItem('authToken');
-            if (!token) throw new Error('Not authenticated');
-
-            const response = await this.request(
-                APP_CONFIG.ENDPOINTS.UPDATE_SETTINGS,
-                'POST',
-                { settings },
-                { 'Authorization': `Bearer ${token}` }
-            );
-
-            if (response.success) {
-                StorageManager.setItem('appSettings', settings);
-                return true;
-            }
-            return false;
-        } catch (error) {
-            console.error('Failed to update settings:', error);
-            throw error;
+            console.error('❌ Ошибка проверки состояния БД:', error);
+            UIManager.showError('Ошибка проверки состояния БД: ' + error.message);
+            
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 };
 
-// Обработчик формы входа
-function setupLoginForm() {
-    const loginForm = document.getElementById("loginForm");
-    if (!loginForm) return;
-
-    loginForm.addEventListener("submit", async function(event) {
-        event.preventDefault();
-
-        // Проверка блокировки
-        const loginAttempts = StorageManager.getItem('loginAttempts') || 0;
-        const lastAttemptTime = StorageManager.getItem('lastAttemptTime');
+// Глобальные функции для использования в HTML
+window.CNCMonitoring = {
+    // API
+    api: SettingsApiClient,
+    
+    // Хранилище
+    storage: StorageManager,
+    
+    // Настройки
+    settings: SettingsManager,
+    
+    // UI
+    ui: UIManager,
+    
+    // Инициализация
+    init: AppInitializer.initialize,
+    
+    // Проверка БД
+    checkDB: AppInitializer.checkDatabaseState,
+    
+    // Вспомогательные функции
+    utils: {
+        // Форматирование размера файла
+        formatFileSize: function(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
         
-        if (loginAttempts >= APP_CONFIG.MAX_LOGIN_ATTEMPTS && 
-            lastAttemptTime && 
-            (Date.now() - lastAttemptTime) < APP_CONFIG.LOCKOUT_TIME) {
-            const minutesLeft = Math.ceil((APP_CONFIG.LOCKOUT_TIME - (Date.now() - lastAttemptTime)) / 60000);
-            showError(`Слишком много попыток входа. Попробуйте через ${minutesLeft} минут.`);
-            return;
-        }
-
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value;
-        const rememberMe = document.getElementById("rememberMe")?.checked;
-
-        try {
-            const loginSuccess = await ApiClient.login(username, password);
-            
-            if (loginSuccess) {
-                // Сброс счетчика попыток
-                StorageManager.removeItem('loginAttempts');
-                StorageManager.removeItem('lastAttemptTime');
-
-                // Сохранение для "запомнить меня"
-                if (rememberMe) {
-                    StorageManager.setItem('rememberedUser', StorageManager.encrypt(username));
-                } else {
-                    StorageManager.removeItem('rememberedUser');
-                }
-
-                // Загрузка начальных настроек
-                await ApiClient.getSettings();
-                
-                window.location.href = "dashboard.html";
-            } else {
-                handleFailedLogin(loginAttempts);
-            }
-        } catch (error) {
-            handleFailedLogin(loginAttempts);
-            showError(error.message || 'Ошибка при входе в систему');
-        }
-    });
-}
-
-// Обработка неудачного входа
-function handleFailedLogin(attempts) {
-    const newAttempts = attempts + 1;
-    StorageManager.setItem('loginAttempts', newAttempts);
-    StorageManager.setItem('lastAttemptTime', Date.now());
-
-    const attemptsLeft = APP_CONFIG.MAX_LOGIN_ATTEMPTS - newAttempts;
-    showError(`Неверные данные. Осталось попыток: ${attemptsLeft}`);
-
-    if (newAttempts >= APP_CONFIG.MAX_LOGIN_ATTEMPTS) {
-        showError(`Вы превысили количество попыток. Аккаунт заблокирован на ${APP_CONFIG.LOCKOUT_TIME / 60000} минут.`);
-    }
-}
-
-// Показать сообщение об ошибке
-function showError(message) {
-    const errorElement = document.getElementById("errorMessage");
-    if (errorElement) {
-        errorElement.textContent = message;
-        errorElement.style.display = "block";
+        // Форматирование даты
+        formatDate: function(dateString) {
+            return new Date(dateString).toLocaleString('ru-RU');
+        },
         
-        // Автоматическое скрытие через 5 секунд
-        setTimeout(() => {
-            errorElement.style.display = "none";
-        }, 5000);
+        // Генерация ID
+        generateId: function() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
     }
-}
+};
 
-// Проверка авторизации при загрузке страницы
-async function checkAuth() {
+// Автоматическая инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', async function() {
     try {
-        const isVerified = await ApiClient.verifySession();
-        if (isVerified) {
-            // Продление сессии
-            const token = StorageManager.getItem('authToken');
-            if (token) {
-                StorageManager.setItem('authToken', token, APP_CONFIG.SESSION_TIMEOUT);
-            }
-            return true;
-        }
+        // Инициализируем приложение
+        const appState = await window.CNCMonitoring.init();
+        
+        // Генерируем событие об успешной инициализации
+        window.dispatchEvent(new CustomEvent('appInitialized', {
+            detail: appState
+        }));
+        
+        console.log('🎉 Приложение готово к работе');
+        
     } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error('💥 Критическая ошибка инициализации:', error);
+        window.CNCMonitoring.ui.showError('Критическая ошибка инициализации приложения');
     }
-    
-    StorageManager.clearAll();
-    return false;
-}
-
-// Выход из системы
-async function logout() {
-    await ApiClient.logout();
-    window.location.href = "login.html";
-}
-
-// Инициализация при загрузке страницы
-async function initialize() {
-    // Автозаполнение для "запомнить меня"
-    const rememberedUser = StorageManager.getItem('rememberedUser');
-    if (rememberedUser) {
-        const usernameInput = document.getElementById("username");
-        if (usernameInput) {
-            usernameInput.value = StorageManager.decrypt(rememberedUser);
-            const rememberMeCheckbox = document.getElementById("rememberMe");
-            if (rememberMeCheckbox) {
-                rememberMeCheckbox.checked = true;
-            }
-        }
-    }
-
-    // Настройка формы входа
-    setupLoginForm();
-
-    // Проверка авторизации для защищенных страниц
-    if (!window.location.pathname.includes('login.html')) {
-        const isAuthenticated = await checkAuth();
-        if (!isAuthenticated) {
-            window.location.href = "login.html";
-            return false;
-        } else {
-            // Загрузка данных приложения
-            try {
-                await ApiClient.getSettings();
-                console.log('Application initialized');
-                return true;
-            } catch (error) {
-                console.error('Initialization error:', error);
-                return false;
-            }
-        }
-    }
-    
-    return true;
-}
-
-// Инициализация приложения
-window.addEventListener('DOMContentLoaded', initialize);
+});
 
 // Экспорт для использования в других модулях
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         StorageManager,
-        ApiClient,
-        checkAuth,
-        logout,
-        initialize
+        SettingsApiClient,
+        SettingsManager,
+        UIManager,
+        AppInitializer,
+        APP_CONFIG
     };
 }
