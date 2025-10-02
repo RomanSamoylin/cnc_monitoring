@@ -1,4 +1,4 @@
-// settings-manager.js - ПОЛНОСТЬЮ ОБНОВЛЕННАЯ ВЕРСИЯ БЕЗ LOCALSTORAGE.JS
+// settings-manager.js - ПОЛНОСТЬЮ ОБНОВЛЕННАЯ ВЕРСИЯ ДЛЯ НОВОЙ СТРУКТУРЫ БД
 class SettingsManager {
     constructor() {
         this.settings = {
@@ -15,7 +15,7 @@ class SettingsManager {
     // Основная функция загрузки настроек
     async loadSettings() {
         try {
-            console.log('🔄 ЗАГРУЗКА НАСТРОЕК С СЕРВЕРА...');
+            console.log('🔄 ЗАГРУЗКА НАСТРОЕК С СЕРВЕРА (НОВАЯ СТРУКТУРА)...');
             
             const response = await fetch(`${this.SERVER_URL}/api/settings`);
             if (!response.ok) {
@@ -318,10 +318,10 @@ class SettingsManager {
         }
     }
 
-    // Диагностика БД
-    async debugDatabase() {
+    // Диагностика системы
+    async debugSystem() {
         try {
-            console.log('🔍 ЗАПУСК ДИАГНОСТИКИ БД...');
+            console.log('🔍 ЗАПУСК ДИАГНОСТИКИ СИСТЕМЫ...');
             
             const response = await fetch(`${this.SERVER_URL}/api/settings/debug`);
             if (!response.ok) {
@@ -334,19 +334,19 @@ class SettingsManager {
                 throw new Error('Server response indicates failure');
             }
             
-            console.log('📊 ДИАГНОСТИКА БД:', data.debug);
+            console.log('📊 ДИАГНОСТИКА СИСТЕМЫ:', data.debug);
             return data.debug;
             
         } catch (error) {
-            console.error('❌ ОШИБКА ДИАГНОСТИКИ БД:', error);
+            console.error('❌ ОШИБКА ДИАГНОСТИКИ СИСТЕМЫ:', error);
             throw error;
         }
     }
 
-    // Глубокая диагностика
-    async deepDebug() {
+    // Детальная диагностика
+    async detailedDebug() {
         try {
-            console.log('🔍 ЗАПУСК ГЛУБОКОЙ ДИАГНОСТИКИ...');
+            console.log('🔍 ЗАПУСК ДЕТАЛЬНОЙ ДИАГНОСТИКИ...');
             
             const response = await fetch(`${this.SERVER_URL}/api/settings/debug-detailed`);
             if (!response.ok) {
@@ -359,19 +359,18 @@ class SettingsManager {
                 throw new Error('Server response indicates failure');
             }
             
-            console.log('📊 ГЛУБОКАЯ ДИАГНОСТИКА:', data);
+            console.log('📊 ДЕТАЛЬНАЯ ДИАГНОСТИКА:', data);
             
             // Сравниваем с текущим состоянием
-            const latestSettings = data.all_settings[0];
             console.log('🔄 СРАВНЕНИЕ СОСТОЯНИЙ:', {
-                server: latestSettings.data.workshops ? latestSettings.data.workshops.map(w => `${w.name}(id:${w.id})`) : [],
+                server: data.workshops.map(w => `${w.workshop_name}(id:${w.workshop_id})`),
                 client: this.settings.workshops.map(w => `${w.name}(id:${w.id})`)
             });
             
             return data;
             
         } catch (error) {
-            console.error('❌ ОШИБКА ГЛУБОКОЙ ДИАГНОСТИКИ:', error);
+            console.error('❌ ОШИБКА ДЕТАЛЬНОЙ ДИАГНОСТИКИ:', error);
             throw error;
         }
     }
@@ -393,10 +392,10 @@ class SettingsManager {
         }
     }
 
-    // Проверка сохраненных данных
-    async verifySavedData() {
+    // Проверка целостности данных
+    async verifyDataIntegrity() {
         try {
-            console.log('🔍 Проверка сохраненных данных...');
+            console.log('🔍 Проверка целостности данных...');
             const response = await fetch(`${this.SERVER_URL}/api/settings/verify`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -408,10 +407,10 @@ class SettingsManager {
                 throw new Error('Server response indicates failure');
             }
             
-            console.log('✅ Проверка сохраненных данных:', data.analysis);
+            console.log('✅ Проверка целостности данных:', data.analysis);
             return data;
         } catch (error) {
-            console.error('❌ Ошибка проверки сохраненных данных:', error);
+            console.error('❌ Ошибка проверки целостности данных:', error);
             throw error;
         }
     }
@@ -443,6 +442,111 @@ class SettingsManager {
         } catch (error) {
             console.error('❌ Ошибка принудительной перезагрузки цехов:', error);
             return false;
+        }
+    }
+
+    // Получение списка резервных копий
+    async getBackupsList() {
+        try {
+            console.log('📋 Запрос списка резервных копий...');
+            const response = await fetch(`${this.SERVER_URL}/api/settings/backups`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error('Server response indicates failure');
+            }
+            
+            console.log('✅ Получен список резервных копий:', data.backups.length);
+            return data.backups;
+        } catch (error) {
+            console.error('❌ Ошибка получения списка резервных копий:', error);
+            throw error;
+        }
+    }
+
+    // Восстановление из резервной копии
+    async restoreFromBackup(filename) {
+        try {
+            console.log(`🔄 ВОССТАНОВЛЕНИЕ ИЗ РЕЗЕРВНОЙ КОПИИ: ${filename}`);
+            
+            const response = await fetch(`${this.SERVER_URL}/api/settings/restore`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ filename })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error('Server response indicates failure');
+            }
+            
+            // Обновляем локальные настройки
+            if (data.settings) {
+                this.settings = {
+                    workshops: data.settings.workshops ? [...data.settings.workshops] : [],
+                    machines: data.settings.machines ? [...data.settings.machines] : []
+                };
+                this.isLoaded = true;
+                this.dispatchSettingsUpdated();
+            }
+            
+            console.log('✅ Восстановление из резервной копии завершено');
+            return true;
+        } catch (error) {
+            console.error('❌ Ошибка восстановления из резервной копии:', error);
+            throw error;
+        }
+    }
+
+    // Импорт настроек
+    async importSettings(settingsData) {
+        try {
+            console.log('📥 ИМПОРТ НАСТРОЕК...');
+            
+            const response = await fetch(`${this.SERVER_URL}/api/settings/import`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ settings: settingsData })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error('Server response indicates failure');
+            }
+            
+            // Обновляем локальные настройки
+            if (data.settings) {
+                this.settings = {
+                    workshops: data.settings.workshops ? [...data.settings.workshops] : [],
+                    machines: data.settings.machines ? [...data.settings.machines] : []
+                };
+                this.isLoaded = true;
+                this.dispatchSettingsUpdated();
+            }
+            
+            console.log('✅ Импорт настроек завершен');
+            return data;
+        } catch (error) {
+            console.error('❌ Ошибка импорта настроек:', error);
+            throw error;
         }
     }
 
@@ -523,6 +627,22 @@ class SettingsManager {
         };
     }
 
+    // Создание резервной копии настроек
+    createBackup() {
+        const backupData = {
+            timestamp: new Date().toISOString(),
+            version: '2.0',
+            databaseStructure: 'workshop_settings',
+            settings: this.settings
+        };
+        
+        const blob = new Blob([JSON.stringify(backupData, null, 2)], { 
+            type: 'application/json' 
+        });
+        
+        return blob;
+    }
+
     // Деструктор
     destroy() {
         this.stopAutoRefresh();
@@ -563,7 +683,8 @@ window.SettingsManager = new Proxy(new SettingsManager(), {
 // Автоматическая инициализация при загрузке
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        console.log('🚀 ИНИЦИАЛИЗАЦИЯ SETTINGSMANAGER...');
+        console.log('🚀 ИНИЦИАЛИЗАЦИЯ SETTINGSMANAGER (НОВАЯ СТРУКТУРА БД)...');
+        console.log('📊 Используется структура: workshop_settings + machine_workshop_assignment');
         
         // Проверяем доступность сервера перед загрузкой
         const isHealthy = await window.SettingsManager.checkHealth();
@@ -602,52 +723,46 @@ document.addEventListener('visibilitychange', () => {
 // Глобальные функции для использования в settings.html
 window.checkDatabaseState = async function() {
     try {
-        const debugInfo = await window.SettingsManager.debugDatabase();
+        const debugInfo = await window.SettingsManager.debugSystem();
         
         if (debugInfo) {
-            const latest = debugInfo.latest_settings;
-            const message = `БД: ${latest.workshops_count} цехов, ${latest.machines_count} станков`;
+            const message = `Система: ${debugInfo.workshops_count} цехов, ${debugInfo.assignment_count} распределений, ${debugInfo.machines_count} станков`;
             
             // Показываем детальную информацию
-            alert(`📊 ДИАГНОСТИКА БД:\n\n` +
-                  `Цехов в БД: ${latest.workshops_count}\n` +
-                  `Станков в БД: ${latest.machines_count}\n` +
-                  `Распределение: ${debugInfo.distribution_count} записей\n` +
+            alert(`📊 ДИАГНОСТИКА СИСТЕМЫ:\n\n` +
+                  `Цехов в системе: ${debugInfo.workshops_count}\n` +
+                  `Распределений: ${debugInfo.assignment_count}\n` +
                   `Всего станков в системе: ${debugInfo.machines_count}\n\n` +
-                  `Последние цехи: ${latest.workshops_list.map(w => w.name).join(', ')}`);
+                  `Текущие цехи: ${debugInfo.workshops.map(w => `${w.workshop_name}(id:${w.workshop_id})`).join(', ')}`);
             
             return message;
         }
     } catch (error) {
-        console.error('❌ Ошибка проверки состояния БД:', error);
+        console.error('❌ Ошибка проверки состояния системы:', error);
         throw error;
     }
 };
 
-window.deepDebug = async function() {
+window.detailedDebug = async function() {
     try {
-        const debugInfo = await window.SettingsManager.deepDebug();
+        const debugInfo = await window.SettingsManager.detailedDebug();
         
         if (debugInfo) {
-            const latestSettings = debugInfo.all_settings[0];
-            let message = `🔍 ГЛУБОКАЯ ДИАГНОСТИКА:\n\n`;
-            message += `Последние настройки (ID: ${latestSettings.id}):\n`;
-            message += `- Цехов: ${latestSettings.data.workshops ? latestSettings.data.workshops.length : 'N/A'}\n`;
-            if (latestSettings.data.workshops) {
-                message += `- Список: ${latestSettings.data.workshops.map(w => w.name).join(', ')}\n`;
-            }
-            message += `- Станков: ${latestSettings.data.machines ? latestSettings.data.machines.length : 'N/A'}\n\n`;
+            let message = `🔍 ДЕТАЛЬНАЯ ДИАГНОСТИКА:\n\n`;
+            message += `Цехов: ${debugInfo.summary.total_workshops}\n`;
+            message += `Распределений: ${debugInfo.summary.total_assignment}\n`;
+            message += `Станков в системе: ${debugInfo.summary.total_machines}\n\n`;
             
-            message += `Распределение: ${debugInfo.distribution.length} записей\n`;
-            message += `Станки в системе: ${debugInfo.machines.length} шт.\n\n`;
-            
-            message += `Всего записей в БД: ${debugInfo.all_settings.length}`;
+            message += `Список цехов:\n`;
+            debugInfo.workshops.forEach(workshop => {
+                message += `- ${workshop.workshop_name} (ID: ${workshop.workshop_id}, станков: ${workshop.machines_count})\n`;
+            });
             
             alert(message);
         }
     } catch (error) {
-        console.error('❌ Ошибка глубокой диагностики:', error);
-        alert('Ошибка глубокой диагностики: ' + error.message);
+        console.error('❌ Ошибка детальной диагностики:', error);
+        alert('Ошибка детальной диагностики: ' + error.message);
     }
 };
 
@@ -655,18 +770,34 @@ window.getSettingsManager = function() {
     return window.SettingsManager;
 };
 
-window.verifySavedData = async function() {
+window.verifyDataIntegrity = async function() {
     try {
-        const result = await window.SettingsManager.verifySavedData();
+        const result = await window.SettingsManager.verifyDataIntegrity();
         if (result) {
-            alert(`Проверка данных:\n\n` +
-                  `Последние настройки: ${result.latest.workshops_count} цехов\n` +
-                  `Цехи: ${result.latest.workshops.join(', ')}\n` +
-                  `Всего записей в БД: ${result.total_records}`);
+            const analysis = result.analysis;
+            let message = `Проверка целостности данных:\n\n`;
+            message += `Цехов: ${analysis.total_workshops}\n`;
+            message += `Распределений: ${analysis.total_assignment}\n`;
+            message += `Станков в системе: ${analysis.total_machines}\n\n`;
+            
+            if (analysis.data_consistency.missing_assignment.length > 0) {
+                message += `⚠️ Станки без распределения: ${analysis.data_consistency.missing_assignment.join(', ')}\n`;
+            }
+            
+            if (analysis.data_consistency.assignment_without_machine.length > 0) {
+                message += `⚠️ Распределение без станков: ${analysis.data_consistency.assignment_without_machine.join(', ')}\n`;
+            }
+            
+            if (analysis.data_consistency.missing_assignment.length === 0 && 
+                analysis.data_consistency.assignment_without_machine.length === 0) {
+                message += `✅ Целостность данных: ОТЛИЧНО\n`;
+            }
+            
+            alert(message);
         }
     } catch (error) {
-        console.error('❌ Ошибка проверки данных:', error);
-        alert('Ошибка проверки данных: ' + error.message);
+        console.error('❌ Ошибка проверки целостности данных:', error);
+        alert('Ошибка проверки целостности данных: ' + error.message);
     }
 };
 
@@ -687,5 +818,25 @@ window.refreshData = async function() {
     } catch (error) {
         console.error('❌ Ошибка обновления данных:', error);
         alert('Ошибка обновления данных: ' + error.message);
+    }
+};
+
+window.getBackupsList = async function() {
+    try {
+        const backups = await window.SettingsManager.getBackupsList();
+        return backups;
+    } catch (error) {
+        console.error('❌ Ошибка получения списка резервных копий:', error);
+        throw error;
+    }
+};
+
+window.restoreFromBackup = async function(filename) {
+    try {
+        await window.SettingsManager.restoreFromBackup(filename);
+        alert('Настройки успешно восстановлены из резервной копии');
+    } catch (error) {
+        console.error('❌ Ошибка восстановления из резервной копии:', error);
+        alert('Ошибка восстановления: ' + error.message);
     }
 };

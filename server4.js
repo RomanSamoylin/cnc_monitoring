@@ -1,4 +1,4 @@
-// server4.js - ПОЛНОСТЬЮ ПЕРЕПИСАННАЯ ВЕРСИЯ С ИСПРАВЛЕНИЕМ ВСЕХ ПРОБЛЕМ
+// server4.js - ПОЛНОСТЬЮ ПЕРЕПИСАННАЯ ВЕРСИЯ ДЛЯ НОВОЙ СТРУКТУРЫ БД
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
@@ -38,34 +38,35 @@ async function initializeSettingsTables() {
   try {
     connection = await getConnection();
     
+    // Создаем таблицу цехов
     await connection.execute(`
-      CREATE TABLE IF NOT EXISTS settings (
+      CREATE TABLE IF NOT EXISTS workshop_settings (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        data JSON NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS machine_workshop_distribution (
-        machine_id INT PRIMARY KEY,
-        workshop_id INT NOT NULL,
+        workshop_id INT NOT NULL UNIQUE,
+        workshop_name VARCHAR(255) NOT NULL,
+        machines_count INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
+    
+    // Создаем таблицу распределения станков
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS machine_workshop_assignment (
+        machine_id INT PRIMARY KEY,
+        workshop_id INT NOT NULL,
+        assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (workshop_id) REFERENCES workshop_settings(workshop_id) ON DELETE CASCADE
+      )
+    `);
 
-    // Создаем начальные настройки если их нет
-    const [settingsRows] = await connection.execute('SELECT COUNT(*) as count FROM settings');
-    if (settingsRows[0].count === 0) {
-      const initialSettings = {
-        workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
-        machines: []
-      };
+    // Создаем цех по умолчанию если нет цехов
+    const [workshopRows] = await connection.execute('SELECT COUNT(*) as count FROM workshop_settings');
+    if (workshopRows[0].count === 0) {
       await connection.execute(
-        'INSERT INTO settings (data, created_at) VALUES (?, NOW())',
-        [JSON.stringify(initialSettings)]
+        'INSERT INTO workshop_settings (workshop_id, workshop_name) VALUES (1, "ЦЕХ-1")'
       );
-      console.log('✅ Созданы начальные настройки');
+      console.log('✅ Создан цех по умолчанию');
     }
 
     console.log('✅ Таблицы настроек инициализированы');
@@ -85,9 +86,9 @@ app.get('/api/settings', async (req, res) => {
         
         console.log('🔄 ЗАПРОС НАСТРОЕК ОТ КЛИЕНТА');
         
-        // Получаем ПОСЛЕДНИЕ настройки
-        const [settingsRows] = await connection.execute(
-            'SELECT data FROM settings ORDER BY id DESC LIMIT 1'
+        // Получаем все цехи
+        const [workshopsRows] = await connection.execute(
+            'SELECT workshop_id, workshop_name, machines_count FROM workshop_settings ORDER BY workshop_id'
         );
         
         // Получаем все станки из системы
@@ -96,77 +97,29 @@ app.get('/api/settings', async (req, res) => {
         );
 
         // Получаем актуальное распределение
-        const [distributionRows] = await connection.execute(
-            'SELECT machine_id, workshop_id FROM machine_workshop_distribution'
+        const [assignmentRows] = await connection.execute(
+            'SELECT machine_id, workshop_id FROM machine_workshop_assignment'
         );
 
         // Создаем карту распределения
-        const distributionMap = {};
-        distributionRows.forEach(row => {
-            distributionMap[row.machine_id] = row.workshop_id;
+        const assignmentMap = {};
+        assignmentRows.forEach(row => {
+            assignmentMap[row.machine_id] = row.workshop_id;
         });
 
-        // Базовые настройки по умолчанию
-        let settings = {
-            workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
-            machines: []
-        };
-
-        // Загружаем сохраненные настройки
-        if (settingsRows.length > 0) {
-            try {
-                const savedSettings = JSON.parse(settingsRows[0].data);
-                console.log('💾 СОХРАНЕННЫЕ ДАННЫЕ:', {
-                    workshops: savedSettings.workshops ? savedSettings.workshops.length : 0,
-                    machines: savedSettings.machines ? savedSettings.machines.length : 0
-                });
-
-                // ВАЖНО: Сохраняем ВСЕ цехи из сохраненных настроек
-                if (savedSettings.workshops && Array.isArray(savedSettings.workshops)) {
-                    settings.workshops = savedSettings.workshops.map(workshop => ({
-                        id: workshop.id,
-                        name: workshop.name,
-                        machinesCount: 0
-                    }));
-                    console.log('✅ Загружено цехов:', settings.workshops.length);
-                }
-
-                // Создаем станки на основе системных данных
-                settings.machines = machinesRows.map(row => {
-                    // Ищем сохраненные данные для этого станка
-                    const savedMachine = savedSettings.machines ? 
-                        savedSettings.machines.find(m => m.id === row.machine_id) : null;
-                    
-                    return {
-                        id: row.machine_id,
-                        name: row.cnc_name,
-                        // Приоритет: распределение -> сохраненные данные -> цех по умолчанию
-                        workshopId: distributionMap[row.machine_id] !== undefined ? 
-                                   distributionMap[row.machine_id] : 
-                                   (savedMachine ? savedMachine.workshopId : 1)
-                    };
-                });
-                
-            } catch (e) {
-                console.error('❌ Ошибка парсинга сохраненных настроек:', e);
-                // Используем данные по умолчанию
-                settings.machines = machinesRows.map(row => ({
-                    id: row.machine_id,
-                    name: row.cnc_name,
-                    workshopId: distributionMap[row.machine_id] || 1
-                }));
-            }
-        } else {
-            // Нет сохраненных настроек
-            settings.machines = machinesRows.map(row => ({
+        // Формируем настройки
+        const settings = {
+            workshops: workshopsRows.map(row => ({
+                id: row.workshop_id,
+                name: row.workshop_name,
+                machinesCount: row.machines_count
+            })),
+            machines: machinesRows.map(row => ({
                 id: row.machine_id,
                 name: row.cnc_name,
-                workshopId: distributionMap[row.machine_id] || 1
-            }));
-        }
-
-        // Обновляем счетчики станков в цехах
-        updateWorkshopsMachinesCount(settings);
+                workshopId: assignmentMap[row.machine_id] || 1 // По умолчанию в цех 1
+            }))
+        };
 
         console.log('✅ ФИНАЛЬНЫЕ НАСТРОЙКИ:', {
             workshops: settings.workshops.length,
@@ -191,7 +144,7 @@ app.get('/api/settings', async (req, res) => {
     }
 });
 
-// ЭНДПОИНТ СОХРАНЕНИЯ: Сохраняет настройки и обновляет распределение
+// ЭНДПОИНТ СОХРАНЕНИЯ: Сохраняет настройки
 app.post('/api/settings/save', async (req, res) => {
     let connection;
     try {
@@ -214,32 +167,46 @@ app.post('/api/settings/save', async (req, res) => {
         await connection.beginTransaction();
 
         try {
-            // Обновляем счетчики перед сохранением
-            updateWorkshopsMachinesCount(settings);
+            // 1. Сохраняем цехи
+            for (const workshop of settings.workshops) {
+                await connection.execute(
+                    `INSERT INTO workshop_settings (workshop_id, workshop_name, machines_count) 
+                     VALUES (?, ?, ?) 
+                     ON DUPLICATE KEY UPDATE 
+                     workshop_name = VALUES(workshop_name), 
+                     machines_count = VALUES(machines_count)`,
+                    [workshop.id, workshop.name, workshop.machinesCount || 0]
+                );
+            }
 
-            // 1. Сохраняем настройки в таблицу settings
-            await connection.execute(
-                'INSERT INTO settings (data, created_at) VALUES (?, NOW())',
-                [JSON.stringify(settings)]
-            );
-
-            // 2. Обновляем распределение станков
+            // 2. Сохраняем распределение станков
             console.log('🔄 Обновление распределения станков...');
             
             for (const machine of settings.machines) {
                 await connection.execute(
-                    `INSERT INTO machine_workshop_distribution (machine_id, workshop_id, updated_at) 
-                     VALUES (?, ?, NOW()) 
+                    `INSERT INTO machine_workshop_assignment (machine_id, workshop_id) 
+                     VALUES (?, ?) 
                      ON DUPLICATE KEY UPDATE 
-                     workshop_id = VALUES(workshop_id), 
-                     updated_at = VALUES(updated_at)`,
+                     workshop_id = VALUES(workshop_id)`,
                     [machine.id, machine.workshopId]
                 );
             }
 
+            // 3. Удаляем цехи, которых нет в новых настройках
+            const workshopIds = settings.workshops.map(w => w.id);
+            if (workshopIds.length > 0) {
+                await connection.execute(
+                    'DELETE FROM workshop_settings WHERE workshop_id NOT IN (?)',
+                    [workshopIds]
+                );
+            }
+
+            // 4. Обновляем счетчики станков
+            await updateWorkshopsMachinesCount(connection);
+
             await connection.commit();
 
-            // Сохраняем резервную копию
+            // 5. Сохраняем резервную копию
             await saveBackup(settings);
 
             console.log('✅ НАСТРОЙКИ СОХРАНЕНЫ');
@@ -272,31 +239,19 @@ app.get('/api/settings/distribution', async (req, res) => {
     try {
         connection = await getConnection();
         
-        const [distributionRows] = await connection.execute(
-            'SELECT mwd.machine_id, mwd.workshop_id, cim.cnc_name ' +
-            'FROM machine_workshop_distribution mwd ' +
-            'JOIN cnc_id_mapping cim ON mwd.machine_id = cim.machine_id ' +
-            'ORDER BY mwd.machine_id'
+        const [assignmentRows] = await connection.execute(
+            'SELECT mwa.machine_id, mwa.workshop_id, cim.cnc_name ' +
+            'FROM machine_workshop_assignment mwa ' +
+            'JOIN cnc_id_mapping cim ON mwa.machine_id = cim.machine_id ' +
+            'ORDER BY mwa.machine_id'
         );
 
-        const [settingsRows] = await connection.execute(
-            'SELECT data FROM settings ORDER BY created_at DESC LIMIT 1'
+        const [workshopsRows] = await connection.execute(
+            'SELECT workshop_id, workshop_name FROM workshop_settings ORDER BY workshop_id'
         );
-
-        let workshops = [{ id: 1, name: "ЦЕХ-1" }];
-        if (settingsRows.length > 0) {
-            try {
-                const savedSettings = JSON.parse(settingsRows[0].data);
-                if (savedSettings.workshops) {
-                    workshops = savedSettings.workshops;
-                }
-            } catch (e) {
-                console.error('❌ Error parsing saved settings:', e);
-            }
-        }
 
         const distribution = {};
-        const machines = distributionRows.map(row => {
+        const machines = assignmentRows.map(row => {
             distribution[row.machine_id] = row.workshop_id;
             return {
                 id: row.machine_id,
@@ -307,7 +262,7 @@ app.get('/api/settings/distribution', async (req, res) => {
 
         res.json({
             success: true,
-            workshops: workshops,
+            workshops: workshopsRows,
             machines: machines,
             distribution: distribution
         });
@@ -349,7 +304,7 @@ app.post('/api/settings/import', async (req, res) => {
         try {
             // Получаем актуальный список станков из БД
             const [machinesRows] = await connection.execute(
-                'SELECT machine_id, cnc_name FROM cnc_id_mapping'
+                'SELECT machine_id FROM cnc_id_mapping'
             );
             const availableMachineIds = machinesRows.map(row => row.machine_id);
 
@@ -358,26 +313,28 @@ app.post('/api/settings/import', async (req, res) => {
                 availableMachineIds.includes(machine.id)
             );
 
-            // Сохраняем настройки
-            await connection.execute(
-                'INSERT INTO settings (data, created_at) VALUES (?, NOW())',
-                [JSON.stringify({
-                    workshops: settings.workshops,
-                    machines: validMachines
-                })]
-            );
+            // 1. Очищаем текущие настройки
+            await connection.execute('DELETE FROM machine_workshop_assignment');
+            await connection.execute('DELETE FROM workshop_settings');
 
-            // Обновляем распределение
+            // 2. Сохраняем цехи
+            for (const workshop of settings.workshops) {
+                await connection.execute(
+                    'INSERT INTO workshop_settings (workshop_id, workshop_name, machines_count) VALUES (?, ?, ?)',
+                    [workshop.id, workshop.name, workshop.machinesCount || 0]
+                );
+            }
+
+            // 3. Сохраняем распределение
             for (const machine of validMachines) {
                 await connection.execute(
-                    `INSERT INTO machine_workshop_distribution (machine_id, workshop_id, updated_at) 
-                     VALUES (?, ?, NOW()) 
-                     ON DUPLICATE KEY UPDATE 
-                     workshop_id = VALUES(workshop_id), 
-                     updated_at = VALUES(updated_at)`,
+                    'INSERT INTO machine_workshop_assignment (machine_id, workshop_id) VALUES (?, ?)',
                     [machine.id, machine.workshopId]
                 );
             }
+
+            // 4. Обновляем счетчики
+            await updateWorkshopsMachinesCount(connection);
 
             await connection.commit();
 
@@ -385,7 +342,6 @@ app.post('/api/settings/import', async (req, res) => {
                 workshops: settings.workshops,
                 machines: validMachines
             };
-            updateWorkshopsMachinesCount(actualSettings);
 
             await saveBackup(actualSettings);
 
@@ -480,25 +436,30 @@ app.post('/api/settings/restore', async (req, res) => {
         await connection.beginTransaction();
 
         try {
-            // Сохраняем настройки из резервной копии
-            await connection.execute(
-                'INSERT INTO settings (data, created_at) VALUES (?, NOW())',
-                [JSON.stringify(backupData.settings)]
-            );
+            // 1. Очищаем текущие настройки
+            await connection.execute('DELETE FROM machine_workshop_assignment');
+            await connection.execute('DELETE FROM workshop_settings');
 
-            // Обновляем распределение
+            // 2. Восстанавливаем цехи
+            for (const workshop of backupData.settings.workshops) {
+                await connection.execute(
+                    'INSERT INTO workshop_settings (workshop_id, workshop_name, machines_count) VALUES (?, ?, ?)',
+                    [workshop.id, workshop.name, workshop.machinesCount || 0]
+                );
+            }
+
+            // 3. Восстанавливаем распределение
             for (const machine of backupData.settings.machines) {
                 if (machine.id && machine.workshopId) {
                     await connection.execute(
-                        `INSERT INTO machine_workshop_distribution (machine_id, workshop_id, updated_at) 
-                         VALUES (?, ?, NOW()) 
-                         ON DUPLICATE KEY UPDATE 
-                         workshop_id = VALUES(workshop_id), 
-                         updated_at = VALUES(updated_at)`,
+                        'INSERT INTO machine_workshop_assignment (machine_id, workshop_id) VALUES (?, ?)',
                         [machine.id, machine.workshopId]
                     );
                 }
             }
+
+            // 4. Обновляем счетчики
+            await updateWorkshopsMachinesCount(connection);
 
             await connection.commit();
 
@@ -561,19 +522,19 @@ app.get('/api/settings/quick-distribution', async (req, res) => {
     try {
         connection = await getConnection();
         
-        const [distributionRows] = await connection.execute(
-            'SELECT machine_id, workshop_id FROM machine_workshop_distribution ORDER BY machine_id'
+        const [assignmentRows] = await connection.execute(
+            'SELECT machine_id, workshop_id FROM machine_workshop_assignment ORDER BY machine_id'
         );
 
         const distribution = {};
-        distributionRows.forEach(row => {
+        assignmentRows.forEach(row => {
             distribution[row.machine_id] = row.workshop_id;
         });
 
         res.json({
             success: true,
             distribution: distribution,
-            totalMachines: distributionRows.length,
+            totalMachines: assignmentRows.length,
             lastUpdate: new Date().toISOString()
         });
 
@@ -594,22 +555,17 @@ app.get('/api/settings/workshops', async (req, res) => {
     try {
         connection = await getConnection();
         
-        const [settingsRows] = await connection.execute(
-            'SELECT data FROM settings ORDER BY created_at DESC LIMIT 1'
+        const [workshopsRows] = await connection.execute(
+            'SELECT workshop_id, workshop_name, machines_count FROM workshop_settings ORDER BY workshop_id'
         );
 
-        let workshops = [{ id: 1, name: "ЦЕХ-1" }];
-        if (settingsRows.length > 0) {
-            try {
-                const savedSettings = JSON.parse(settingsRows[0].data);
-                if (savedSettings.workshops) {
-                    workshops = savedSettings.workshops;
-                    console.log('✅ Загружено цехов из БД:', workshops.length);
-                }
-            } catch (e) {
-                console.error('❌ Error parsing saved settings:', e);
-            }
-        }
+        const workshops = workshopsRows.map(row => ({
+            id: row.workshop_id,
+            name: row.workshop_name,
+            machinesCount: row.machines_count
+        }));
+
+        console.log('✅ Загружено цехов из БД:', workshops.length);
 
         res.json({
             success: true,
@@ -637,43 +593,32 @@ app.post('/api/settings/refresh', async (req, res) => {
             'SELECT machine_id, cnc_name FROM cnc_id_mapping ORDER BY machine_id'
         );
 
-        const [distributionRows] = await connection.execute(
-            'SELECT machine_id, workshop_id FROM machine_workshop_distribution'
+        const [assignmentRows] = await connection.execute(
+            'SELECT machine_id, workshop_id FROM machine_workshop_assignment'
         );
 
-        const [settingsRows] = await connection.execute(
-            'SELECT data FROM settings ORDER BY created_at DESC LIMIT 1'
+        const [workshopsRows] = await connection.execute(
+            'SELECT workshop_id, workshop_name, machines_count FROM workshop_settings ORDER BY workshop_id'
         );
 
-        let settings = {
-            workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
-            machines: []
-        };
-
-        if (settingsRows.length > 0) {
-            try {
-                const savedSettings = JSON.parse(settingsRows[0].data);
-                if (savedSettings.workshops) settings.workshops = savedSettings.workshops;
-                if (savedSettings.machines) settings.machines = savedSettings.machines;
-            } catch (e) {
-                console.error('❌ Error parsing saved settings:', e);
-            }
-        }
-
-        const currentDistribution = {};
-        distributionRows.forEach(row => {
-            currentDistribution[row.machine_id] = row.workshop_id;
+        const currentAssignment = {};
+        assignmentRows.forEach(row => {
+            currentAssignment[row.machine_id] = row.workshop_id;
         });
 
-        // Объединяем данные с актуальным распределением
-        const machinesFromDB = mappingRows.map(row => ({
-            id: row.machine_id,
-            name: row.cnc_name,
-            workshopId: currentDistribution[row.machine_id] || 1
-        }));
-
-        settings.machines = machinesFromDB;
-        updateWorkshopsMachinesCount(settings);
+        // Формируем актуальные настройки
+        const settings = {
+            workshops: workshopsRows.map(row => ({
+                id: row.workshop_id,
+                name: row.workshop_name,
+                machinesCount: row.machines_count
+            })),
+            machines: mappingRows.map(row => ({
+                id: row.machine_id,
+                name: row.cnc_name,
+                workshopId: currentAssignment[row.machine_id] || 1
+            }))
+        };
 
         console.log('✅ Данные обновлены');
 
@@ -700,38 +645,31 @@ app.get('/api/settings/stats', async (req, res) => {
     try {
         connection = await getConnection();
         
-        const [settingsRows] = await connection.execute(
-            'SELECT data FROM settings ORDER BY created_at DESC LIMIT 1'
+        const [workshopsRows] = await connection.execute(
+            'SELECT COUNT(*) as count FROM workshop_settings'
         );
 
-        let workshopsCount = 1;
-        let machinesCount = 0;
-        
-        if (settingsRows.length > 0) {
-            try {
-                const savedSettings = JSON.parse(settingsRows[0].data);
-                if (savedSettings.workshops) workshopsCount = savedSettings.workshops.length;
-                if (savedSettings.machines) machinesCount = savedSettings.machines.length;
-            } catch (e) {
-                console.error('❌ Error parsing saved settings:', e);
-            }
-        }
-
-        const [distributionRows] = await connection.execute(
-            'SELECT COUNT(*) as count FROM machine_workshop_distribution'
+        const [assignmentRows] = await connection.execute(
+            'SELECT COUNT(*) as count FROM machine_workshop_assignment'
         );
 
         const [machinesRows] = await connection.execute(
             'SELECT COUNT(*) as count FROM cnc_id_mapping'
         );
 
+        // Получаем суммарное количество станков по цехам
+        const [machinesCountRows] = await connection.execute(
+            'SELECT SUM(machines_count) as total FROM workshop_settings'
+        );
+
         res.json({
             success: true,
             stats: {
-                workshops: workshopsCount,
-                machines: machinesCount,
-                distribution: distributionRows[0].count,
+                workshops: workshopsRows[0].count,
+                machines: assignmentRows[0].count,
+                distribution: assignmentRows[0].count,
                 totalMachinesInDB: machinesRows[0].count,
+                totalMachinesAssigned: machinesCountRows[0].total || 0,
                 lastUpdate: new Date().toISOString()
             }
         });
@@ -753,35 +691,14 @@ app.get('/api/settings/debug', async (req, res) => {
     try {
         connection = await getConnection();
         
-        // Получаем все записи из settings
-        const [settingsRows] = await connection.execute(
-            'SELECT id, data, created_at FROM settings ORDER BY id DESC LIMIT 5'
+        // Получаем все цехи
+        const [workshopsRows] = await connection.execute(
+            'SELECT workshop_id, workshop_name, machines_count, updated_at FROM workshop_settings ORDER BY workshop_id'
         );
         
-        // Анализируем структуру данных
-        const settingsAnalysis = settingsRows.map(row => {
-            try {
-                const data = JSON.parse(row.data);
-                return {
-                    id: row.id,
-                    created_at: row.created_at,
-                    workshops_count: data.workshops ? data.workshops.length : 0,
-                    machines_count: data.machines ? data.machines.length : 0,
-                    has_workshops: !!data.workshops,
-                    workshops_list: data.workshops ? data.workshops.map(w => ({id: w.id, name: w.name})) : []
-                };
-            } catch (e) {
-                return {
-                    id: row.id,
-                    created_at: row.created_at,
-                    error: 'Parse error'
-                };
-            }
-        });
-
         // Получаем распределение
-        const [distributionRows] = await connection.execute(
-            'SELECT COUNT(*) as count FROM machine_workshop_distribution'
+        const [assignmentRows] = await connection.execute(
+            'SELECT COUNT(*) as count FROM machine_workshop_assignment'
         );
 
         // Получаем станки
@@ -792,10 +709,10 @@ app.get('/api/settings/debug', async (req, res) => {
         res.json({
             success: true,
             debug: {
-                settings_records: settingsAnalysis,
-                distribution_count: distributionRows[0].count,
+                workshops: workshopsRows,
+                assignment_count: assignmentRows[0].count,
                 machines_count: machinesRows[0].count,
-                latest_settings: settingsAnalysis[0] || { workshops_count: 0, machines_count: 0, workshops_list: [] }
+                workshops_count: workshopsRows.length
             }
         });
 
@@ -816,14 +733,14 @@ app.get('/api/settings/debug-detailed', async (req, res) => {
     try {
         connection = await getConnection();
         
-        // Получаем ВСЕ записи настроек
-        const [allSettings] = await connection.execute(
-            'SELECT id, data, created_at FROM settings ORDER BY id DESC LIMIT 10'
+        // Получаем все цехи
+        const [workshopsRows] = await connection.execute(
+            'SELECT * FROM workshop_settings ORDER BY workshop_id'
         );
         
         // Получаем распределение
-        const [distributionRows] = await connection.execute(
-            'SELECT * FROM machine_workshop_distribution ORDER BY machine_id'
+        const [assignmentRows] = await connection.execute(
+            'SELECT mwa.*, cim.cnc_name FROM machine_workshop_assignment mwa JOIN cnc_id_mapping cim ON mwa.machine_id = cim.machine_id ORDER BY mwa.workshop_id, mwa.machine_id'
         );
 
         // Получаем станки
@@ -831,34 +748,16 @@ app.get('/api/settings/debug-detailed', async (req, res) => {
             'SELECT * FROM cnc_id_mapping ORDER BY machine_id'
         );
 
-        const processedSettings = allSettings.map(row => {
-            try {
-                return {
-                    id: row.id,
-                    created_at: row.created_at,
-                    data: JSON.parse(row.data)
-                };
-            } catch (e) {
-                return { 
-                    id: row.id, 
-                    error: e.message,
-                    data: null
-                };
-            }
-        });
-
-        // Гарантируем, что latestSettings.data всегда определен
-        const latestSettings = processedSettings[0] || { 
-            id: 0, 
-            data: { workshops: [], machines: [] } 
-        };
-
         res.json({
             success: true,
-            all_settings: processedSettings,
-            distribution: distributionRows,
+            workshops: workshopsRows,
+            assignment: assignmentRows,
             machines: machinesRows,
-            latest_settings: latestSettings
+            summary: {
+                total_workshops: workshopsRows.length,
+                total_assignment: assignmentRows.length,
+                total_machines: machinesRows.length
+            }
         });
 
     } catch (error) {
@@ -878,14 +777,14 @@ app.get('/api/settings/verify', async (req, res) => {
     try {
         connection = await getConnection();
         
-        // Получаем все записи настроек
-        const [allSettings] = await connection.execute(
-            'SELECT id, data, created_at FROM settings ORDER BY id DESC'
+        // Получаем цехи
+        const [workshopsRows] = await connection.execute(
+            'SELECT * FROM workshop_settings ORDER BY workshop_id'
         );
 
         // Получаем распределение
-        const [distributionRows] = await connection.execute(
-            'SELECT * FROM machine_workshop_distribution ORDER BY machine_id'
+        const [assignmentRows] = await connection.execute(
+            'SELECT * FROM machine_workshop_assignment ORDER BY machine_id'
         );
 
         // Получаем станки
@@ -895,55 +794,30 @@ app.get('/api/settings/verify', async (req, res) => {
 
         // Анализируем целостность данных
         const analysis = {
-            total_settings_records: allSettings.length,
-            total_distribution_records: distributionRows.length,
-            total_machines_in_system: machinesRows.length,
-            latest_settings: null,
+            total_workshops: workshopsRows.length,
+            total_assignment: assignmentRows.length,
+            total_machines: machinesRows.length,
             data_consistency: {
-                missing_distribution: [],
-                missing_machines: []
+                missing_assignment: [],
+                assignment_without_machine: []
             }
         };
 
-        if (allSettings.length > 0) {
-            try {
-                const latest = JSON.parse(allSettings[0].data);
-                analysis.latest_settings = {
-                    workshops_count: latest.workshops ? latest.workshops.length : 0,
-                    machines_count: latest.machines ? latest.machines.length : 0,
-                    workshops: latest.workshops ? latest.workshops.map(w => w.name) : []
-                };
-            } catch (e) {
-                analysis.latest_settings = { 
-                    error: e.message,
-                    workshops_count: 0,
-                    machines_count: 0,
-                    workshops: []
-                };
-            }
-        } else {
-            analysis.latest_settings = {
-                workshops_count: 0,
-                machines_count: 0,
-                workshops: []
-            };
-        }
-
         // Проверяем целостность
         const machineIdsInSystem = new Set(machinesRows.map(m => m.machine_id));
-        const machineIdsInDistribution = new Set(distributionRows.map(d => d.machine_id));
+        const machineIdsInAssignment = new Set(assignmentRows.map(d => d.machine_id));
 
         // Станки без распределения
         machineIdsInSystem.forEach(id => {
-            if (!machineIdsInDistribution.has(id)) {
-                analysis.data_consistency.missing_distribution.push(id);
+            if (!machineIdsInAssignment.has(id)) {
+                analysis.data_consistency.missing_assignment.push(id);
             }
         });
 
         // Распределение без станков
-        machineIdsInDistribution.forEach(id => {
+        machineIdsInAssignment.forEach(id => {
             if (!machineIdsInSystem.has(id)) {
-                analysis.data_consistency.missing_machines.push(id);
+                analysis.data_consistency.assignment_without_machine.push(id);
             }
         });
 
@@ -964,19 +838,21 @@ app.get('/api/settings/verify', async (req, res) => {
 });
 
 // Функция для обновления счетчиков станков в цехах
-function updateWorkshopsMachinesCount(settings) {
-    // Сбрасываем счетчики
-    settings.workshops.forEach(workshop => {
-        workshop.machinesCount = 0;
-    });
-
-    // Считаем станки по цехам
-    settings.machines.forEach(machine => {
-        const workshop = settings.workshops.find(w => w.id === machine.workshopId);
-        if (workshop) {
-            workshop.machinesCount++;
-        }
-    });
+async function updateWorkshopsMachinesCount(connection) {
+    try {
+        // Обновляем счетчики на основе актуального распределения
+        await connection.execute(`
+            UPDATE workshop_settings ws
+            SET machines_count = (
+                SELECT COUNT(*) 
+                FROM machine_workshop_assignment mwa 
+                WHERE mwa.workshop_id = ws.workshop_id
+            )
+        `);
+        console.log('✅ Счетчики станков обновлены');
+    } catch (error) {
+        console.error('❌ Ошибка обновления счетчиков:', error);
+    }
 }
 
 // Функция для сохранения резервной копии
@@ -1010,6 +886,7 @@ async function startServer() {
         
         app.listen(PORT, () => {
             console.log(`🚀 Сервер настроек запущен на порту ${PORT}`);
+            console.log(`📊 Используется новая структура БД: workshop_settings + machine_workshop_assignment`);
         });
     } catch (error) {
         console.error('❌ Ошибка запуска сервера:', error);
