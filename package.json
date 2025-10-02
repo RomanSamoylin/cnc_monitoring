@@ -1,15 +1,25 @@
 {
   "name": "cnc_monitoring",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Система мониторинга CNC станков с веб-интерфейсом и настройками распределения по цехам",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "start-analytics": "node server2.js",
     "start-settings": "node server4.js",
-    "start-all": "concurrently \"npm run start\" \"npm run start-analytics\" \"npm run start-settings\""
+    "start-all": "concurrently \"npm run start\" \"npm run start-analytics\" \"npm run start-settings\"",
+    "dev": "node server4.js",
+    "test": "echo \"No tests specified\" && exit 0",
+    "build": "echo \"No build process\""
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "cnc",
+    "monitoring",
+    "dashboard",
+    "industrial",
+    "machines"
+  ],
+  "author": "Your Name",
   "license": "ISC",
   "dependencies": {
     "chart.js": "^4.4.7",
@@ -22,6 +32,12 @@
     "mysql2": "^3.14.0",
     "ws": "^8.18.1"
   },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RomanSamoylin/cnc_monitoring.git"
@@ -29,6 +45,5 @@
   "bugs": {
     "url": "https://github.com/RomanSamoylin/cnc_monitoring/issues"
   },
-  "homepage": "https://github.com/RomanSamoylin/cnc_monitoring#readme",
-  "description": ""
+  "homepage": "https://github.com/RomanSamoylin/cnc_monitoring#readme"
 }
