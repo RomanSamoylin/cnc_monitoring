@@ -1,3 +1,5 @@
+[file name]: settings.html
+[file content begin]
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -62,18 +64,6 @@
                 </button>
                 <button class="btn btn-warning" onclick="resetToDefaults()" style="margin-top: 10px;">
                     <i class="fas fa-undo"></i> Сбросить к умолчаниям
-                </button>
-                <button class="btn btn-secondary" onclick="checkDatabaseState()" style="margin-top: 10px;">
-                    <i class="fas fa-database"></i> Проверить БД
-                </button>
-                <button class="btn btn-info" onclick="debugSettings()" style="margin-top: 10px;">
-                    <i class="fas fa-bug"></i> Диагностика
-                </button>
-                <button class="btn btn-warning" onclick="verifySavedData()" style="margin-top: 10px;">
-                    <i class="fas fa-search"></i> Проверить данные
-                </button>
-                <button class="btn btn-danger" onclick="deepDebug()" style="margin-top: 10px;">
-                    <i class="fas fa-search"></i> Глубокая диагностика
                 </button>
             </div>
         </div>
@@ -604,148 +594,6 @@
             showNotification('Настройки сброшены к значениям по умолчанию', 'success');
         }
 
-        // Функция для проверки состояния БД
-        async function checkDatabaseState() {
-            try {
-                showNotification('Проверка состояния БД...', 'info');
-                
-                console.log('🔍 Запрос диагностики БД...');
-                const response = await fetch('http://localhost:3004/api/settings/debug');
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP error: ${response.status} - ${errorText}`);
-                }
-                
-                const data = await response.json();
-                if (!data.success) throw new Error(data.message || 'Ошибка в данных');
-                
-                console.log('📊 Состояние БД:', data.debug);
-                
-                const latest = data.debug.latest_settings;
-                const message = `БД: ${latest.workshops_count} цехов, ${latest.machines_count} станков`;
-                showNotification(message, 'info');
-                
-                // Показываем детальную информацию в alert
-                alert(`Диагностика БД:\n\n` +
-                      `Цехов в БД: ${latest.workshops_count}\n` +
-                      `Станков в БД: ${latest.machines_count}\n` +
-                      `Распределение: ${data.debug.distribution_count} записей\n` +
-                      `Всего станков в системе: ${data.debug.machines_count}\n\n` +
-                      `Последние цехи: ${latest.workshops_list.map(w => w.name).join(', ')}`);
-                
-            } catch (error) {
-                console.error('❌ Ошибка проверки состояния БД:', error);
-                showNotification('Ошибка проверки состояния БД', 'error');
-            }
-        }
-
-        // Диагностика настроек
-        async function debugSettings() {
-            try {
-                console.log('🔍 ЗАПУСК ДИАГНОСТИКИ...');
-                
-                // 1. Проверим что приходит с сервера
-                const response = await fetch('http://localhost:3004/api/settings');
-                const data = await response.json();
-                
-                console.log('📋 ОТВЕТ ОТ /api/settings:', {
-                    success: data.success,
-                    workshopsCount: data.settings.workshops.length,
-                    workshops: data.settings.workshops,
-                    machinesCount: data.settings.machines.length,
-                    machinesDistribution: data.settings.machines.map(m => `${m.name} -> ЦЕХ-${m.workshopId}`)
-                });
-
-                // 2. Проверим все записи в БД
-                const debugResponse = await fetch('http://localhost:3004/api/settings/debug');
-                const debugData = await debugResponse.json();
-                
-                console.log('🗃️ ВСЕ ЗАПИСИ В БД:', debugData.debug.settings_records);
-
-                // 3. Проверим текущее состояние
-                console.log('🏭 ТЕКУЩЕЕ СОСТОЯНИЕ В ИНТЕРФЕЙСЕ:', {
-                    workshops: state.workshops.length,
-                    workshopsList: state.workshops.map(w => `${w.name}(id:${w.id})`),
-                    machines: state.machines.length,
-                    machinesDistribution: state.machines.map(m => `${m.name} -> ЦЕХ-${m.workshopId}`)
-                });
-
-                alert(`ДИАГНОСТИКА:\n\n` +
-                      `С сервера: ${data.settings.workshops.length} цехов\n` +
-                      `В интерфейсе: ${state.workshops.length} цехов\n` +
-                      `Цехи в интерфейсе: ${state.workshops.map(w => w.name).join(', ')}\n\n` +
-                      `Совпадение: ${data.settings.workshops.length === state.workshops.length ? '✅' : '❌'}`);
-
-            } catch (error) {
-                console.error('❌ Ошибка диагностики:', error);
-                showNotification('Ошибка диагностики', 'error');
-            }
-        }
-
-        // Глубокая диагностика
-        async function deepDebug() {
-            try {
-                console.log('🔍 ЗАПУСК ГЛУБОКОЙ ДИАГНОСТИКИ...');
-                
-                // 1. Проверяем что приходит с сервера
-                const response = await fetch('http://localhost:3004/api/settings/debug-detailed');
-                const data = await response.json();
-                
-                if (data.success) {
-                    console.log('📊 ДЕТАЛЬНАЯ ДИАГНОСТИКА СЕРВЕРА:', data);
-                    
-                    // Показываем в alert
-                    const latestSettings = data.all_settings[0];
-                    let message = `ДИАГНОСТИКА СЕРВЕРА:\n\n`;
-                    message += `Последние настройки (ID: ${latestSettings.id}):\n`;
-                    message += `- Цехов: ${latestSettings.data.workshops ? latestSettings.data.workshops.length : 'N/A'}\n`;
-                    if (latestSettings.data.workshops) {
-                        message += `- Список: ${latestSettings.data.workshops.map(w => w.name).join(', ')}\n`;
-                    }
-                    message += `- Станков: ${latestSettings.data.machines ? latestSettings.data.machines.length : 'N/A'}\n\n`;
-                    
-                    message += `Распределение: ${data.distribution.length} записей\n`;
-                    message += `Станки в системе: ${data.machines.length} шт.\n\n`;
-                    
-                    message += `Всего записей в БД: ${data.all_settings.length}`;
-                    
-                    alert(message);
-                    
-                    // 2. Сравниваем с текущим состоянием
-                    console.log('🔄 СРАВНЕНИЕ С ТЕКУЩИМ СОСТОЯНИЕМ:');
-                    console.log('- Сервер:', latestSettings.data.workshops ? latestSettings.data.workshops.map(w => w.name) : []);
-                    console.log('- Клиент:', state.workshops.map(w => w.name));
-                    
-                }
-            } catch (error) {
-                console.error('❌ Ошибка глубокой диагностики:', error);
-                alert('Ошибка диагностики: ' + error.message);
-            }
-        }
-
-        // Проверка сохраненных данных
-        async function verifySavedData() {
-            try {
-                showNotification('Проверка сохраненных данных...', 'info');
-                
-                console.log('🔍 Проверка сохраненных данных...');
-                const response = await fetch('http://localhost:3004/api/settings/verify');
-                const data = await response.json();
-                
-                if (data.success) {
-                    console.log('🔍 Проверка сохраненных данных:', data.analysis);
-                    alert(`Проверка данных:\n\n` +
-                          `Последние настройки: ${data.latest.workshops_count} цехов\n` +
-                          `Цехи: ${data.latest.workshops.join(', ')}\n` +
-                          `Всего записей в БД: ${data.total_records}\n\n` +
-                          `Статус: ${data.latest.workshops_count === state.workshops.length ? '✅ Совпадает' : '❌ Расхождение'}`);
-                }
-            } catch (error) {
-                console.error('❌ Ошибка проверки:', error);
-                showNotification('Ошибка проверки данных', 'error');
-            }
-        }
-
         // Принудительная перезагрузка цехов
         async function forceReloadWorkshops() {
             try {
@@ -1027,14 +875,16 @@
             loadSettings();
             loadBackupsList();
             
-            // Добавляем обработчик для обновления при возвращении на страницу
+            // Добавляем обработчик для обновления данных при фокусе на странице
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden) {
-                    console.log('👁️ Страница стала видимой, обновляем данные...');
-                    refreshData();
+                    console.log('🔄 Страница настроек стала активной, обновляем данные...');
+                    loadSettings();
+                    loadBackupsList();
                 }
             });
         });
     </script>
 </body>
 </html>
+[file content end]
