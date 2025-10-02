@@ -2804,3 +2804,19 @@ Error: bind EADDRINUSE null:3000
     at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:700:3)
     at process.emit (node:events:530:35)
     at process._fatalException (node:internal/process/execution:154:25)
+2025-10-02 13:06:58.705: [02.10.2025, 13:06:58] Ошибка загрузки данных (попытка 1/5): read ECONNRESET
+2025-10-02 13:06:58.706: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at getMachineData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:570:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:606:7)
+2025-10-02 13:06:58.707: [02.10.2025, 13:06:58] Ошибка обновления. Повтор через 60000ms
+2025-10-02 13:06:58.707: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:611:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2025-10-02 13:08:19.774: [02.10.2025, 13:08:19] Ошибка обновления. Повтор через 60000ms
+2025-10-02 13:08:19.774: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:611:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

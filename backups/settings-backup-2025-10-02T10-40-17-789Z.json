@@ -1,24 +1,23 @@
 {
-  "exportDate": "2025-10-02T09:15:50.457Z",
-  "version": "2.0",
+  "timestamp": "2025-10-02T10:40:17.789Z",
   "settings": {
     "workshops": [
       {
         "id": 1,
         "name": "ЦЕХ-1",
-        "machinesCount": 3
+        "machinesCount": 4
       },
       {
         "id": 2,
         "name": "ЦЕХ-2",
-        "machinesCount": 1
+        "machinesCount": 0
       }
     ],
     "machines": [
       {
         "id": 1,
         "name": "CNCMisha",
-        "workshopId": 2
+        "workshopId": 1
       },
       {
         "id": 2,

@@ -1,6 +1,5 @@
 {
-  "exportDate": "2025-10-02T09:15:51.280Z",
-  "version": "2.0",
+  "timestamp": "2025-10-02T11:21:51.141Z",
   "settings": {
     "workshops": [
       {
@@ -23,12 +22,12 @@
       {
         "id": 2,
         "name": "StanoK1",
-        "workshopId": 2
+        "workshopId": 1
       },
       {
         "id": 3,
         "name": "stanok12",
-        "workshopId": 1
+        "workshopId": 2
       },
       {
         "id": 4,

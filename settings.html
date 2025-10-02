@@ -7,7 +7,6 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles4.css">
-    
 </head>
 <body>
     <header>
@@ -226,6 +225,7 @@
             state.workshops = newSettings.workshops ? [...newSettings.workshops] : [];
             state.machines = newSettings.machines ? [...newSettings.machines] : [];
             state.lastUpdate = new Date().toISOString();
+            state.serverStatus = 'connected';
             
             // Если цехов нет, создаем цех по умолчанию
             if (state.workshops.length === 0) {
@@ -260,8 +260,6 @@
                 
                 // ВАЖНО: Полностью заменяем состояние
                 updateApplicationState(data.settings);
-                state.serverStatus = 'connected';
-                updateSidebarStats();
                 
                 showNotification(`Загружено ${state.workshops.length} цехов, ${state.machines.length} станков`, 'success');
                 
@@ -529,9 +527,8 @@
 
         // Добавление нового цеха
         async function addWorkshop() {
-            const newId = state.workshops.length > 0 
-                ? Math.max(...state.workshops.map(w => w.id)) + 1 
-                : 1;
+            const newId = state.workshops.length > 0 ? 
+                Math.max(...state.workshops.map(w => w.id)) + 1 : 1;
             
             const newWorkshop = {
                 id: newId,

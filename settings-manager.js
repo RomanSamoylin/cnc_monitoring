@@ -1,16 +1,15 @@
-// settings-manager.js - ПОЛНОСТЬЮ ИСПРАВЛЕННАЯ ВЕРСИЯ С ПРАВИЛЬНОЙ ЗАГРУЗКОЙ ВСЕХ ДАННЫХ
+// settings-manager.js - ПОЛНОСТЬЮ ОБНОВЛЕННАЯ ВЕРСИЯ БЕЗ LOCALSTORAGE.JS
 class SettingsManager {
     constructor() {
         this.settings = {
             workshops: [],
-            machines: [],
-            distribution: {}
+            machines: []
         };
         this.isLoaded = false;
-        this.autoRefreshInterval = null;
         this.SERVER_URL = 'http://localhost:3004';
         this.retryCount = 0;
         this.maxRetries = 3;
+        this.autoRefreshInterval = null;
     }
 
     // Основная функция загрузки настроек
@@ -43,13 +42,11 @@ class SettingsManager {
             // ВАЖНО: Полностью заменяем настройки данными с сервера
             this.settings = {
                 workshops: data.settings.workshops ? [...data.settings.workshops] : [],
-                machines: data.settings.machines ? [...data.settings.machines] : [],
-                distribution: {}
+                machines: data.settings.machines ? [...data.settings.machines] : []
             };
 
             this.isLoaded = true;
-            this.updateDistributionFromMachines();
-            this.saveToLocalStorage();
+            this.retryCount = 0; // Сброс счетчика попыток при успехе
             
             console.log('✅ НАСТРОЙКИ ЗАГРУЖЕНЫ:', {
                 workshops: this.settings.workshops.length,
@@ -58,18 +55,11 @@ class SettingsManager {
             });
             
             this.dispatchSettingsLoaded();
-            this.retryCount = 0; // Сброс счетчика попыток при успехе
             return true;
             
         } catch (error) {
             console.error('❌ ОШИБКА ЗАГРУЗКИ НАСТРОЕК С СЕРВЕРА:', error);
             this.retryCount++;
-            
-            // Пробуем загрузить из localStorage
-            if (this.loadFromLocalStorage()) {
-                console.log('📦 Настройки загружены из localStorage');
-                return true;
-            }
             
             // Если превышено количество попыток, используем данные по умолчанию
             if (this.retryCount >= this.maxRetries) {
@@ -86,8 +76,7 @@ class SettingsManager {
     useDefaultSettings() {
         this.settings = {
             workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
-            machines: [],
-            distribution: {}
+            machines: []
         };
         this.isLoaded = true;
         this.dispatchSettingsLoaded();
@@ -124,13 +113,10 @@ class SettingsManager {
             // ВАЖНО: Полностью заменяем настройки
             this.settings = {
                 workshops: data.settings.workshops ? [...data.settings.workshops] : [],
-                machines: data.settings.machines ? [...data.settings.machines] : [],
-                distribution: {}
+                machines: data.settings.machines ? [...data.settings.machines] : []
             };
             
             this.isLoaded = true;
-            this.updateDistributionFromMachines();
-            this.saveToLocalStorage();
             
             console.log('✅ НАСТРОЙКИ ОБНОВЛЕНЫ:', {
                 workshops: this.settings.workshops.length,
@@ -184,10 +170,8 @@ class SettingsManager {
                 
                 this.settings.workshops = data.settings.workshops ? [...data.settings.workshops] : [];
                 this.settings.machines = data.settings.machines ? [...data.settings.machines] : [];
-                this.updateDistributionFromMachines();
             }
             
-            this.saveToLocalStorage();
             console.log('💾 ВСЕ НАСТРОЙКИ СОХРАНЕНЫ НА СЕРВЕР');
             
             this.dispatchSettingsUpdated();
@@ -200,82 +184,10 @@ class SettingsManager {
         }
     }
 
-    // Сохранение в localStorage
-    saveToLocalStorage() {
-        try {
-            const dataToSave = {
-                settings: this.settings,
-                timestamp: new Date().toISOString(),
-                version: '2.1'
-            };
-            localStorage.setItem('cnc_settings_v2', JSON.stringify(dataToSave));
-            console.log('📦 Настройки сохранены в localStorage:', {
-                workshops: this.settings.workshops.length,
-                machines: this.settings.machines.length
-            });
-        } catch (e) {
-            console.error('❌ Ошибка сохранения в localStorage:', e);
-        }
-    }
-
-    // Загрузка из localStorage
-    loadFromLocalStorage() {
-        try {
-            const saved = localStorage.getItem('cnc_settings_v2');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                
-                // Проверяем версию и актуальность данных
-                const savedTime = new Date(parsed.timestamp);
-                const currentTime = new Date();
-                const hoursDiff = (currentTime - savedTime) / (1000 * 60 * 60);
-                
-                if (hoursDiff < 24) { // Используем данные если им меньше 24 часов
-                    console.log('📦 ЗАГРУЗКА ИЗ LOCALSTORAGE:', {
-                        workshops: parsed.settings.workshops.length,
-                        machines: parsed.settings.machines.length,
-                        workshopsList: parsed.settings.workshops.map(w => `${w.name}(id:${w.id})`)
-                    });
-                    
-                    this.settings = {
-                        workshops: parsed.settings.workshops ? [...parsed.settings.workshops] : [],
-                        machines: parsed.settings.machines ? [...parsed.settings.machines] : [],
-                        distribution: {}
-                    };
-                    this.isLoaded = true;
-                    this.updateDistributionFromMachines();
-                    
-                    console.log('📦 НАСТРОЙКИ ЗАГРУЖЕНЫ ИЗ LOCALSTORAGE:', {
-                        workshops: this.settings.workshops.length,
-                        machines: this.settings.machines.length
-                    });
-                    
-                    this.dispatchSettingsLoaded();
-                    return true;
-                } else {
-                    console.log('🕒 Данные в localStorage устарели');
-                    localStorage.removeItem('cnc_settings_v2');
-                }
-            }
-        } catch (e) {
-            console.error('❌ Ошибка загрузки из localStorage:', e);
-            localStorage.removeItem('cnc_settings_v2');
-        }
-        return false;
-    }
-
-    // Обновление распределения из данных машин
-    updateDistributionFromMachines() {
-        this.settings.distribution = {};
-        this.settings.machines.forEach(machine => {
-            this.settings.distribution[machine.id] = machine.workshopId;
-        });
-        console.log('🗺️ Обновлена карта распределения:', this.settings.distribution);
-    }
-
     // Получение цеха для станка
     getWorkshopForMachine(machineId) {
-        return this.settings.distribution[machineId] || 1;
+        const machine = this.settings.machines.find(m => m.id === machineId);
+        return machine ? machine.workshopId : 1;
     }
 
     // Получение списка цехов
@@ -340,7 +252,6 @@ class SettingsManager {
             if (machine) {
                 const oldWorkshopId = machine.workshopId;
                 machine.workshopId = workshopId;
-                this.settings.distribution[machineId] = workshopId;
                 
                 console.log(`🔄 Станок "${machine.name}" перемещен из цеха ${oldWorkshopId} в цех ${workshopId}`);
             }
@@ -505,6 +416,36 @@ class SettingsManager {
         }
     }
 
+    // Принудительная перезагрузка цехов
+    async forceReloadWorkshops() {
+        try {
+            console.log('🔄 ПРИНУДИТЕЛЬНАЯ ПЕРЕЗАГРУЗКА ЦЕХОВ...');
+            
+            const response = await fetch(`${this.SERVER_URL}/api/settings/workshops`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error('Server response indicates failure');
+            }
+            
+            if (data.workshops) {
+                this.settings.workshops = [...data.workshops];
+                
+                console.log('✅ Цехи принудительно перезагружены:', data.workshops.length);
+                this.dispatchSettingsUpdated();
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('❌ Ошибка принудительной перезагрузки цехов:', error);
+            return false;
+        }
+    }
+
     // Генерация событий
     dispatchSettingsLoaded() {
         console.log('📢 Диспатч события: settingsLoaded');
@@ -535,22 +476,6 @@ class SettingsManager {
         const loaded = this.isLoaded;
         console.log('❓ Проверка загрузки настроек:', loaded);
         return loaded;
-    }
-
-    // Получение временной метки последнего обновления
-    getLastUpdateTime() {
-        try {
-            const saved = localStorage.getItem('cnc_settings_v2');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                const time = new Date(parsed.timestamp);
-                console.log('🕒 Время последнего обновления:', time);
-                return time;
-            }
-        } catch (e) {
-            console.error('❌ Ошибка получения времени обновления:', e);
-        }
-        return null;
     }
 
     // Автоматическое обновление настроек
@@ -588,63 +513,19 @@ class SettingsManager {
         }
     }
 
-    // Очистка localStorage
-    clearLocalStorage() {
-        try {
-            localStorage.removeItem('cnc_settings_v2');
-            console.log('🧹 Локальное хранилище очищено');
-        } catch (e) {
-            console.error('❌ Ошибка очистки localStorage:', e);
-        }
-    }
-
     // Получение текущего состояния
     getCurrentState() {
         return {
             workshops: [...this.settings.workshops],
             machines: [...this.settings.machines],
-            distribution: {...this.settings.distribution},
             isLoaded: this.isLoaded,
-            lastUpdate: this.getLastUpdateTime()
+            lastUpdate: new Date().toISOString()
         };
-    }
-
-    // Принудительная перезагрузка цехов
-    async forceReloadWorkshops() {
-        try {
-            console.log('🔄 ПРИНУДИТЕЛЬНАЯ ПЕРЕЗАГРУЗКА ЦЕХОВ...');
-            
-            const response = await fetch(`${this.SERVER_URL}/api/settings/workshops`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            if (!data.success) {
-                throw new Error('Server response indicates failure');
-            }
-            
-            if (data.workshops) {
-                this.settings.workshops = [...data.workshops];
-                this.updateDistributionFromMachines();
-                this.saveToLocalStorage();
-                
-                console.log('✅ Цехи принудительно перезагружены:', data.workshops.length);
-                this.dispatchSettingsUpdated();
-            }
-            
-            return true;
-        } catch (error) {
-            console.error('❌ Ошибка принудительной перезагрузки цехов:', error);
-            return false;
-        }
     }
 
     // Деструктор
     destroy() {
         this.stopAutoRefresh();
-        this.clearLocalStorage();
         console.log('🧹 SettingsManager уничтожен');
     }
 }
@@ -687,7 +568,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Проверяем доступность сервера перед загрузкой
         const isHealthy = await window.SettingsManager.checkHealth();
         if (!isHealthy) {
-            console.warn('⚠️ Сервер недоступен, пробуем загрузить из localStorage');
+            console.warn('⚠️ Сервер недоступен, пробуем загрузить настройки...');
         }
         
         await window.SettingsManager.loadSettings();
@@ -796,5 +677,15 @@ window.forceReloadWorkshops = async function() {
     } catch (error) {
         console.error('❌ Ошибка перезагрузки цехов:', error);
         alert('Ошибка перезагрузки цехов: ' + error.message);
+    }
+};
+
+window.refreshData = async function() {
+    try {
+        await window.SettingsManager.refreshSettings();
+        alert('Данные успешно обновлены');
+    } catch (error) {
+        console.error('❌ Ошибка обновления данных:', error);
+        alert('Ошибка обновления данных: ' + error.message);
     }
 };
