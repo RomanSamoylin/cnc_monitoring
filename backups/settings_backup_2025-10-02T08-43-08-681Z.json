@@ -1,5 +1,5 @@
 {
-  "exportDate": "2025-10-01T11:13:30.408Z",
+  "exportDate": "2025-10-02T08:43:08.681Z",
   "version": "2.0",
   "settings": {
     "workshops": [
@@ -7,6 +7,16 @@
         "id": 1,
         "name": "ЦЕХ-1",
         "machinesCount": 4
+      },
+      {
+        "id": 2,
+        "name": "ЦЕХ-2",
+        "machinesCount": 0
+      },
+      {
+        "id": 3,
+        "name": "ЦЕХ-3",
+        "machinesCount": 0
       }
     ],
     "machines": [

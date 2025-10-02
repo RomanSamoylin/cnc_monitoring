@@ -184,6 +184,12 @@
             DOM.lastUpdate.textContent = state.lastUpdate ? 
                 new Date(state.lastUpdate).toLocaleTimeString() : '-';
             DOM.serverStatus.textContent = state.serverStatus;
+            
+            console.log('📊 Обновлена статистика:', {
+                workshops: state.workshops.length,
+                machines: state.machines.length,
+                lastUpdate: state.lastUpdate
+            });
         }
 
         // Функция для обновления счетчиков станков в цехах
@@ -191,6 +197,9 @@
             state.workshops.forEach(workshop => {
                 workshop.machinesCount = state.machines.filter(m => m.workshopId === workshop.id).length;
             });
+            
+            console.log('🔢 Обновлены счетчики станков:', 
+                state.workshops.map(w => `${w.name}: ${w.machinesCount} станков`));
         }
 
         // Полное обновление интерфейса
@@ -206,7 +215,8 @@
         function updateApplicationState(newSettings) {
             console.log('🔄 Обновление состояния приложения:', {
                 workshops: newSettings.workshops ? newSettings.workshops.length : 0,
-                machines: newSettings.machines ? newSettings.machines.length : 0
+                machines: newSettings.machines ? newSettings.machines.length : 0,
+                workshopsList: newSettings.workshops ? newSettings.workshops.map(w => w.name) : []
             });
             
             state.workshops = newSettings.workshops || [];
@@ -235,7 +245,8 @@
                 console.log('💾 Отправка ВСЕХ настроек на сервер:', {
                     workshops: settings.workshops.length,
                     machines: settings.machines.length,
-                    workshopsList: settings.workshops.map(w => w.name)
+                    workshopsList: settings.workshops.map(w => w.name),
+                    machinesDistribution: settings.machines.map(m => `${m.name} -> ЦЕХ-${m.workshopId}`)
                 });
                 
                 const response = await fetch('http://localhost:3004/api/settings/save', {
@@ -246,10 +257,13 @@
                     body: JSON.stringify({ settings })
                 });
                 
-                if (!response.ok) throw new Error('Ошибка сети');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+                }
                 
                 const data = await response.json();
-                if (!data.success) throw new Error('Ошибка сохранения');
+                if (!data.success) throw new Error(data.message || 'Ошибка сохранения');
                 
                 state.lastUpdate = new Date().toISOString();
                 state.serverStatus = 'connected';
@@ -277,19 +291,24 @@
             try {
                 showNotification('Загрузка настроек...', 'info');
                 
+                console.log('📥 Запрос настроек с сервера...');
                 const response = await fetch('http://localhost:3004/api/settings');
-                if (!response.ok) throw new Error('Ошибка сети');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+                }
                 
                 const data = await response.json();
-                if (!data.success) throw new Error('Ошибка в данных');
+                if (!data.success) throw new Error(data.message || 'Ошибка в данных');
                 
                 console.log('✅ Получены настройки с сервера:', {
                     workshops: data.settings.workshops.length,
                     machines: data.settings.machines.length,
-                    workshopsList: data.settings.workshops.map(w => w.name)
+                    workshopsList: data.settings.workshops.map(w => w.name),
+                    machinesDistribution: data.settings.machines.map(m => `${m.name} -> ЦЕХ-${m.workshopId}`)
                 });
                 
-                // Полностью заменяем состояние
+                // ВАЖНО: Полностью заменяем состояние
                 updateApplicationState(data.settings);
                 state.serverStatus = 'connected';
                 updateSidebarStats();
@@ -314,10 +333,14 @@
         function renderWorkshopsSettings() {
             const fragment = document.createDocumentFragment();
             
+            console.log('🎨 Отрисовка цехов:', state.workshops.length);
+            
             state.workshops.forEach(workshop => {
                 const workshopDiv = document.createElement('div');
                 workshopDiv.className = 'workshop-card';
                 workshopDiv.dataset.workshopId = workshop.id;
+                
+                const machinesInWorkshop = state.machines.filter(m => m.workshopId === workshop.id);
                 
                 workshopDiv.innerHTML = `
                     <div class="workshop-header">
@@ -332,7 +355,7 @@
                                    placeholder="Введите название цеха">
                         </div>
                         <div class="form-group">
-                            <label>Станки в цехе:</label>
+                            <label>Станки в цехе (${machinesInWorkshop.length}):</label>
                             <select multiple class="machines-select" 
                                     onchange="updateMachinesDistribution(${workshop.id}, this)">
                                 ${state.machines.map(m => 
@@ -342,6 +365,15 @@
                                 ).join('')}
                             </select>
                             <small>Для выбора нескольких станков используйте Ctrl+Click</small>
+                        </div>
+                        <div class="workshop-machines-list">
+                            <strong>Текущие станки:</strong>
+                            ${machinesInWorkshop.length > 0 ? 
+                                machinesInWorkshop.map(m => 
+                                    `<div class="machine-tag">${m.name} (ID: ${m.id})</div>`
+                                ).join('') : 
+                                '<div class="no-machines">Нет станков</div>'
+                            }
                         </div>
                     </div>
                 `;
@@ -357,6 +389,8 @@
         // Отрисовка списка станков
         function renderMachinesList() {
             const fragment = document.createDocumentFragment();
+            
+            console.log('🎨 Отрисовка списка станков:', state.machines.length);
             
             state.machines.forEach(machine => {
                 const workshop = state.workshops.find(w => w.id === machine.workshopId);
@@ -396,10 +430,12 @@
                 item.addEventListener('dragstart', function(e) {
                     e.dataTransfer.setData('text/plain', this.dataset.machineId);
                     this.classList.add('dragging');
+                    console.log('🧩 Начато перетаскивание станка:', this.dataset.machineId);
                 });
                 
                 item.addEventListener('dragend', function() {
                     this.classList.remove('dragging');
+                    console.log('🧩 Завершено перетаскивание станка');
                 });
             });
             
@@ -420,6 +456,7 @@
                     const machineId = parseInt(e.dataTransfer.getData('text/plain'));
                     const workshopId = parseInt(this.dataset.workshopId);
                     
+                    console.log(`➡️ Перемещение станка ${machineId} в цех ${workshopId}`);
                     await moveMachineToWorkshop(machineId, workshopId);
                 });
             });
@@ -429,8 +466,12 @@
         async function moveMachineToWorkshop(machineId, workshopId) {
             const machine = state.machines.find(m => m.id === machineId);
             if (machine) {
-                const oldWorkshop = state.workshops.find(w => w.id === machine.workshopId);
+                const oldWorkshopId = machine.workshopId;
+                const oldWorkshop = state.workshops.find(w => w.id === oldWorkshopId);
                 machine.workshopId = workshopId;
+                
+                console.log(`🔄 Перемещение станка "${machine.name}" из цеха ${oldWorkshopId} в цех ${workshopId}`);
+                
                 refreshInterface();
                 await saveAllSettings();
                 
@@ -445,6 +486,9 @@
             if (workshop && newName.trim()) {
                 const oldName = workshop.name;
                 workshop.name = newName.trim();
+                
+                console.log(`✏️ Переименование цеха: "${oldName}" → "${workshop.name}"`);
+                
                 refreshInterface();
                 
                 // СОХРАНЯЕМ ВСЕ НАСТРОЙКИ
@@ -456,6 +500,8 @@
         // Обновление распределения станков через select
         async function updateMachinesDistribution(workshopId, selectElement) {
             const selectedOptions = Array.from(selectElement.selectedOptions).map(opt => parseInt(opt.value));
+            
+            console.log(`🎯 Групповое назначение ${selectedOptions.length} станков в цех ${workshopId}`);
             
             // Сбрасываем все станки этого цеха
             state.machines.forEach(m => {
@@ -483,11 +529,15 @@
                 ? Math.max(...state.workshops.map(w => w.id)) + 1 
                 : 1;
             
-            state.workshops.push({
+            const newWorkshop = {
                 id: newId,
                 name: `ЦЕХ-${newId}`,
                 machinesCount: 0
-            });
+            };
+            
+            state.workshops.push(newWorkshop);
+            
+            console.log(`➕ Добавлен новый цех:`, newWorkshop);
             
             refreshInterface();
             
@@ -507,18 +557,22 @@
             const removedWorkshop = state.workshops.pop();
             
             // Переназначаем станки удаляемого цеха в первый цех
+            let reassignedCount = 0;
             state.machines.forEach(machine => {
                 if (machine.workshopId === removedWorkshop.id) {
                     machine.workshopId = 1;
+                    reassignedCount++;
                 }
             });
+            
+            console.log(`➖ Удален цех:`, removedWorkshop, `Перемещено станков: ${reassignedCount}`);
             
             refreshInterface();
             
             // СОХРАНЯЕМ ВСЕ НАСТРОКИ
             await saveAllSettings();
             
-            showNotification(`Удален цех: ${removedWorkshop.name}`, 'success');
+            showNotification(`Удален цех: ${removedWorkshop.name} (${reassignedCount} станков перемещено в ЦЕХ-1)`, 'success');
         }
 
         // Обновление состояния кнопок
@@ -528,6 +582,7 @@
 
         // Обновление данных
         async function refreshData() {
+            console.log('🔄 Принудительное обновление данных...');
             await loadSettings();
         }
 
@@ -536,6 +591,8 @@
             if (!confirm('Вы уверены, что хотите сбросить все настройки к значениям по умолчанию?')) {
                 return;
             }
+            
+            console.log('🔄 Сброс настроек к значениям по умолчанию');
             
             updateApplicationState({
                 workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
@@ -551,11 +608,15 @@
             try {
                 showNotification('Проверка состояния БД...', 'info');
                 
+                console.log('🔍 Запрос диагностики БД...');
                 const response = await fetch('http://localhost:3004/api/settings/debug');
-                if (!response.ok) throw new Error('Ошибка запроса');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+                }
                 
                 const data = await response.json();
-                if (!data.success) throw new Error('Ошибка в данных');
+                if (!data.success) throw new Error(data.message || 'Ошибка в данных');
                 
                 console.log('📊 Состояние БД:', data.debug);
                 
@@ -590,7 +651,8 @@
                     success: data.success,
                     workshopsCount: data.settings.workshops.length,
                     workshops: data.settings.workshops,
-                    machinesCount: data.settings.machines.length
+                    machinesCount: data.settings.machines.length,
+                    machinesDistribution: data.settings.machines.map(m => `${m.name} -> ЦЕХ-${m.workshopId}`)
                 });
 
                 // 2. Проверим все записи в БД
@@ -603,13 +665,15 @@
                 console.log('🏭 Текущее состояние в интерфейсе:', {
                     workshops: state.workshops.length,
                     workshopsList: state.workshops.map(w => w.name),
-                    machines: state.machines.length
+                    machines: state.machines.length,
+                    machinesDistribution: state.machines.map(m => `${m.name} -> ЦЕХ-${m.workshopId}`)
                 });
 
                 alert(`Диагностика:\n\n` +
                       `С сервера: ${data.settings.workshops.length} цехов\n` +
                       `В интерфейсе: ${state.workshops.length} цехов\n` +
-                      `Цехи в интерфейсе: ${state.workshops.map(w => w.name).join(', ')}`);
+                      `Цехи в интерфейсе: ${state.workshops.map(w => w.name).join(', ')}\n\n` +
+                      `Совпадение: ${data.settings.workshops.length === state.workshops.length ? '✅' : '❌'}`);
 
             } catch (error) {
                 console.error('❌ Ошибка диагностики:', error);
@@ -622,6 +686,7 @@
             try {
                 showNotification('Проверка сохраненных данных...', 'info');
                 
+                console.log('🔍 Проверка сохраненных данных...');
                 const response = await fetch('http://localhost:3004/api/settings/verify');
                 const data = await response.json();
                 
@@ -644,6 +709,7 @@
             try {
                 showNotification('Принудительная перезагрузка цехов...', 'info');
                 
+                console.log('🔄 Принудительная перезагрузка цехов...');
                 // Загружаем цехи отдельно
                 const response = await fetch('http://localhost:3004/api/settings/workshops');
                 const data = await response.json();
@@ -675,6 +741,8 @@
             `;
             DOM.notification.style.backgroundColor = types[type].bg;
             DOM.notification.className = 'notification show';
+            
+            console.log(`📢 Уведомление [${type}]: ${message}`);
             
             setTimeout(() => {
                 DOM.notification.classList.remove('show');
@@ -711,6 +779,7 @@
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
                 
+                console.log('📤 Экспорт настроек завершен');
                 showNotification('Настройки успешно экспортированы', 'success');
             } catch (error) {
                 console.error('❌ Ошибка экспорта:', error);
@@ -758,6 +827,11 @@
                         return;
                     }
                     
+                    console.log('📥 Импорт настроек из файла:', {
+                        workshops: settingsToImport.workshops.length,
+                        machines: settingsToImport.machines.length
+                    });
+                    
                     const response = await fetch('http://localhost:3004/api/settings/import', {
                         method: 'POST',
                         headers: {
@@ -780,6 +854,7 @@
                         await loadSettings();
                     }
                     
+                    console.log('✅ Импорт настроек завершен');
                     showNotification('Настройки успешно импортированы', 'success');
                 } catch (error) {
                     console.error('❌ Ошибка импорта:', error);
@@ -804,13 +879,18 @@
         // Загрузка списка резервных копий
         async function loadBackupsList() {
             try {
+                console.log('📋 Загрузка списка резервных копий...');
                 const response = await fetch('http://localhost:3004/api/settings/backups');
-                if (!response.ok) throw new Error('Ошибка загрузки списка');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+                }
                 
                 const data = await response.json();
                 if (!data.success) throw new Error('Ошибка в данных');
                 
                 renderBackupsList(data.backups);
+                console.log('✅ Список резервных копий обновлен');
                 showNotification('Список резервных копий обновлен', 'success');
             } catch (error) {
                 console.error('❌ Ошибка загрузки списка резервных копий:', error);
@@ -859,6 +939,7 @@
             try {
                 showNotification('Восстановление из резервной копии...', 'info');
                 
+                console.log(`🔄 Восстановление из резервной копии: ${filename}`);
                 const response = await fetch('http://localhost:3004/api/settings/restore', {
                     method: 'POST',
                     headers: {
@@ -881,6 +962,7 @@
                     await loadSettings();
                 }
                 
+                console.log('✅ Восстановление из резервной копии завершено');
                 showNotification('Настройки успешно восстановлены из резервной копии', 'success');
             } catch (error) {
                 console.error('❌ Ошибка восстановления:', error);
@@ -902,6 +984,14 @@
             console.log('🚀 Инициализация страницы настроек...');
             loadSettings();
             loadBackupsList();
+            
+            // Добавляем обработчик для обновления при возвращении на страницу
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    console.log('👁️ Страница стала видимой, обновляем данные...');
+                    refreshData();
+                }
+            });
         });
     </script>
 </body>

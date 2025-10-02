@@ -1,17 +1,22 @@
 {
-  "exportDate": "2025-10-01T11:13:35.059Z",
+  "exportDate": "2025-10-02T07:35:35.364Z",
   "version": "2.0",
   "settings": {
     "workshops": [
       {
         "id": 1,
         "name": "ЦЕХ-1",
-        "machinesCount": 2
+        "machinesCount": 1
       },
       {
         "id": 2,
         "name": "ЦЕХ-2",
         "machinesCount": 2
+      },
+      {
+        "id": 3,
+        "name": "ЦЕХ-3",
+        "machinesCount": 1
       }
     ],
     "machines": [
@@ -33,7 +38,7 @@
       {
         "id": 4,
         "name": "StanoK129",
-        "workshopId": 1
+        "workshopId": 3
       }
     ]
   }

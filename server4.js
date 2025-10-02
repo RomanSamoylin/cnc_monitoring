@@ -1,4 +1,4 @@
-// server4.js - ИСПРАВЛЕННАЯ ВЕРСИЯ С ЕДИНЫМ МЕТОДОМ СОХРАНЕНИЯ
+// server4.js - ИСПРАВЛЕННАЯ ВЕРСИЯ С ПРАВИЛЬНОЙ ЗАГРУЗКОЙ ВСЕХ ЦЕХОВ
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
@@ -124,23 +124,29 @@ app.get('/api/settings', async (req, res) => {
             'SELECT machine_id, workshop_id FROM machine_workshop_distribution'
         );
 
-        // Базовые настройки по умолчанию
+        // ИСПРАВЛЕНИЕ: Сначала загружаем ВСЕ сохраненные настройки
         let settings = {
             workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
             machines: []
         };
 
-        // ЗАГРУЖАЕМ ВСЕ СОХРАНЕННЫЕ ЦЕХИ
+        // ЗАГРУЖАЕМ ВСЕ СОХРАНЕННЫЕ ДАННЫЕ ИЗ ПОСЛЕДНЕЙ ЗАПИСИ
         if (settingsRows.length > 0) {
             try {
                 const savedSettings = JSON.parse(settingsRows[0].data);
                 
-                // ГАРАНТИРУЕМ, что workshops всегда массив
+                // ЗАГРУЖАЕМ ВСЕ ЦЕХИ ИЗ СОХРАНЕННЫХ НАСТРОЕК
                 if (savedSettings.workshops && Array.isArray(savedSettings.workshops)) {
                     settings.workshops = savedSettings.workshops;
                     console.log('✅ Загружено цехов из БД:', settings.workshops.length);
                 } else {
                     console.log('⚠️ В сохраненных настройках нет массива workshops');
+                }
+                
+                // ЗАГРУЖАЕМ СОХРАНЕННЫЕ СТАНКИ (если есть)
+                if (savedSettings.machines && Array.isArray(savedSettings.machines)) {
+                    settings.machines = savedSettings.machines;
+                    console.log('✅ Загружено станков из сохраненных настроек:', settings.machines.length);
                 }
                 
             } catch (e) {
@@ -154,12 +160,25 @@ app.get('/api/settings', async (req, res) => {
             distributionMap[row.machine_id] = row.workshop_id;
         });
 
-        // СОЗДАЕМ АКТУАЛЬНЫЙ СПИСОК СТАНКОВ
-        settings.machines = machinesRows.map(row => ({
-            id: row.machine_id,
-            name: row.cnc_name,
-            workshopId: distributionMap[row.machine_id] || 1
-        }));
+        // ИСПРАВЛЕНИЕ: ОБНОВЛЯЕМ РАСПРЕДЕЛЕНИЕ СТАНКОВ ИЗ ТАБЛИЦЫ РАСПРЕДЕЛЕНИЯ
+        // Это гарантирует, что распределение всегда актуально
+        settings.machines.forEach(machine => {
+            if (distributionMap[machine.id] !== undefined) {
+                machine.workshopId = distributionMap[machine.id];
+            }
+        });
+
+        // ДОБАВЛЯЕМ СТАНКИ, КОТОРЫХ НЕТ В СОХРАНЕННЫХ НАСТРОЙКАХ, НО ЕСТЬ В БД
+        const existingMachineIds = new Set(settings.machines.map(m => m.id));
+        machinesRows.forEach(row => {
+            if (!existingMachineIds.has(row.machine_id)) {
+                settings.machines.push({
+                    id: row.machine_id,
+                    name: row.cnc_name,
+                    workshopId: distributionMap[row.machine_id] || 1
+                });
+            }
+        });
 
         // ОБНОВЛЯЕМ СЧЕТЧИКИ СТАНКОВ ВО ВСЕХ ЦЕХАХ
         updateWorkshopsMachinesCount(settings);
@@ -272,8 +291,6 @@ app.post('/api/settings/save', async (req, res) => {
         if (connection) connection.release();
     }
 });
-
-// УДАЛЕН ЭНДПОИНТ save-workshops - больше не нужен!
 
 // ЭНДПОИНТ ДЛЯ БЫСТРОГО ПОЛУЧЕНИЯ РАСПРЕДЕЛЕНИЯ (для других серверов)
 app.get('/api/settings/distribution', async (req, res) => {
