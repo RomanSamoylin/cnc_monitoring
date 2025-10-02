@@ -1,22 +1,17 @@
 {
-  "exportDate": "2025-10-02T07:36:11.569Z",
+  "exportDate": "2025-10-02T09:23:52.450Z",
   "version": "2.0",
   "settings": {
     "workshops": [
       {
         "id": 1,
         "name": "ЦЕХ-1",
-        "machinesCount": 1
+        "machinesCount": 2
       },
       {
         "id": 2,
         "name": "ЦЕХ-2",
         "machinesCount": 2
-      },
-      {
-        "id": 3,
-        "name": "ЦЕХ-3",
-        "machinesCount": 1
       }
     ],
     "machines": [
@@ -28,7 +23,7 @@
       {
         "id": 2,
         "name": "StanoK1",
-        "workshopId": 2
+        "workshopId": 1
       },
       {
         "id": 3,
@@ -38,7 +33,7 @@
       {
         "id": 4,
         "name": "StanoK129",
-        "workshopId": 3
+        "workshopId": 2
       }
     ]
   }

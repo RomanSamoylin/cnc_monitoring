@@ -1,4 +1,4 @@
-// server4.js - ИСПРАВЛЕННАЯ ВЕРСИЯ С ПРАВИЛЬНОЙ ЗАГРУЗКОЙ ВСЕХ ЦЕХОВ
+// server4.js - ПОЛНОСТЬЮ ИСПРАВЛЕННАЯ ВЕРСИЯ С ПРАВИЛЬНОЙ ЗАГРУЗКОЙ ВСЕХ ЦЕХОВ
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
@@ -109,22 +109,28 @@ app.get('/api/settings', async (req, res) => {
     try {
         connection = await getConnection();
         
+        console.log('🔄 ЗАПРОС НАСТРОЕК ОТ КЛИЕНТА');
+        
         // Получаем ПОСЛЕДНИЕ настройки (включая все цехи)
         const [settingsRows] = await connection.execute(
             'SELECT data FROM settings ORDER BY id DESC LIMIT 1'
         );
         
+        console.log('📋 Найдено записей настроек:', settingsRows.length);
+
         // Получаем все станки из cnc_id_mapping
         const [machinesRows] = await connection.execute(
             'SELECT machine_id, cnc_name FROM cnc_id_mapping ORDER BY machine_id'
         );
+        console.log('🔧 Станков в системе:', machinesRows.length);
 
         // Получаем текущее распределение станков по цехам
         const [distributionRows] = await connection.execute(
             'SELECT machine_id, workshop_id FROM machine_workshop_distribution'
         );
+        console.log('📊 Записей распределения:', distributionRows.length);
 
-        // ИСПРАВЛЕНИЕ: Сначала загружаем ВСЕ сохраненные настройки
+        // Базовые настройки по умолчанию
         let settings = {
             workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
             machines: []
@@ -135,12 +141,27 @@ app.get('/api/settings', async (req, res) => {
             try {
                 const savedSettings = JSON.parse(settingsRows[0].data);
                 
-                // ЗАГРУЖАЕМ ВСЕ ЦЕХИ ИЗ СОХРАНЕННЫХ НАСТРОЕК
+                console.log('💾 СТРУКТУРА СОХРАНЕННЫХ НАСТРОЕК:', {
+                    has_workshops: !!savedSettings.workshops,
+                    workshops_count: savedSettings.workshops ? savedSettings.workshops.length : 0,
+                    workshops_list: savedSettings.workshops ? savedSettings.workshops.map(w => `${w.name}(id:${w.id})`) : [],
+                    has_machines: !!savedSettings.machines,
+                    machines_count: savedSettings.machines ? savedSettings.machines.length : 0,
+                    raw_data: JSON.stringify(savedSettings).substring(0, 500) + '...'
+                });
+                
+                // ГАРАНТИРУЕМ, что workshops всегда массив с правильной структурой
                 if (savedSettings.workshops && Array.isArray(savedSettings.workshops)) {
-                    settings.workshops = savedSettings.workshops;
+                    // КОПИРУЕМ ВСЕ ЦЕХИ ИЗ СОХРАНЕННЫХ НАСТРОЕК
+                    settings.workshops = savedSettings.workshops.map(workshop => ({
+                        id: workshop.id,
+                        name: workshop.name,
+                        machinesCount: workshop.machinesCount || 0
+                    }));
                     console.log('✅ Загружено цехов из БД:', settings.workshops.length);
+                    console.log('📝 Список цехов:', settings.workshops.map(w => `${w.name}(id:${w.id}, count:${w.machinesCount})`));
                 } else {
-                    console.log('⚠️ В сохраненных настройках нет массива workshops');
+                    console.log('⚠️ В сохраненных настройках нет массива workshops, используем по умолчанию');
                 }
                 
                 // ЗАГРУЖАЕМ СОХРАНЕННЫЕ СТАНКИ (если есть)
@@ -152,6 +173,8 @@ app.get('/api/settings', async (req, res) => {
             } catch (e) {
                 console.error('❌ Error parsing saved settings:', e);
             }
+        } else {
+            console.log('⚠️ В БД нет записей настроек, используем по умолчанию');
         }
 
         // Создаем объект распределения для быстрого доступа
@@ -159,35 +182,46 @@ app.get('/api/settings', async (req, res) => {
         distributionRows.forEach(row => {
             distributionMap[row.machine_id] = row.workshop_id;
         });
+        console.log('🗺️ Карта распределения:', distributionMap);
 
-        // ИСПРАВЛЕНИЕ: ОБНОВЛЯЕМ РАСПРЕДЕЛЕНИЕ СТАНКОВ ИЗ ТАБЛИЦЫ РАСПРЕДЕЛЕНИЯ
+        // ОБНОВЛЯЕМ РАСПРЕДЕЛЕНИЕ СТАНКОВ ИЗ ТАБЛИЦЫ РАСПРЕДЕЛЕНИЯ
         // Это гарантирует, что распределение всегда актуально
         settings.machines.forEach(machine => {
             if (distributionMap[machine.id] !== undefined) {
                 machine.workshopId = distributionMap[machine.id];
+                console.log(`🔄 Обновлен станок ${machine.name}: workshopId = ${machine.workshopId}`);
             }
         });
 
         // ДОБАВЛЯЕМ СТАНКИ, КОТОРЫХ НЕТ В СОХРАНЕННЫХ НАСТРОЙКАХ, НО ЕСТЬ В БД
         const existingMachineIds = new Set(settings.machines.map(m => m.id));
+        const newMachines = [];
+        
         machinesRows.forEach(row => {
             if (!existingMachineIds.has(row.machine_id)) {
-                settings.machines.push({
+                const newMachine = {
                     id: row.machine_id,
                     name: row.cnc_name,
                     workshopId: distributionMap[row.machine_id] || 1
-                });
+                };
+                settings.machines.push(newMachine);
+                newMachines.push(newMachine);
             }
         });
+
+        if (newMachines.length > 0) {
+            console.log('➕ Добавлены новые станки из БД:', newMachines.map(m => `${m.name}(id:${m.id})`));
+        }
 
         // ОБНОВЛЯЕМ СЧЕТЧИКИ СТАНКОВ ВО ВСЕХ ЦЕХАХ
         updateWorkshopsMachinesCount(settings);
 
         // ЛОГИРУЕМ ДЛЯ ОТЛАДКИ
-        console.log('📤 Отправляем настройки клиенту:', {
+        console.log('📤 ОТПРАВЛЯЕМ НАСТРОЙКИ КЛИЕНТУ:', {
             workshopsCount: settings.workshops.length,
             machinesCount: settings.machines.length,
-            workshopsList: settings.workshops.map(w => ({id: w.id, name: w.name, count: w.machinesCount}))
+            workshopsList: settings.workshops.map(w => ({id: w.id, name: w.name, count: w.machinesCount})),
+            machinesDistribution: settings.machines.map(m => `${m.name}(id:${m.id}) -> ЦЕХ-${m.workshopId}`)
         });
 
         res.json({
@@ -227,6 +261,13 @@ app.post('/api/settings/save', async (req, res) => {
             });
         }
 
+        console.log('💾 СОХРАНЕНИЕ НАСТРОЕК ОТ КЛИЕНТА:', {
+            workshops: settings.workshops.length,
+            machines: settings.machines.length,
+            workshopsList: settings.workshops.map(w => `${w.name}(id:${w.id})`),
+            machinesDistribution: settings.machines.map(m => `${m.name} -> ЦЕХ-${m.workshopId}`)
+        });
+
         connection = await getConnection();
         await connection.beginTransaction();
 
@@ -239,8 +280,7 @@ app.post('/api/settings/save', async (req, res) => {
             
             console.log('💾 Сохранение ВСЕХ настроек в БД:', {
                 workshops: settings.workshops.length,
-                machines: settings.machines.length,
-                workshopsList: settings.workshops.map(w => w.name)
+                machines: settings.machines.length
             });
             
             await connection.execute(
@@ -915,6 +955,74 @@ app.get('/api/settings/debug', async (req, res) => {
     }
 });
 
+// ДЕТАЛЬНАЯ ДИАГНОСТИКА
+app.get('/api/settings/debug-detailed', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        
+        console.log('🔍 ДЕТАЛЬНАЯ ДИАГНОСТИКА НАСТРОЕК:');
+        
+        // 1. Получаем ВСЕ записи настроек
+        const [allSettings] = await connection.execute(
+            'SELECT id, data, created_at FROM settings ORDER BY id DESC LIMIT 10'
+        );
+        
+        console.log('📋 Все записи в таблице settings:');
+        allSettings.forEach((row, index) => {
+            try {
+                const data = JSON.parse(row.data);
+                console.log(`Запись ${index + 1} (ID: ${row.id}, created: ${row.created_at}):`);
+                console.log(`  - Цехов: ${data.workshops ? data.workshops.length : 'N/A'}`);
+                console.log(`  - Станков: ${data.machines ? data.machines.length : 'N/A'}`);
+                if (data.workshops) {
+                    console.log(`  - Список цехов: ${data.workshops.map(w => `${w.name}(id:${w.id})`).join(', ')}`);
+                }
+            } catch (e) {
+                console.log(`  - Ошибка парсинга: ${e.message}`);
+            }
+        });
+
+        // 2. Получаем распределение
+        const [distributionRows] = await connection.execute(
+            'SELECT * FROM machine_workshop_distribution ORDER BY machine_id'
+        );
+        console.log('📊 Распределение станков:', distributionRows);
+
+        // 3. Получаем станки
+        const [machinesRows] = await connection.execute(
+            'SELECT * FROM cnc_id_mapping ORDER BY machine_id'
+        );
+        console.log('🔧 Станки в системе:', machinesRows);
+
+        res.json({
+            success: true,
+            all_settings: allSettings.map(row => {
+                try {
+                    return {
+                        id: row.id,
+                        created_at: row.created_at,
+                        data: JSON.parse(row.data)
+                    };
+                } catch (e) {
+                    return { id: row.id, error: e.message };
+                }
+            }),
+            distribution: distributionRows,
+            machines: machinesRows
+        });
+
+    } catch (error) {
+        console.error('❌ Error in detailed debug:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
 // НОВЫЙ ЭНДПОИНТ: Проверка сохраненных данных
 app.get('/api/settings/verify', async (req, res) => {
     let connection;
@@ -1050,6 +1158,7 @@ async function startServer() {
             console.log('GET  /api/settings/workshops       - Получить список цехов');
             console.log('GET  /api/settings/stats           - Получить статистику');
             console.log('GET  /api/settings/debug           - Диагностика');
+            console.log('GET  /api/settings/debug-detailed  - Детальная диагностика');
             console.log('GET  /api/settings/verify          - Проверка сохраненных данных');
             console.log('POST /api/settings/save            - Сохранить ВСЕ настройки');
             console.log('POST /api/settings/import          - Импортировать настройки');

@@ -73,6 +73,9 @@
                 <button class="btn btn-warning" onclick="verifySavedData()" style="margin-top: 10px;">
                     <i class="fas fa-search"></i> Проверить данные
                 </button>
+                <button class="btn btn-danger" onclick="deepDebug()" style="margin-top: 10px;">
+                    <i class="fas fa-search"></i> Глубокая диагностика
+                </button>
             </div>
         </div>
         
@@ -213,14 +216,15 @@
 
         // Обновление состояния приложения
         function updateApplicationState(newSettings) {
-            console.log('🔄 Обновление состояния приложения:', {
+            console.log('🔄 ОБНОВЛЕНИЕ СОСТОЯНИЯ ПРИЛОЖЕНИЯ:', {
                 workshops: newSettings.workshops ? newSettings.workshops.length : 0,
                 machines: newSettings.machines ? newSettings.machines.length : 0,
-                workshopsList: newSettings.workshops ? newSettings.workshops.map(w => w.name) : []
+                workshopsList: newSettings.workshops ? newSettings.workshops.map(w => `${w.name}(id:${w.id})`) : []
             });
             
-            state.workshops = newSettings.workshops || [];
-            state.machines = newSettings.machines || [];
+            // ВАЖНО: Полностью заменяем состояние
+            state.workshops = newSettings.workshops ? [...newSettings.workshops] : [];
+            state.machines = newSettings.machines ? [...newSettings.machines] : [];
             state.lastUpdate = new Date().toISOString();
             
             // Если цехов нет, создаем цех по умолчанию
@@ -230,6 +234,49 @@
             }
             
             refreshInterface();
+        }
+
+        // Загрузка настроек с сервера
+        async function loadSettings() {
+            try {
+                showNotification('Загрузка настроек...', 'info');
+                
+                console.log('📥 ЗАПРОС НАСТРОЕК С СЕРВЕРА...');
+                const response = await fetch('http://localhost:3004/api/settings');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+                }
+                
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message || 'Ошибка в данных');
+                
+                console.log('✅ ПОЛУЧЕНЫ НАСТРОЙКИ С СЕРВЕРА:', {
+                    workshops: data.settings.workshops.length,
+                    machines: data.settings.machines.length,
+                    workshopsList: data.settings.workshops.map(w => `${w.name}(id:${w.id})`),
+                    machinesDistribution: data.settings.machines.map(m => `${m.name} -> ЦЕХ-${m.workshopId}`)
+                });
+                
+                // ВАЖНО: Полностью заменяем состояние
+                updateApplicationState(data.settings);
+                state.serverStatus = 'connected';
+                updateSidebarStats();
+                
+                showNotification(`Загружено ${state.workshops.length} цехов, ${state.machines.length} станков`, 'success');
+                
+            } catch (error) {
+                console.error('❌ ОШИБКА ЗАГРУЗКИ НАСТРОЕК:', error);
+                showNotification('Ошибка загрузки настроек: ' + error.message, 'error');
+                state.serverStatus = 'disconnected';
+                updateSidebarStats();
+                
+                // Используем данные по умолчанию
+                updateApplicationState({
+                    workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
+                    machines: []
+                });
+            }
         }
 
         // ЕДИНЫЙ МЕТОД СОХРАНЕНИЯ: Сохранение ВСЕХ настроек на сервер
@@ -242,10 +289,10 @@
                     machines: state.machines
                 };
                 
-                console.log('💾 Отправка ВСЕХ настроек на сервер:', {
+                console.log('💾 ОТПРАВКА ВСЕХ НАСТРОЕК НА СЕРВЕР:', {
                     workshops: settings.workshops.length,
                     machines: settings.machines.length,
-                    workshopsList: settings.workshops.map(w => w.name),
+                    workshopsList: settings.workshops.map(w => `${w.name}(id:${w.id})`),
                     machinesDistribution: settings.machines.map(m => `${m.name} -> ЦЕХ-${m.workshopId}`)
                 });
                 
@@ -269,7 +316,7 @@
                 state.serverStatus = 'connected';
                 updateSidebarStats();
                 
-                console.log('✅ Все настройки успешно сохранены на сервер:', {
+                console.log('✅ ВСЕ НАСТРОЙКИ УСПЕШНО СОХРАНЕНЫ НА СЕРВЕР:', {
                     workshops: data.settings.workshops.length,
                     machines: data.settings.machines.length
                 });
@@ -278,7 +325,7 @@
                 return true;
                 
             } catch (error) {
-                console.error('❌ Ошибка сохранения настроек:', error);
+                console.error('❌ ОШИБКА СОХРАНЕНИЯ НАСТРОЕК:', error);
                 state.serverStatus = 'error';
                 updateSidebarStats();
                 showNotification('Ошибка сохранения настроек: ' + error.message, 'error');
@@ -286,54 +333,11 @@
             }
         }
 
-        // Загрузка настроек с сервера
-        async function loadSettings() {
-            try {
-                showNotification('Загрузка настроек...', 'info');
-                
-                console.log('📥 Запрос настроек с сервера...');
-                const response = await fetch('http://localhost:3004/api/settings');
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP error: ${response.status} - ${errorText}`);
-                }
-                
-                const data = await response.json();
-                if (!data.success) throw new Error(data.message || 'Ошибка в данных');
-                
-                console.log('✅ Получены настройки с сервера:', {
-                    workshops: data.settings.workshops.length,
-                    machines: data.settings.machines.length,
-                    workshopsList: data.settings.workshops.map(w => w.name),
-                    machinesDistribution: data.settings.machines.map(m => `${m.name} -> ЦЕХ-${m.workshopId}`)
-                });
-                
-                // ВАЖНО: Полностью заменяем состояние
-                updateApplicationState(data.settings);
-                state.serverStatus = 'connected';
-                updateSidebarStats();
-                
-                showNotification(`Загружено ${state.workshops.length} цехов, ${state.machines.length} станков`, 'success');
-                
-            } catch (error) {
-                console.error('❌ Ошибка загрузки настроек:', error);
-                showNotification('Ошибка загрузки настроек: ' + error.message, 'error');
-                state.serverStatus = 'disconnected';
-                updateSidebarStats();
-                
-                // Используем данные по умолчанию
-                updateApplicationState({
-                    workshops: [{ id: 1, name: "ЦЕХ-1", machinesCount: 0 }],
-                    machines: []
-                });
-            }
-        }
-
         // Отрисовка настроек цехов
         function renderWorkshopsSettings() {
             const fragment = document.createDocumentFragment();
             
-            console.log('🎨 Отрисовка цехов:', state.workshops.length);
+            console.log('🎨 ОТРИСОВКА ЦЕХОВ:', state.workshops.length);
             
             state.workshops.forEach(workshop => {
                 const workshopDiv = document.createElement('div');
@@ -344,7 +348,7 @@
                 
                 workshopDiv.innerHTML = `
                     <div class="workshop-header">
-                        <h4>${workshop.name}</h4>
+                        <h4>${workshop.name} (ID: ${workshop.id})</h4>
                         <span class="machines-badge">${workshop.machinesCount} станков</span>
                     </div>
                     <div class="workshop-body">
@@ -367,7 +371,7 @@
                             <small>Для выбора нескольких станков используйте Ctrl+Click</small>
                         </div>
                         <div class="workshop-machines-list">
-                            <strong>Текущие станки:</strong>
+                            <strong>Текущие станки в цехе:</strong>
                             ${machinesInWorkshop.length > 0 ? 
                                 machinesInWorkshop.map(m => 
                                     `<div class="machine-tag">${m.name} (ID: ${m.id})</div>`
@@ -390,7 +394,7 @@
         function renderMachinesList() {
             const fragment = document.createDocumentFragment();
             
-            console.log('🎨 Отрисовка списка станков:', state.machines.length);
+            console.log('🎨 ОТРИСОВКА СПИСКА СТАНКОВ:', state.machines.length);
             
             state.machines.forEach(machine => {
                 const workshop = state.workshops.find(w => w.id === machine.workshopId);
@@ -582,7 +586,7 @@
 
         // Обновление данных
         async function refreshData() {
-            console.log('🔄 Принудительное обновление данных...');
+            console.log('🔄 ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ДАННЫХ...');
             await loadSettings();
         }
 
@@ -641,13 +645,13 @@
         // Диагностика настроек
         async function debugSettings() {
             try {
-                console.log('🔍 Запуск диагностики...');
+                console.log('🔍 ЗАПУСК ДИАГНОСТИКИ...');
                 
                 // 1. Проверим что приходит с сервера
                 const response = await fetch('http://localhost:3004/api/settings');
                 const data = await response.json();
                 
-                console.log('📋 Ответ от /api/settings:', {
+                console.log('📋 ОТВЕТ ОТ /api/settings:', {
                     success: data.success,
                     workshopsCount: data.settings.workshops.length,
                     workshops: data.settings.workshops,
@@ -659,17 +663,17 @@
                 const debugResponse = await fetch('http://localhost:3004/api/settings/debug');
                 const debugData = await debugResponse.json();
                 
-                console.log('🗃️ Все записи в БД:', debugData.debug.settings_records);
+                console.log('🗃️ ВСЕ ЗАПИСИ В БД:', debugData.debug.settings_records);
 
                 // 3. Проверим текущее состояние
-                console.log('🏭 Текущее состояние в интерфейсе:', {
+                console.log('🏭 ТЕКУЩЕЕ СОСТОЯНИЕ В ИНТЕРФЕЙСЕ:', {
                     workshops: state.workshops.length,
-                    workshopsList: state.workshops.map(w => w.name),
+                    workshopsList: state.workshops.map(w => `${w.name}(id:${w.id})`),
                     machines: state.machines.length,
                     machinesDistribution: state.machines.map(m => `${m.name} -> ЦЕХ-${m.workshopId}`)
                 });
 
-                alert(`Диагностика:\n\n` +
+                alert(`ДИАГНОСТИКА:\n\n` +
                       `С сервера: ${data.settings.workshops.length} цехов\n` +
                       `В интерфейсе: ${state.workshops.length} цехов\n` +
                       `Цехи в интерфейсе: ${state.workshops.map(w => w.name).join(', ')}\n\n` +
@@ -678,6 +682,47 @@
             } catch (error) {
                 console.error('❌ Ошибка диагностики:', error);
                 showNotification('Ошибка диагностики', 'error');
+            }
+        }
+
+        // Глубокая диагностика
+        async function deepDebug() {
+            try {
+                console.log('🔍 ЗАПУСК ГЛУБОКОЙ ДИАГНОСТИКИ...');
+                
+                // 1. Проверяем что приходит с сервера
+                const response = await fetch('http://localhost:3004/api/settings/debug-detailed');
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('📊 ДЕТАЛЬНАЯ ДИАГНОСТИКА СЕРВЕРА:', data);
+                    
+                    // Показываем в alert
+                    const latestSettings = data.all_settings[0];
+                    let message = `ДИАГНОСТИКА СЕРВЕРА:\n\n`;
+                    message += `Последние настройки (ID: ${latestSettings.id}):\n`;
+                    message += `- Цехов: ${latestSettings.data.workshops ? latestSettings.data.workshops.length : 'N/A'}\n`;
+                    if (latestSettings.data.workshops) {
+                        message += `- Список: ${latestSettings.data.workshops.map(w => w.name).join(', ')}\n`;
+                    }
+                    message += `- Станков: ${latestSettings.data.machines ? latestSettings.data.machines.length : 'N/A'}\n\n`;
+                    
+                    message += `Распределение: ${data.distribution.length} записей\n`;
+                    message += `Станки в системе: ${data.machines.length} шт.\n\n`;
+                    
+                    message += `Всего записей в БД: ${data.all_settings.length}`;
+                    
+                    alert(message);
+                    
+                    // 2. Сравниваем с текущим состоянием
+                    console.log('🔄 СРАВНЕНИЕ С ТЕКУЩИМ СОСТОЯНИЕМ:');
+                    console.log('- Сервер:', latestSettings.data.workshops ? latestSettings.data.workshops.map(w => w.name) : []);
+                    console.log('- Клиент:', state.workshops.map(w => w.name));
+                    
+                }
+            } catch (error) {
+                console.error('❌ Ошибка глубокой диагностики:', error);
+                alert('Ошибка диагностики: ' + error.message);
             }
         }
 
@@ -981,7 +1026,7 @@
 
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Инициализация страницы настроек...');
+            console.log('🚀 ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ НАСТРОЕК...');
             loadSettings();
             loadBackupsList();
             
