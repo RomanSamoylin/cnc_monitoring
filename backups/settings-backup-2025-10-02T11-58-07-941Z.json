@@ -1,0 +1,39 @@
+{
+  "timestamp": "2025-10-02T11:58:07.941Z",
+  "settings": {
+    "workshops": [
+      {
+        "id": 1,
+        "name": "ЦЕХ-1",
+        "machinesCount": 2
+      },
+      {
+        "id": 2,
+        "name": "ЦЕХ-2",
+        "machinesCount": 2
+      }
+    ],
+    "machines": [
+      {
+        "id": 1,
+        "name": "CNCMisha",
+        "workshopId": 1
+      },
+      {
+        "id": 2,
+        "name": "StanoK1",
+        "workshopId": 1
+      },
+      {
+        "id": 3,
+        "name": "stanok12",
+        "workshopId": 2
+      },
+      {
+        "id": 4,
+        "name": "StanoK129",
+        "workshopId": 2
+      }
+    ]
+  }
+}
