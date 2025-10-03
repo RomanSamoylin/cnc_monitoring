@@ -1,4 +1,4 @@
-// server4.js - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// server4.js - ИСПРАВЛЕННАЯ ВЕРСИЯ С ДОБАВЛЕННЫМ ЭНДПОИНТОМ РАСПРЕДЕЛЕНИЯ
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
@@ -138,6 +138,67 @@ app.get('/api/settings', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Ошибка загрузки настроек: ' + error.message
+        });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// НОВЫЙ ЭНДПОИНТ: Получение распределения станков по цехам (для других страниц)
+app.get('/api/settings/distribution-data', async (req, res) => {
+    let connection;
+    try {
+        connection = await getConnection();
+        
+        console.log('📊 ЗАПРОС РАСПРЕДЕЛЕНИЯ СТАНКОВ');
+
+        // Получаем все цехи
+        const [workshopsRows] = await connection.execute(
+            'SELECT workshop_id, workshop_name FROM workshop_settings ORDER BY workshop_id'
+        );
+        
+        // Получаем распределение станков
+        const [assignmentRows] = await connection.execute(
+            'SELECT mwa.machine_id, mwa.workshop_id, cim.cnc_name ' +
+            'FROM machine_workshop_assignment mwa ' +
+            'JOIN cnc_id_mapping cim ON mwa.machine_id = cim.machine_id ' +
+            'ORDER BY mwa.machine_id'
+        );
+
+        // Формируем данные для клиента
+        const distribution = {
+            workshops: workshopsRows.map(row => ({
+                id: row.workshop_id,
+                name: row.workshop_name
+            })),
+            machines: assignmentRows.map(row => ({
+                id: row.machine_id,
+                name: row.cnc_name,
+                workshopId: row.workshop_id
+            })),
+            // Карта для быстрого доступа: machineId -> workshopId
+            machineToWorkshopMap: assignmentRows.reduce((map, row) => {
+                map[row.machine_id] = row.workshop_id;
+                return map;
+            }, {})
+        };
+
+        console.log('✅ ДАННЫЕ РАСПРЕДЕЛЕНИЯ ОТПРАВЛЕНЫ:', {
+            workshops: distribution.workshops.length,
+            machines: distribution.machines.length,
+            workshopsList: distribution.workshops.map(w => `${w.name}(id:${w.id})`)
+        });
+
+        res.json({
+            success: true,
+            distribution: distribution
+        });
+
+    } catch (error) {
+        console.error('❌ Ошибка получения распределения:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Ошибка получения распределения: ' + error.message
         });
     } finally {
         if (connection) connection.release();
@@ -856,7 +917,7 @@ app.get('/api/settings/verify', async (req, res) => {
     }
 });
 
-// Функция для обновления счетчиков станков в цехах
+// Функция для обновления счетчиков станков в цехам
 async function updateWorkshopsMachinesCount(connection) {
     try {
         // Обновляем счетчики на основе актуального распределения
@@ -906,6 +967,7 @@ async function startServer() {
         app.listen(PORT, () => {
             console.log(`🚀 Сервер настроек запущен на порту ${PORT}`);
             console.log(`📊 Используется новая структура БД: workshop_settings + machine_workshop_assignment`);
+            console.log(`🔗 Новый эндпоинт распределения: http://localhost:${PORT}/api/settings/distribution-data`);
         });
     } catch (error) {
         console.error('❌ Ошибка запуска сервера:', error);
