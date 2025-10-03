@@ -1,4 +1,4 @@
-// settings-manager.js - ПОЛНОСТЬЮ ОБНОВЛЕННАЯ ВЕРСИЯ ДЛЯ НОВОЙ СТРУКТУРЫ БД
+// settings-manager.js - ИСПРАВЛЕННАЯ ВЕРСИЯ
 class SettingsManager {
     constructor() {
         this.settings = {
@@ -15,7 +15,7 @@ class SettingsManager {
     // Основная функция загрузки настроек
     async loadSettings() {
         try {
-            console.log('🔄 ЗАГРУЗКА НАСТРОЕК С СЕРВЕРА (НОВАЯ СТРУКТУРА)...');
+            console.log('🔄 ЗАГРУЗКА НАСТРОЕК С СЕРВЕРА...');
             
             const response = await fetch(`${this.SERVER_URL}/api/settings`);
             if (!response.ok) {
@@ -152,27 +152,23 @@ class SettingsManager {
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
             }
             
             const data = await response.json();
             
             if (!data.success) {
-                throw new Error('Server response indicates failure');
-            }
-            
-            // Обновляем локальные настройки данными с сервера
-            if (data.settings) {
-                console.log('🔄 ОБНОВЛЕНИЕ ЛОКАЛЬНЫХ НАСТРОЕК ДАННЫМИ С СЕРВЕРА:', {
-                    workshops: data.settings.workshops.length,
-                    machines: data.settings.machines.length
-                });
-                
-                this.settings.workshops = data.settings.workshops ? [...data.settings.workshops] : [];
-                this.settings.machines = data.settings.machines ? [...data.settings.machines] : [];
+                throw new Error(data.message || 'Server response indicates failure');
             }
             
             console.log('💾 ВСЕ НАСТРОЙКИ СОХРАНЕНЫ НА СЕРВЕР');
+            
+            // Обновляем локальные настройки данными с сервера
+            this.settings = {
+                workshops: data.settings.workshops ? [...data.settings.workshops] : [],
+                machines: data.settings.machines ? [...data.settings.machines] : []
+            };
             
             this.dispatchSettingsUpdated();
             return true;
@@ -257,12 +253,7 @@ class SettingsManager {
             }
 
             // Сохраняем на сервер ВСЕ настройки
-            const settingsToSave = {
-                workshops: this.settings.workshops,
-                machines: this.settings.machines
-            };
-            
-            await this.saveSettings(settingsToSave);
+            await this.saveSettings(this.settings);
             console.log(`✅ Станок ${machineId} перемещен в цех ${workshopId}`);
             
             return true;
@@ -683,8 +674,7 @@ window.SettingsManager = new Proxy(new SettingsManager(), {
 // Автоматическая инициализация при загрузке
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        console.log('🚀 ИНИЦИАЛИЗАЦИЯ SETTINGSMANAGER (НОВАЯ СТРУКТУРА БД)...');
-        console.log('📊 Используется структура: workshop_settings + machine_workshop_assignment');
+        console.log('🚀 ИНИЦИАЛИЗАЦИЯ SETTINGSMANAGER...');
         
         // Проверяем доступность сервера перед загрузкой
         const isHealthy = await window.SettingsManager.checkHealth();

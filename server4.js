@@ -1,4 +1,4 @@
-// server4.js - ПОЛНОСТЬЮ ПЕРЕПИСАННАЯ ВЕРСИЯ ДЛЯ НОВОЙ СТРУКТУРЫ БД
+// server4.js - ИСПРАВЛЕННАЯ ВЕРСИЯ
 const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
@@ -9,7 +9,7 @@ const app = express();
 const PORT = 3004;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(express.static('.'));
 
 // Конфигурация базы данных
@@ -144,11 +144,16 @@ app.get('/api/settings', async (req, res) => {
     }
 });
 
-// ЭНДПОИНТ СОХРАНЕНИЯ: Сохраняет настройки
+// ЭНДПОИНТ СОХРАНЕНИЯ: Сохраняет настройки - ИСПРАВЛЕННАЯ ВЕРСИЯ
 app.post('/api/settings/save', async (req, res) => {
     let connection;
     try {
         const { settings } = req.body;
+        
+        console.log('💾 ПОЛУЧЕНЫ ДАННЫЕ ДЛЯ СОХРАНЕНИЯ:', {
+            workshopsCount: settings?.workshops?.length || 0,
+            machinesCount: settings?.machines?.length || 0
+        });
         
         if (!settings || !Array.isArray(settings.workshops) || !Array.isArray(settings.machines)) {
             return res.status(400).json({
@@ -167,58 +172,72 @@ app.post('/api/settings/save', async (req, res) => {
         await connection.beginTransaction();
 
         try {
-            // 1. Сохраняем цехи
+            // 1. ОЧИЩАЕМ текущие настройки
+            console.log('🧹 Очистка текущих настроек...');
+            await connection.execute('DELETE FROM machine_workshop_assignment');
+            await connection.execute('DELETE FROM workshop_settings');
+
+            // 2. Сохраняем цехи
+            console.log('💾 Сохранение цехов...');
             for (const workshop of settings.workshops) {
                 await connection.execute(
-                    `INSERT INTO workshop_settings (workshop_id, workshop_name, machines_count) 
-                     VALUES (?, ?, ?) 
-                     ON DUPLICATE KEY UPDATE 
-                     workshop_name = VALUES(workshop_name), 
-                     machines_count = VALUES(machines_count)`,
+                    'INSERT INTO workshop_settings (workshop_id, workshop_name, machines_count) VALUES (?, ?, ?)',
                     [workshop.id, workshop.name, workshop.machinesCount || 0]
                 );
+                console.log(`✅ Сохранен цех: ${workshop.name} (ID: ${workshop.id})`);
             }
 
-            // 2. Сохраняем распределение станков
-            console.log('🔄 Обновление распределения станков...');
-            
+            // 3. Сохраняем распределение станков
+            console.log('🔧 Сохранение распределения станков...');
+            let savedMachines = 0;
             for (const machine of settings.machines) {
-                await connection.execute(
-                    `INSERT INTO machine_workshop_assignment (machine_id, workshop_id) 
-                     VALUES (?, ?) 
-                     ON DUPLICATE KEY UPDATE 
-                     workshop_id = VALUES(workshop_id)`,
-                    [machine.id, machine.workshopId]
+                // Проверяем, существует ли станок в системе
+                const [machineExists] = await connection.execute(
+                    'SELECT machine_id FROM cnc_id_mapping WHERE machine_id = ?',
+                    [machine.id]
                 );
+                
+                if (machineExists.length > 0) {
+                    await connection.execute(
+                        'INSERT INTO machine_workshop_assignment (machine_id, workshop_id) VALUES (?, ?)',
+                        [machine.id, machine.workshopId || 1]
+                    );
+                    savedMachines++;
+                } else {
+                    console.warn(`⚠️ Станок ID ${machine.id} не найден в системе, пропускаем`);
+                }
             }
 
-            // 3. Удаляем цехи, которых нет в новых настройках
-            const workshopIds = settings.workshops.map(w => w.id);
-            if (workshopIds.length > 0) {
-                await connection.execute(
-                    'DELETE FROM workshop_settings WHERE workshop_id NOT IN (?)',
-                    [workshopIds]
-                );
-            }
-
-            // 4. Обновляем счетчики станков
-            await updateWorkshopsMachinesCount(connection);
+            // 4. Обновляем счетчики станков в цехах
+            console.log('🔢 Обновление счетчиков станков...');
+            await connection.execute(`
+                UPDATE workshop_settings ws
+                SET machines_count = (
+                    SELECT COUNT(*) 
+                    FROM machine_workshop_assignment mwa 
+                    WHERE mwa.workshop_id = ws.workshop_id
+                )
+            `);
 
             await connection.commit();
 
             // 5. Сохраняем резервную копию
             await saveBackup(settings);
 
-            console.log('✅ НАСТРОЙКИ СОХРАНЕНЫ');
+            console.log('✅ НАСТРОЙКИ УСПЕШНО СОХРАНЕНЫ:', {
+                workshops: settings.workshops.length,
+                machines: savedMachines
+            });
 
             res.json({
                 success: true,
-                message: 'Все настройки успешно сохранены',
+                message: `Все настройки успешно сохранены. Цехов: ${settings.workshops.length}, Станков: ${savedMachines}`,
                 settings: settings
             });
 
         } catch (error) {
             await connection.rollback();
+            console.error('❌ Ошибка транзакции:', error);
             throw error;
         }
 
