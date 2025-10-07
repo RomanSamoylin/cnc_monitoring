@@ -2898,3 +2898,8 @@ Error: bind EADDRINUSE null:3000
     at process.<anonymous> (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:700:3)
     at process.emit (node:events:530:35)
     at process._fatalException (node:internal/process/execution:154:25)
+2025-10-07 11:09:42.917: [07.10.2025, 11:09:42] Ошибка обновления. Повтор через 30000ms
+2025-10-07 11:09:42.918: Error
+    at log (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:51:30)
+    at Timeout.update [as _onTimeout] (C:\Users\Александр\Documents\GIT\cnc_monitoring\server.js:611:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

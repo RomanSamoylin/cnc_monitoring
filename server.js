@@ -299,7 +299,7 @@ async function getPartsCount(machineId) {
       FROM bit8_data 
       WHERE machine_id = ? 
         AND event_type = 29 
-        AND value = 0 
+        AND value = 1 
         AND timestamp >= ?
     `, [machineId, today]);
     
@@ -460,7 +460,7 @@ async function getMachineData() {
       SELECT machine_id, COUNT(*) as parts_count 
       FROM bit8_data 
       WHERE event_type = 29 
-        AND value = 0 
+        AND value = 1 
         AND DATE(timestamp) = CURDATE()
       GROUP BY machine_id
     `);

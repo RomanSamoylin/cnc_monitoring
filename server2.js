@@ -686,7 +686,7 @@ async function getPartsData(connection, startDate, endDate, workshop = 'all') {
       WHERE 
         timestamp BETWEEN ? AND ?
         AND event_type = 29
-        AND value = 0
+        AND value = 1
         ${whereClause}
       GROUP BY DATE_FORMAT(timestamp, '%Y-%m-%d %H')
       ORDER BY hour
@@ -699,7 +699,7 @@ async function getPartsData(connection, startDate, endDate, workshop = 'all') {
       WHERE 
         timestamp BETWEEN ? AND ?
         AND event_type = 29
-        AND value = 0
+        AND value = 1
         ${whereClause}
     `, params);
 
@@ -770,7 +770,7 @@ async function getPartsDailyData(connection, startDate, endDate, workshop = 'all
             WHERE 
                 timestamp BETWEEN ? AND ?
                 AND event_type = 29
-                AND value = 0
+                AND value = 1
                 ${whereClause}
             GROUP BY DATE(timestamp)
             ORDER BY date
@@ -783,7 +783,7 @@ async function getPartsDailyData(connection, startDate, endDate, workshop = 'all
             WHERE 
                 timestamp BETWEEN ? AND ?
                 AND event_type = 29
-                AND value = 0
+                AND value = 1
                 ${whereClause}
         `, params);
 
@@ -849,7 +849,7 @@ async function getMachinePartsDailyData(connection, machineId, startDate, endDat
                 machine_id = ?
                 AND timestamp BETWEEN ? AND ?
                 AND event_type = 29
-                AND value = 0
+                AND value = 1
             GROUP BY DATE(timestamp)
             ORDER BY date
         `, [machineId, start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')]);
@@ -862,7 +862,7 @@ async function getMachinePartsDailyData(connection, machineId, startDate, endDat
                 machine_id = ?
                 AND timestamp BETWEEN ? AND ?
                 AND event_type = 29
-                AND value = 0
+                AND value = 1
         `, [machineId, start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')]);
 
         // Формируем данные для всех дней в периоде (включая дни без данных)
