@@ -59,6 +59,7 @@ const cache = {
   partsDailyData: {},
   machinePartsData: {},
   machineSummaryData: {},
+  comparisonData: {},
   lastUpdate: {},
   ttl: {
     machines: 30000,
@@ -69,7 +70,8 @@ const cache = {
     partsData: 300000,
     partsDailyData: 300000,
     machinePartsData: 300000,
-    machineSummaryData: 300000
+    machineSummaryData: 300000,
+    comparisonData: 300000
   }
 };
 
@@ -927,6 +929,150 @@ async function getMachineSummaryData(connection, machineId, startDate, endDate) 
     }
 }
 
+/**
+ * НОВАЯ ФУНКЦИЯ: Получает данные для сравнения цехов
+ */
+async function getWorkshopsComparisonData(connection, startDate, endDate) {
+    try {
+        console.log(`Запрос данных для сравнения цехов с ${startDate} по ${endDate}`);
+        
+        // Получаем сводные данные для обоих цехов
+        const workshop1Data = await getWorkshopSummaryData(connection, '1', startDate, endDate);
+        const workshop2Data = await getWorkshopSummaryData(connection, '2', startDate, endDate);
+        
+        // Получаем данные о деталях для обоих цехов
+        const workshop1Parts = await getPartsDailyData(connection, startDate, endDate, '1');
+        const workshop2Parts = await getPartsDailyData(connection, startDate, endDate, '2');
+        
+        return {
+            statusComparison: {
+                workshop1: workshop1Data,
+                workshop2: workshop2Data
+            },
+            partsComparison: {
+                workshop1: workshop1Parts,
+                workshop2: workshop2Parts
+            }
+        };
+    } catch (error) {
+        console.error('Ошибка получения данных для сравнения цехов:', error);
+        throw new Error('Не удалось получить данные для сравнения цехов');
+    }
+}
+
+/**
+ * НОВАЯ ФУНКЦИЯ: Получает сводные данные для цеха
+ */
+async function getWorkshopSummaryData(connection, workshopId, startDate, endDate) {
+    try {
+        console.log(`Запрос сводных данных для цеха ${workshopId} с ${startDate} по ${endDate}`);
+        
+        let start = moment(startDate).startOf('day');
+        let end = moment(endDate).endOf('day');
+        
+        // Если начальная и конечная даты одинаковые (период "День"), используем текущее время вместо конца дня
+        if (moment(startDate).isSame(endDate, 'day') && moment().isSame(endDate, 'day')) {
+            end = moment();
+        }
+        
+        // Определяем условие WHERE в зависимости от параметра workshop
+        let whereClause = '';
+        if (workshopId === '1') {
+            whereClause = 'AND machine_id <= 16';
+        } else if (workshopId === '2') {
+            whereClause = 'AND machine_id > 16';
+        }
+        
+        const [rows] = await connection.execute(`
+            SELECT 
+                machine_id,
+                timestamp,
+                event_type,
+                value
+            FROM bit8_data
+            WHERE 
+                timestamp BETWEEN ? AND ?
+                AND event_type IN (7, 21, 32, 19)
+                ${whereClause}
+            ORDER BY timestamp ASC
+        `, [start.format('YYYY-MM-DD HH:mm:ss'), end.format('YYYY-MM-DD HH:mm:ss')]);
+
+        if (rows.length === 0) {
+            const totalMinutes = end.diff(start, 'minutes');
+            return {
+                working: 0,
+                stopped: 0,
+                shutdown: totalMinutes / 60
+            };
+        }
+
+        // Группируем данные по machine_id и timestamp
+        const machineEvents = {};
+        rows.forEach(row => {
+            if (!machineEvents[row.machine_id]) {
+                machineEvents[row.machine_id] = {};
+            }
+            
+            const timestamp = moment(row.timestamp).format('YYYY-MM-DD HH:mm:ss');
+            if (!machineEvents[row.machine_id][timestamp]) {
+                machineEvents[row.machine_id][timestamp] = {};
+            }
+            
+            machineEvents[row.machine_id][timestamp][row.event_type] = row.value;
+        });
+
+        let totalWorking = 0, totalStopped = 0, totalShutdown = 0;
+
+        // Обрабатываем данные для каждого станка
+        for (const machineId of Object.keys(machineEvents)) {
+            const timestamps = Object.keys(machineEvents[machineId]).sort();
+            let lastStatus = STATUS.SHUTDOWN;
+            let lastTime = start.clone();
+
+            // Обрабатываем каждое событие для текущего станка
+            for (const timestamp of timestamps) {
+                const currentTime = moment(timestamp);
+                const currentData = machineEvents[machineId][timestamp];
+                
+                // Определяем статус
+                const currentStatus = determineMachineStatus({
+                    SystemState: currentData[7],
+                    MUSP: currentData[21],
+                    CONP: currentData[32],
+                    COMU: currentData[19]
+                });
+
+                // Рассчитываем время между событиями
+                const minutesDiff = currentTime.diff(lastTime, 'minutes');
+                
+                // Добавляем время к соответствующему статусу
+                if (lastStatus === STATUS.WORKING) totalWorking += minutesDiff;
+                else if (lastStatus === STATUS.STOPPED) totalStopped += minutesDiff;
+                else totalShutdown += minutesDiff;
+
+                lastStatus = currentStatus;
+                lastTime = currentTime;
+            }
+
+            // Добавляем время от последнего события до конца периода
+            const finalMinutes = end.diff(lastTime, 'minutes');
+            if (lastStatus === STATUS.WORKING) totalWorking += finalMinutes;
+            else if (lastStatus === STATUS.STOPPED) totalStopped += finalMinutes;
+            else totalShutdown += finalMinutes;
+        }
+
+        // Переводим минуты в часы
+        return {
+            working: Math.round((totalWorking / 60) * 100) / 100,
+            stopped: Math.round((totalStopped / 60) * 100) / 100,
+            shutdown: Math.round((totalShutdown / 60) * 100) / 100
+        };
+    } catch (error) {
+        console.error(`Ошибка получения сводных данных для цеха ${workshopId}:`, error);
+        throw new Error(`Не удалось получить сводные данные для цеха ${workshopId}`);
+    }
+}
+
 function validateErrors(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -1391,6 +1537,54 @@ app.get('/api/machines/:id/history/summary',
           success: true,
           fromCache: false,
           data: summaryData
+        });
+      } finally {
+        if (connection) await connection.release();
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * НОВЫЙ ЭНДПОИНТ: Получает данные для сравнения цехов
+ */
+app.get('/api/workshops/comparison', 
+  [
+    query('startDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
+    query('endDate').customSanitizer(value => moment(value).format('YYYY-MM-DD')),
+    query('startDate').isISO8601().withMessage('Неверный формат начальной даты'),
+    query('endDate').isISO8601().withMessage('Неверный формат конечной даты')
+  ],
+  validateErrors,
+  async (req, res, next) => {
+    let connection;
+    try {
+      const { startDate, endDate } = req.query;
+      const cacheKey = `comparison_${startDate}_${endDate}`;
+      
+      if (cache.comparisonData[cacheKey] && 
+          Date.now() - cache.lastUpdate[cacheKey] < cache.ttl.comparisonData) {
+        return res.json({
+          success: true,
+          fromCache: true,
+          data: cache.comparisonData[cacheKey]
+        });
+      }
+
+      connection = await getConnection();
+      
+      try {
+        const comparisonData = await getWorkshopsComparisonData(connection, startDate, endDate);
+        
+        cache.comparisonData[cacheKey] = comparisonData;
+        cache.lastUpdate[cacheKey] = Date.now();
+        
+        res.json({
+          success: true,
+          fromCache: false,
+          data: comparisonData
         });
       } finally {
         if (connection) await connection.release();

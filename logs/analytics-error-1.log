@@ -9203,3 +9203,3252 @@ Ignoring invalid configuration option passed to Connection: acquireTimeout. This
 Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
 Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
 Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ошибка получения списка станков: Error: Unknown column 'workshop_id' in 'field list'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:131:41)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1087:30
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name, workshop_id\n' +
+    '      FROM cnc_id_mapping \n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'field list'"
+}
+Ошибка: Error: Не удалось получить список станков
+    at getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:144:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1087:24
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения списка станков: Error: Unknown column 'workshop_id' in 'field list'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:131:41)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1087:30
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name, workshop_id\n' +
+    '      FROM cnc_id_mapping \n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'field list'"
+}
+Ошибка: Error: Не удалось получить список станков
+    at getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:144:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1087:24
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at getPartsDailyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:815:47)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1389:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at getPartsDailyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:815:47)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1389:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at getPartsDailyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:815:47)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1389:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at getPartsDailyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:815:47)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1389:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения списка станков: Error: Unknown column 'workshop_id' in 'field list'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:131:41)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1087:30
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name, workshop_id\n' +
+    '      FROM cnc_id_mapping \n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'field list'"
+}
+Ошибка: Error: Не удалось получить список станков
+    at getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:144:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1087:24
+Ошибка получения списка станков: Error: Unknown column 'workshop_id' in 'field list'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:131:41)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1087:30
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name, workshop_id\n' +
+    '      FROM cnc_id_mapping \n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'field list'"
+}
+Ошибка: Error: Не удалось получить список станков
+    at getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:144:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1087:24
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения станков для цеха 2: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at generateWorkshopHourlyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:566:43)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1279:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения списка станков: Error: Unknown column 'workshop_id' in 'field list'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:131:41)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1087:30
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name, workshop_id\n' +
+    '      FROM cnc_id_mapping \n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'field list'"
+}
+Ошибка: Error: Не удалось получить список станков
+    at getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:144:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1087:24
+Ошибка получения станков для цеха 1: Error: Unknown column 'workshop_id' in 'where clause'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getMachinesForWorkshop (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:153:41)
+    at getPartsDailyData (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:815:47)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1389:33
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name \n' +
+    '      FROM cnc_id_mapping \n' +
+    '      WHERE workshop_id = ?\n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'where clause'"
+}
+Ошибка получения списка станков: Error: Unknown column 'workshop_id' in 'field list'
+    at PromisePoolConnection.execute (C:\Users\Александр\Documents\GIT\cnc_monitoring\node_modules\mysql2\lib\promise\connection.js:47:22)
+    at getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:131:41)
+    at C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1087:30
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ER_BAD_FIELD_ERROR',
+  errno: 1054,
+  sql: '\n' +
+    '      SELECT machine_id, cnc_name, workshop_id\n' +
+    '      FROM cnc_id_mapping \n' +
+    '      ORDER BY machine_id\n' +
+    '    ',
+  sqlState: '42S22',
+  sqlMessage: "Unknown column 'workshop_id' in 'field list'"
+}
+Ошибка: Error: Не удалось получить список станков
+    at getAllMachines (C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:144:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Александр\Documents\GIT\cnc_monitoring\server2.js:1087:24
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ETIMEDOUT 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4039,
+  code: 'ETIMEDOUT',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection
+Не удалось подключиться к MySQL: Error: connect ECONNREFUSED 192.168.1.30:3306
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -4078,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '192.168.1.30',
+  port: 3306,
+  fatal: true
+}
+Ignoring invalid configuration option passed to Connection: acquireTimeout. This is currently a warning, but in future versions of MySQL2, an error will be thrown if you pass an invalid configuration option to a Connection

@@ -52,6 +52,14 @@
                 <option value="all">Все станки</option>
             </select>
             
+            <!-- НОВЫЙ ФИЛЬТР ДЛЯ СРАВНЕНИЯ ЦЕХОВ -->
+            <h3><i class="fas fa-chart-bar"></i> Режим отображения</h3>
+            <select id="viewModeFilter">
+                <option value="workshop">Обзор цеха</option>
+                <option value="comparison">Сравнение цехов</option>
+                <option value="machine">Детализация станка</option>
+            </select>
+            
             <h3><i class="fas fa-calendar-alt"></i> Период</h3>
             <div class="period-buttons">
                 <button class="active" onclick="setPeriod('day')"><i class="fas fa-calendar-day"></i> День</button>
@@ -89,9 +97,17 @@
                         Всего деталей за выбранный период: <span>0</span>
                     </div>
                 </div>
+            </div>
+            
+            <!-- Графики для режима сравнения цехов -->
+            <div id="comparisonCharts" style="display: none;" class="charts-row">
                 <div class="chart-container">
-                    <h3 class="chart-title" id="horizontalBarChartTitle">Состояние станков (горизонтальные столбцы)</h3>
-                    <canvas id="horizontalBarChart"></canvas>
+                    <h3 class="chart-title" id="comparisonChartTitle">Сравнение цехов по времени работы</h3>
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3 class="chart-title" id="comparisonPartsTitle">Сравнение по количеству деталей</h3>
+                    <canvas id="comparisonPartsChart"></canvas>
                 </div>
             </div>
             
@@ -141,10 +157,17 @@
             [STATUS.STOPPED]: 'Остановлено',
             [STATUS.SHUTDOWN]: 'Выключено'
         };
+
+        // Константы для режимов просмотра
+        const VIEW_MODES = {
+            WORKSHOP: 'workshop',
+            COMPARISON: 'comparison',
+            MACHINE: 'machine'
+        };
         
         // Текущий выбранный период
         let currentPeriod = 'day';
-        let currentViewMode = 'workshop';
+        let currentViewMode = VIEW_MODES.WORKSHOP;
         
         // Данные о станках
         let machinesList = [];
@@ -158,17 +181,19 @@
         };
         
         // Объекты графиков
-        let pieChart, partsChart, horizontalBarChart, machineStatusChart, machinePartsChart;
+        let pieChart, partsChart, comparisonChart, comparisonPartsChart, machineStatusChart, machinePartsChart;
         
         // DOM элементы
         const DOM = {
             workshopFilter: document.getElementById('workshopFilter'),
             machineFilter: document.getElementById('machineFilter'),
+            viewModeFilter: document.getElementById('viewModeFilter'),
             notification: document.getElementById('notification'),
             startDate: document.getElementById('startDate'),
             endDate: document.getElementById('endDate'),
             applyFilters: document.getElementById('applyFilters'),
             workshopCharts: document.getElementById('workshopCharts'),
+            comparisonCharts: document.getElementById('comparisonCharts'),
             individualCharts: document.getElementById('individualCharts')
         };
 
@@ -361,7 +386,7 @@
 
         /**
          * Проверяет, является ли дата сегодняшним днем
-         * @param {string} dateString - Дата в формаite YYYY-MM-DD
+         * @param {string} dateString - Дата в формате YYYY-MM-DD
          * @returns {boolean} - true если дата сегодняшняя
          */
         function isToday(dateString) {
@@ -728,51 +753,20 @@
                 workshopData.total.shutdown || 0
             ];
             
-            // 2. Горизонтальная столбчатая диаграмма (сравнение цехов)
-            if (selectedWorkshop === 'all') {
-                // Показываем все цеха для сравнения
-                horizontalBarChart.data.labels = workshopDistribution.workshops.map(w => w.name);
-                horizontalBarChart.data.datasets[0].data = workshopDistribution.workshops.map(w => 
-                    workshopData[w.id]?.shutdown || 0
-                );
-                horizontalBarChart.data.datasets[1].data = workshopDistribution.workshops.map(w => 
-                    workshopData[w.id]?.stopped || 0
-                );
-                horizontalBarChart.data.datasets[2].data = workshopDistribution.workshops.map(w => 
-                    workshopData[w.id]?.working || 0
-                );
-            } else {
-                // Показываем только выбранный цех
-                const workshop = workshopDistribution.workshops.find(w => w.id.toString() === selectedWorkshop);
-                horizontalBarChart.data.labels = [workshop?.name || `Цех ${selectedWorkshop}`];
-                horizontalBarChart.data.datasets[0].data = [workshopData[selectedWorkshop]?.shutdown || 0];
-                horizontalBarChart.data.datasets[1].data = [workshopData[selectedWorkshop]?.stopped || 0];
-                horizontalBarChart.data.datasets[2].data = [workshopData[selectedWorkshop]?.working || 0];
-            }
-            
             // Обновляем заголовки в зависимости от периода
             const workshopText = selectedWorkshop === 'all' ? 'Все цеха' : getWorkshopName(selectedWorkshop);
             
             if (currentPeriod === 'day') {
                 document.getElementById('pieChartTitle').textContent = 
                     `Состояние станков ${workshopText} за ${periodText}`;
-                document.getElementById('horizontalBarChartTitle').textContent = 
-                    selectedWorkshop === 'all' 
-                        ? `Сравнение цехов за ${periodText}`
-                        : `Состояние станков цеха за ${periodText}`;
             } else {
                 document.getElementById('pieChartTitle').textContent = 
                     `Состояние станков ${workshopText} (${periodText})`;
-                document.getElementById('horizontalBarChartTitle').textContent = 
-                    selectedWorkshop === 'all' 
-                        ? `Сравнение цехов (${periodText})`
-                        : `Состояние станков цеха (${periodText})`;
             }
             
-            // Обновляем все графики
+            // Обновляем график
             try {
                 pieChart.update();
-                horizontalBarChart.update();
                 console.log('Графики цехов успешно обновлены');
             } catch (e) {
                 console.error('Ошибка обновления графиков цехов:', e);
@@ -829,39 +823,158 @@
             DOM.endDate.valueAsDate = endDate;
             
             // Загружаем данные для текущего режима просмотра
-            if (currentViewMode === 'workshop') {
-                loadWorkshopData();
-            } else {
-                const machineId = DOM.machineFilter.value;
-                if (machineId && machineId !== 'all') {
-                    loadMachineData(machineId);
-                }
+            switch (currentViewMode) {
+                case VIEW_MODES.WORKSHOP:
+                    loadWorkshopData();
+                    break;
+                case VIEW_MODES.COMPARISON:
+                    loadComparisonData();
+                    break;
+                case VIEW_MODES.MACHINE:
+                    const machineId = DOM.machineFilter.value;
+                    if (machineId && machineId !== 'all') {
+                        loadMachineData(machineId);
+                    }
+                    break;
             }
         }
 
         /**
-         * Переключает режим просмотра на цеха
+         * Переключает режим просмотра
          */
-        function showWorkshopView() {
-            console.log('Переключение в режим просмотра цехов');
-            currentViewMode = 'workshop';
-            DOM.workshopCharts.style.display = 'grid';
+        function switchViewMode(mode) {
+            console.log('Переключение режима просмотра:', mode);
+            
+            // Скрываем все контейнеры
+            DOM.workshopCharts.style.display = 'none';
+            DOM.comparisonCharts.style.display = 'none';
             DOM.individualCharts.style.display = 'none';
-            loadWorkshopData();
+            
+            // Показываем нужный контейнер
+            switch (mode) {
+                case VIEW_MODES.WORKSHOP:
+                    DOM.workshopCharts.style.display = 'grid';
+                    currentViewMode = VIEW_MODES.WORKSHOP;
+                    loadWorkshopData();
+                    break;
+                    
+                case VIEW_MODES.COMPARISON:
+                    DOM.comparisonCharts.style.display = 'grid';
+                    currentViewMode = VIEW_MODES.COMPARISON;
+                    loadComparisonData();
+                    break;
+                    
+                case VIEW_MODES.MACHINE:
+                    DOM.individualCharts.style.display = 'grid';
+                    currentViewMode = VIEW_MODES.MACHINE;
+                    const machineId = DOM.machineFilter.value;
+                    if (machineId && machineId !== 'all') {
+                        loadMachineData(machineId);
+                    }
+                    break;
+            }
+            
+            // Обновляем выбранное значение в фильтре
+            DOM.viewModeFilter.value = mode;
         }
 
         /**
-         * Переключает режим просмотра на отдельный станок
+         * Загружает данные для сравнения цехов
          */
-        function showMachineView() {
-            console.log('Переключение в режим просмотра станка');
-            currentViewMode = 'individual';
-            DOM.workshopCharts.style.display = 'none';
-            DOM.individualCharts.style.display = 'grid';
+        async function loadComparisonData() {
+            try {
+                showLoadingIndicator('Загрузка данных для сравнения цехов...');
+                
+                const startDate = DOM.startDate.value;
+                const endDate = DOM.endDate.value;
+                
+                if (!startDate || !endDate) {
+                    showNotification('Пожалуйста, выберите начальную и конечную дату', 'error');
+                    return;
+                }
+
+                // Загружаем данные для сравнения цехов
+                const response = await fetch(
+                    `${API_BASE_URL}/api/workshops/comparison?startDate=${startDate}&endDate=${endDate}`
+                );
+                const data = await handleApiResponse(response);
+                
+                // Обновляем графики сравнения
+                updateComparisonCharts(data.data);
+                
+                showNotification('Данные для сравнения цехов успешно загружены', 'success');
+                
+            } catch (error) {
+                console.error('Ошибка загрузки данных для сравнения цехов:', error);
+                showNotification(`Ошибка загрузки данных для сравнения: ${error.message}`, 'error');
+                
+                // Показываем нулевые данные при ошибке
+                updateComparisonCharts({
+                    statusComparison: {
+                        workshop1: { working: 0, stopped: 0, shutdown: 0 },
+                        workshop2: { working: 0, stopped: 0, shutdown: 0 }
+                    },
+                    partsComparison: {
+                        workshop1: { labels: [], datasets: [{ data: [] }], total: 0 },
+                        workshop2: { labels: [], datasets: [{ data: [] }], total: 0 }
+                    }
+                });
+            } finally {
+                hideLoadingIndicator();
+            }
+        }
+
+        /**
+         * Обновляет графики сравнения цехов
+         */
+        function updateComparisonCharts(comparisonData) {
+            console.log('Обновление графиков сравнения:', comparisonData);
             
-            const machineId = DOM.machineFilter.value;
-            if (machineId && machineId !== 'all') {
-                loadMachineData(machineId);
+            const periodText = formatPeriod(DOM.startDate.value, DOM.endDate.value);
+            
+            // 1. График сравнения времени работы
+            const workshop1Status = comparisonData.statusComparison.workshop1;
+            const workshop2Status = comparisonData.statusComparison.workshop2;
+            
+            comparisonChart.data.datasets[0].data = [
+                workshop1Status.working || 0,
+                workshop2Status.working || 0
+            ];
+            comparisonChart.data.datasets[1].data = [
+                workshop1Status.stopped || 0,
+                workshop2Status.stopped || 0
+            ];
+            comparisonChart.data.datasets[2].data = [
+                workshop1Status.shutdown || 0,
+                workshop2Status.shutdown || 0
+            ];
+            
+            document.getElementById('comparisonChartTitle').textContent = 
+                `Сравнение цехов по времени работы (${periodText})`;
+            
+            // 2. График сравнения деталей
+            const workshop1Parts = comparisonData.partsComparison.workshop1;
+            const workshop2Parts = comparisonData.partsComparison.workshop2;
+            
+            // Используем общие метки (берем из первого цеха)
+            comparisonPartsChart.data.labels = workshop1Parts.labels;
+            
+            // Данные для цеха 1
+            comparisonPartsChart.data.datasets[0].data = workshop1Parts.datasets[0].data;
+            
+            // Данные для цеха 2
+            comparisonPartsChart.data.datasets[1].data = workshop2Parts.datasets[0].data;
+            
+            document.getElementById('comparisonPartsTitle').textContent = 
+                `Сравнение по количеству деталей (${periodText})`;
+            
+            // Обновляем графики
+            try {
+                comparisonChart.update();
+                comparisonPartsChart.update();
+                console.log('Графики сравнения успешно обновлены');
+            } catch (e) {
+                console.error('Ошибка обновления графиков сравнения:', e);
             }
         }
 
@@ -1068,17 +1181,17 @@
                 }
             });
 
-            // 3. Горизонтальная столбчатая диаграмма (сравнение цехов)
-            const horizontalBarCtx = document.getElementById('horizontalBarChart').getContext('2d');
-            horizontalBarChart = new Chart(horizontalBarCtx, {
+            // 3. График сравнения времени работы цехов
+            const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+            comparisonChart = new Chart(comparisonCtx, {
                 type: 'bar',
                 data: {
                     labels: ['Цех 1', 'Цех 2'],
                     datasets: [
                         {
-                            label: STATUS_LABELS[STATUS.SHUTDOWN],
+                            label: STATUS_LABELS[STATUS.WORKING],
                             data: [0, 0],
-                            backgroundColor: STATUS_COLORS[STATUS.SHUTDOWN],
+                            backgroundColor: STATUS_COLORS[STATUS.WORKING],
                             borderColor: '#fff',
                             borderWidth: 1
                         },
@@ -1090,16 +1203,15 @@
                             borderWidth: 1
                         },
                         {
-                            label: STATUS_LABELS[STATUS.WORKING],
+                            label: STATUS_LABELS[STATUS.SHUTDOWN],
                             data: [0, 0],
-                            backgroundColor: STATUS_COLORS[STATUS.WORKING],
+                            backgroundColor: STATUS_COLORS[STATUS.SHUTDOWN],
                             borderColor: '#fff',
                             borderWidth: 1
                         }
                     ]
                 },
                 options: {
-                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
@@ -1114,7 +1226,7 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return `${context.dataset.label}: ${context.parsed.x} ч`;
+                                    return `${context.dataset.label}: ${context.parsed.y} ч`;
                                 }
                             }
                         }
@@ -1124,17 +1236,82 @@
                             stacked: true,
                             title: {
                                 display: true,
-                                text: 'Время (часы)'
+                                text: 'Цеха'
                             }
                         },
                         y: {
-                            stacked: true
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Время (часы)'
+                            }
                         }
                     }
                 }
             });
 
-            // 4. График состояния отдельного станка
+            // 4. График сравнения деталей по цехам
+            const comparisonPartsCtx = document.getElementById('comparisonPartsChart').getContext('2d');
+            comparisonPartsChart = new Chart(comparisonPartsCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Цех 1',
+                            data: [],
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                            borderRadius: 3
+                        },
+                        {
+                            label: 'Цех 2',
+                            data: [],
+                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
+                            borderRadius: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Количество деталей'
+                            },
+                            ticks: {
+                                precision: 0
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Даты'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y} деталей`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 5. График состояния отдельного станка
             const machineStatusCtx = document.getElementById('machineStatusChart').getContext('2d');
             machineStatusChart = new Chart(machineStatusCtx, {
                 type: 'pie',
@@ -1179,7 +1356,7 @@
                 }
             });
 
-            // 5. График деталей для отдельного станка
+            // 6. График деталей для отдельного станка
             const machinePartsCtx = document.getElementById('machinePartsChart').getContext('2d');
             machinePartsChart = new Chart(machinePartsCtx, {
                 type: 'bar',
@@ -1278,7 +1455,7 @@
                 console.log('Изменен фильтр цеха:', this.value);
                 updateMachineFilter();
                 
-                if (currentViewMode === 'workshop') {
+                if (currentViewMode === VIEW_MODES.WORKSHOP) {
                     loadWorkshopData();
                 }
             });
@@ -1287,22 +1464,34 @@
                 console.log('Изменен фильтр станка:', this.value);
                 
                 if (this.value === 'all') {
-                    showWorkshopView();
+                    switchViewMode(VIEW_MODES.WORKSHOP);
                 } else {
-                    showMachineView();
+                    switchViewMode(VIEW_MODES.MACHINE);
                 }
+            });
+            
+            // НОВЫЙ ОБРАБОТЧИК для фильтра режима просмотра
+            DOM.viewModeFilter.addEventListener('change', function() {
+                console.log('Изменен режим просмотра:', this.value);
+                switchViewMode(this.value);
             });
             
             DOM.applyFilters.addEventListener('click', function() {
                 console.log('Применение фильтров');
                 
-                if (currentViewMode === 'workshop') {
-                    loadWorkshopData();
-                } else {
-                    const machineId = DOM.machineFilter.value;
-                    if (machineId && machineId !== 'all') {
-                        loadMachineData(machineId);
-                    }
+                switch (currentViewMode) {
+                    case VIEW_MODES.WORKSHOP:
+                        loadWorkshopData();
+                        break;
+                    case VIEW_MODES.COMPARISON:
+                        loadComparisonData();
+                        break;
+                    case VIEW_MODES.MACHINE:
+                        const machineId = DOM.machineFilter.value;
+                        if (machineId && machineId !== 'all') {
+                            loadMachineData(machineId);
+                        }
+                        break;
                 }
             });
             
