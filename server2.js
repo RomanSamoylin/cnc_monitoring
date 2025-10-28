@@ -98,34 +98,33 @@ function isValidDate(dateString) {
 }
 
 /**
- * Определяет статус станка на основе данных (УПРОЩЕННАЯ ВЕРСИЯ ДЛЯ ТЕСТА)
+ * Определяет статус станка на основе данных (ИСПРАВЛЕННАЯ ВЕРСИЯ)
  */
 function determineMachineStatus(statusData) {
-    console.log('🔧 ОТЛАДКА determineMachineStatus:', {
-        SystemState: statusData.SystemState,
-        MUSP: statusData.MUSP,
-        CONP: statusData.CONP,
-        COMU: statusData.COMU
-    });
+    // Приоритет MUSP - если MUSP=1, станок выключен
+    if (statusData.MUSP === 1) {
+        return STATUS.SHUTDOWN;
+    }
     
-    // ВРЕМЕННАЯ ПРОСТАЯ ЛОГИКА ДЛЯ ТЕСТИРОВАНИЯ
-    // Если SystemState = 2 или 4, считаем что работает
-    if (statusData.SystemState === 2 || statusData.SystemState === 4) {
-        console.log('🔧 СТАТУС: РАБОТАЕТ (SystemState =', statusData.SystemState, ')');
+    // Если нет данных о SystemState
+    if (statusData.SystemState === undefined || statusData.SystemState === null) {
+        return STATUS.SHUTDOWN;
+    }
+    
+    const systemState = parseInt(statusData.SystemState);
+    
+    // Определение статуса на основе SystemState
+    if (systemState === 0) {
+        return STATUS.SHUTDOWN;
+    } else if (systemState === 1 || systemState === 3) {
+        return STATUS.STOPPED;
+    } else if (systemState === 2 || systemState === 4) {
+        // Упрощенная проверка - если SystemState = 2 или 4, считаем что работает
+        // Можно добавить дополнительные проверки CONP/COMU при необходимости
         return STATUS.WORKING;
     }
-    
-    // Если SystemState = 1 или 3, считаем что остановлен
-    if (statusData.SystemState === 1 || statusData.SystemState === 3) {
-        console.log('🔧 СТАТУС: ОСТАНОВЛЕН (SystemState =', statusData.SystemState, ')');
-        return STATUS.STOPPED;
-    }
-    
-    // Если SystemState = 0 или нет данных, считаем что выключен
-    console.log('🔧 СТАТУС: ВЫКЛЮЧЕН (SystemState =', statusData.SystemState, ')');
     return STATUS.SHUTDOWN;
 }
-
 /**
  * Получает список всех станков с обработкой ошибок
  */
