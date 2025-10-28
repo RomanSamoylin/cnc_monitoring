@@ -1033,9 +1033,9 @@
             
             // 1. График состояния станка
             machineStatusChart.data.datasets[0].data = [
-                statusData.shutdown || 0,
+                statusData.working || 0,
                 statusData.stopped || 0,
-                statusData.working || 0
+                statusData.shutdown || 0
             ];
             
             document.getElementById('machineStatusTitle').textContent = 
@@ -1320,9 +1320,9 @@
                     datasets: [{
                         data: [0, 0, 0],
                         backgroundColor: [
-                            STATUS_COLORS[STATUS.SHUTDOWN],
+                            STATUS_COLORS[STATUS.WORKING],
                             STATUS_COLORS[STATUS.STOPPED],
-                            STATUS_COLORS[STATUS.WORKING]
+                            STATUS_COLORS[STATUS.SHUTDOWN]
                         ],
                         borderColor: '#fff',
                         borderWidth: 1,
@@ -1421,86 +1421,176 @@
             }, 120000); // 2 минуты
         }
 
+/**
+ * Инициализирует страницу
+ */
+async function initPage() {
+    console.log('Инициализация страницы графиков...');
+    
+    // Устанавливаем сегодняшнюю дату по умолчанию
+    const today = new Date();
+    DOM.startDate.valueAsDate = today;
+    DOM.endDate.valueAsDate = today;
+    
+    // Инициализируем графики
+    initCharts();
+    
+    // Загружаем распределение станков
+    try {
+        await loadWorkshopDistribution();
+        console.log('✅ Распределение загружено, запуск обновления данных...');
+        
+        // После загрузки распределения загружаем список станков
+        loadMachineList();
+        startDistributionRefresh();
+        
+    } catch (error) {
+        console.error('❌ Ошибка загрузки распределения:', error);
+        // Все равно продолжаем загрузку станков
+        loadMachineList();
+    }
+    
+    // Устанавливаем обработчики событий
+    DOM.workshopFilter.addEventListener('change', function() {
+        console.log('Изменен фильтр цеха:', this.value);
+        updateMachineFilter();
+        
+        if (currentViewMode === VIEW_MODES.WORKSHOP) {
+            loadWorkshopData();
+        }
+    });
+    
+    DOM.machineFilter.addEventListener('change', function() {
+        console.log('Изменен фильтр станка:', this.value);
+        
+        if (this.value === 'all') {
+            switchViewMode(VIEW_MODES.WORKSHOP);
+        } else {
+            switchViewMode(VIEW_MODES.MACHINE);
+        }
+    });
+    
+    // НОВЫЙ ОБРАБОТЧИК для фильтра режима просмотра
+    DOM.viewModeFilter.addEventListener('change', function() {
+        console.log('Изменен режим просмотра:', this.value);
+        switchViewMode(this.value);
+    });
+    
+    DOM.applyFilters.addEventListener('click', function() {
+        console.log('Применение фильтров');
+        
+        switch (currentViewMode) {
+            case VIEW_MODES.WORKSHOP:
+                loadWorkshopData();
+                break;
+            case VIEW_MODES.COMPARISON:
+                loadComparisonData();
+                break;
+            case VIEW_MODES.MACHINE:
+                const machineId = DOM.machineFilter.value;
+                if (machineId && machineId !== 'all') {
+                    loadMachineData(machineId);
+                }
+                break;
+        }
+    });
+    
+    // Устанавливаем период по умолчанию
+    setPeriod('day');
+    
+    // ТЕСТОВАЯ ПРОВЕРКА - принудительно загружаем данные для станка 2 через 3 секунды
+    setTimeout(() => {
+        console.log('🔧 ТЕСТОВАЯ ПРОВЕРКА: Принудительная загрузка данных для станка 2');
+        DOM.machineFilter.value = '2';
+        switchViewMode(VIEW_MODES.MACHINE);
+    }, 3000);
+    
+    console.log('Страница графиков инициализирована');
+}
+
         /**
-         * Инициализирует страницу
-         */
-        async function initPage() {
-            console.log('Инициализация страницы графиков...');
-            
-            // Устанавливаем сегодняшнюю дату по умолчанию
-            const today = new Date();
-            DOM.startDate.valueAsDate = today;
-            DOM.endDate.valueAsDate = today;
-            
-            // Инициализируем графики
-            initCharts();
-            
-            // Загружаем распределение станков
+ * Детальная отладка данных станка
+ */
+async function debugMachineData(machineId, startDate, endDate) {
+    try {
+        console.log('🔍 ДЕТАЛЬНАЯ ОТЛАДКА ДАННЫХ СТАНКА:', machineId);
+        
+        // Проверяем разные эндпоинты
+        const endpoints = [
+            `/api/machines/${machineId}/history/summary?startDate=${startDate}&endDate=${endDate}`,
+            `/api/workshops/hourly?date=${startDate}&workshop=all`,
+            `/api/machines/${machineId}/hourly?date=${startDate}`
+        ];
+        
+        for (const endpoint of endpoints) {
             try {
-                await loadWorkshopDistribution();
-                console.log('✅ Распределение загружено, запуск обновления данных...');
-                
-                // После загрузки распределения загружаем список станков
-                loadMachineList();
-                startDistributionRefresh();
-                
+                const response = await fetch(`${API_BASE_URL}${endpoint}`);
+                const data = await response.json();
+                console.log(`📡 ${endpoint}:`, data);
             } catch (error) {
-                console.error('❌ Ошибка загрузки распределения:', error);
-                // Все равно продолжаем загрузку станков
-                loadMachineList();
+                console.error(`❌ Ошибка ${endpoint}:`, error);
             }
-            
-            // Устанавливаем обработчики событий
-            DOM.workshopFilter.addEventListener('change', function() {
-                console.log('Изменен фильтр цеха:', this.value);
-                updateMachineFilter();
-                
-                if (currentViewMode === VIEW_MODES.WORKSHOP) {
-                    loadWorkshopData();
-                }
-            });
-            
-            DOM.machineFilter.addEventListener('change', function() {
-                console.log('Изменен фильтр станка:', this.value);
-                
-                if (this.value === 'all') {
-                    switchViewMode(VIEW_MODES.WORKSHOP);
-                } else {
-                    switchViewMode(VIEW_MODES.MACHINE);
-                }
-            });
-            
-            // НОВЫЙ ОБРАБОТЧИК для фильтра режима просмотра
-            DOM.viewModeFilter.addEventListener('change', function() {
-                console.log('Изменен режим просмотра:', this.value);
-                switchViewMode(this.value);
-            });
-            
-            DOM.applyFilters.addEventListener('click', function() {
-                console.log('Применение фильтров');
-                
-                switch (currentViewMode) {
-                    case VIEW_MODES.WORKSHOP:
-                        loadWorkshopData();
-                        break;
-                    case VIEW_MODES.COMPARISON:
-                        loadComparisonData();
-                        break;
-                    case VIEW_MODES.MACHINE:
-                        const machineId = DOM.machineFilter.value;
-                        if (machineId && machineId !== 'all') {
-                            loadMachineData(machineId);
-                        }
-                        break;
-                }
-            });
-            
-            // Устанавливаем период по умолчанию
-            setPeriod('day');
-            
-            console.log('Страница графиков инициализирована');
+        }
+        
+    } catch (error) {
+        console.error('Ошибка детальной отладки:', error);
+    }
+}
+     /**
+ * Загружает данные для отдельного станка
+ */
+async function loadMachineData(machineId) {
+    try {
+        showLoadingIndicator(`Загрузка данных для станка ${machineId}...`);
+        
+        const startDate = DOM.startDate.value;
+        const endDate = DOM.endDate.value;
+        
+        if (!startDate || !endDate) {
+            showNotification('Пожалуйста, выберите начальную и конечную дату', 'error');
+            return;
         }
 
+        // ДЕТАЛЬНАЯ ОТЛАДКА
+        await debugMachineData(machineId, startDate, endDate);
+
+        // Загружаем данные о состоянии станка
+        const statusResponse = await fetch(
+            `${API_BASE_URL}/api/machines/${machineId}/history/summary?startDate=${startDate}&endDate=${endDate}`
+        );
+        const statusData = await handleApiResponse(statusResponse);
+        
+        // ОТЛАДОЧНЫЙ ВЫВОД - посмотрим какие данные приходят
+        console.log('📊 ДАННЫЕ СТАТУСА СТАНКА:', {
+            machineId,
+            statusData: statusData.data,
+            working: statusData.data.working,
+            stopped: statusData.data.stopped,
+            shutdown: statusData.data.shutdown,
+            total: statusData.data.working + statusData.data.stopped + statusData.data.shutdown
+        });
+        
+        // Загружаем данные о деталях для станка
+        const partsResponse = await fetch(
+            `${API_BASE_URL}/api/machines/${machineId}/parts-daily?startDate=${startDate}&endDate=${endDate}`
+        );
+        const partsData = await handleApiResponse(partsResponse);
+        
+        // Обновляем графики
+        updateMachineCharts(machineId, statusData.data, partsData.data, partsData.total);
+        
+        showNotification(`Данные для станка ${machineId} успешно загружены`, 'success');
+        
+    } catch (error) {
+        console.error(`Ошибка загрузки данных для станка ${machineId}:`, error);
+        showNotification(`Ошибка загрузки данных для станка: ${error.message}`, 'error');
+        
+        // Показываем нулевые данные при ошибке
+        updateMachineCharts(machineId, {working: 0, stopped: 0, shutdown: 0}, null, 0);
+    } finally {
+        hideLoadingIndicator();
+    }
+}
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', initPage);
     </script>
